@@ -1046,23 +1046,26 @@ button { cursor: pointer; border: none; background: none; }
   .page, .item-card { animation: none !important; }
   .nav-add { animation: none !important; }
 
-  /* 底部导航：完全固定贴底、不透明、下移贴近屏幕底边 */
+  /* 底部导航：用 fixed 固定在真实视口底部，兼容安卓/苹果各种浏览器 */
   .bottom-nav {
-    position: absolute !important;
+    position: fixed !important;
     left: 0; right: 0; bottom: 0;
-    height: calc(66px + env(safe-area-inset-bottom, 0px));
+    height: calc(64px + env(safe-area-inset-bottom, 0px));
     padding: 0 6px env(safe-area-inset-bottom, 0px);
     background: var(--paper) !important;
     border-top: 1px solid var(--line);
     align-items: center;
   }
+  .page { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important; }
   /* + 按钮收回导航栏内，不再凸出方框 */
   .nav-add {
-    width: 42px; height: 42px;
+    width: 44px; height: 44px;
     margin: 0 auto;
     border-radius: 13px;
     box-shadow: 0 6px 14px rgba(127,160,141,.3);
+    display: flex !important; align-items: center !important; justify-content: center !important;
   }
+  .nav-add svg { display: block; width: 24px; height: 24px; margin: 0; }
   .home-indicator, .status-bar, .device-notch { display: none !important; }
 
   /* 登录表单：小眼睛 */
@@ -1086,3 +1089,98 @@ button { cursor: pointer; border: none; background: none; }
   display: grid; place-items: center; color: var(--muted);
 }
 .pwd-eye svg { width: 18px; height: 18px; }
+
+/* 首页添加物品文字按钮 */
+.hero-add {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 16px; padding: 9px 16px; border-radius: 13px;
+  background: linear-gradient(145deg, #9db9a7, #7fa08d); color: #fff;
+  font-size: 13px; font-weight: 700; box-shadow: 0 8px 18px rgba(127,160,141,.3);
+  position: relative; z-index: 1;
+}
+.hero-add svg { width: 16px; height: 16px; }
+.hero-add:active { transform: scale(.96); }
+
+/* 群聊类型选择 */
+.group-type-row { display: flex; flex-wrap: wrap; gap: 7px; margin: 4px 0 14px; }
+
+/* 拍照预览点击提示 */
+.photo-preview small { display: block; font-size: 10px; margin-top: 3px; }
+button.photo-preview { border: 0; cursor: pointer; }
+
+/* 相机界面：深色顶栏 + 白色横条去除 + 按钮可点 */
+.camera-mask { background: #2f3a34 !important; }
+.cam-head {
+  background: #2f3a34 !important; color: #fff !important; border: none !important;
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  min-height: calc(56px + env(safe-area-inset-top, 0px));
+  height: auto !important;
+}
+.cam-back {
+  background: rgba(255,255,255,.15) !important; color: #fff !important;
+  width: 36px; height: 36px; z-index: 2; flex: none;
+}
+.cam-cancel { color: #e8f0ea; font-size: 13px; font-weight: 600; flex: none; padding: 8px 4px; }
+.camera-controls {
+  padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  min-height: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+.cam-side { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 60px; z-index: 2; }
+.cam-side svg { width: 20px; height: 20px; }
+.cam-side span { font-size: 11px; }
+.capture-btn { z-index: 2; }
+
+/* 必填说明 */
+.required-hint { font-size: 11px; color: var(--ink-soft); margin: -6px 0 14px; }
+.required-hint b { color: #c98d86; font-size: 13px; }
+
+/* 自定义分类输入 */
+.custom-cat-wrap { margin-top: 8px; }
+.custom-cat-wrap input {
+  width: 100%; border: 1px solid var(--line); background: #fbf9f5;
+  border-radius: 12px; padding: 10px 12px; outline: none; font-size: 13px;
+}
+.custom-cat-wrap input:focus { background: #fff; border-color: var(--sage); box-shadow: 0 0 0 4px var(--sage-mist); }
+
+/* 搜索结果提示 */
+.search-result-notice {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; color: var(--sage-deep); font-weight: 600;
+  background: var(--sage-mist); border-radius: 10px;
+  padding: 8px 11px; margin-bottom: 12px;
+}
+.search-result-notice svg { width: 14px; height: 14px; flex: none; }
+.search-result-notice b { color: var(--sage-deep); font-size: 13px; }
+
+/* 位置详情页 */
+.location-page .section-head span { font-weight: 600; }
+.location-hero {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(145deg, var(--sage-mist), var(--butter-mist));
+  border-radius: 20px; padding: 18px; margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.location-hero-ico {
+  width: 54px; height: 54px; border-radius: 17px; flex: none;
+  background: var(--paper); color: var(--sage-deep); display: grid; place-items: center;
+}
+.location-hero-ico svg { width: 28px; height: 28px; }
+.location-hero h1 { font-size: 19px; margin: 0 0 4px; }
+.location-hero p { margin: 0; font-size: 11px; color: var(--ink-soft); }
+.location-actions { margin-bottom: 14px; }
+.location-actions .btn { width: 100%; }
+
+/* 版本号与更新历史 */
+.version-badge {
+  font-size: 10px; font-weight: 700; color: var(--sage-deep);
+  background: var(--sage-mist); padding: 3px 8px; border-radius: 8px; flex: none;
+}
+.version-item { border-bottom: 1px dashed var(--line); padding: 10px 2px 16px; }
+.version-item:last-of-type { border-bottom: 0; }
+.version-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.version-num { font-size: 15px; font-weight: 800; color: var(--sage-deep); }
+.version-latest { font-size: 10px; font-weight: 700; color: #fff; background: var(--sage); padding: 2px 8px; border-radius: 8px; }
+.version-date { font-size: 10px; color: var(--muted); margin-left: auto; }
+.version-item h4 { font-size: 13px; margin: 8px 0 6px; }
+.version-item ul { margin: 0; padding-left: 18px; }
+.version-item li { font-size: 11px; color: var(--ink-soft); line-height: 1.8; }

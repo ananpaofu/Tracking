@@ -2,6 +2,25 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
+  const APP_VERSION = '1.02';
+  const CHANGELOG = [
+    { version: '1.02', date: '2026-11-19', title: '搜索与地图体验优化', items: [
+      '修复搜索时"已收纳物品"数量变成 0 的问题，统计数字始终显示真实总数',
+      '搜索时显示"找到 N 件物品"提示，并自动定位到下方的物品记录',
+      '点击收纳地图格子改为打开独立页面，专门展示该位置收纳的具体物品',
+      '可在位置详情页直接添加物品到该位置',
+      '修复底部导航栏位置，固定在屏幕最底部，兼容安卓与苹果手机'
+    ] },
+    { version: '1.01', date: '2026-11-19', title: '首个正式版本', items: [
+      '新手教程与首页物品展示优化，圆圈数字居中放大',
+      'AI 拍照识物、存放位置联动收纳地图、自定义位置自动同步',
+      '搜索历史、字母 A-Z 排序、统计项可点开查看',
+      '设备联动重构：蓝牙搜索连接、联动物品折叠',
+      '微信风格设置页：头像昵称、字号粗细、主题色',
+      '好友与群聊：编号 ID 加好友、表情表情包、聊天背景',
+      '组建群聊、拍照界面优化、版本号与更新历史'
+    ] }
+  ];
 
   const CATEGORIES = [
     { key: 'food', label: '食品', color: '#d8a99b' },
@@ -243,7 +262,7 @@
     communityTab: 'feed', chatId: null, backTo: 'home',
     itemsOpen: true, hubSearch: '', sortBy: 'expiry', letter: '',
     mapExpanded: false, devicesOpen: false, searchExpanded: false,
-    settingsPage: '', stickerPanel: '', guideStep: 0
+    settingsPage: '', stickerPanel: '', guideStep: 0, locationKey: ''
   };
   let lastView = null;
   let activeStream = null;
@@ -254,7 +273,7 @@
       posts: DEMO_POSTS.slice(),
       messages: { c1: (DEMO_MESSAGES.c1 || []).slice(), c2: (DEMO_MESSAGES.c2 || []).slice(), c3: (DEMO_MESSAGES.c3 || []).slice() },
       devices: [], spaceKeys: DEFAULT_SPACE_KEYS.slice(), locationEnabled: true,
-      bluetoothOn: false, stickers: [], chatBgs: {},
+      bluetoothOn: false, stickers: [], chatBgs: {}, customCategories: [],
       settings: { fontScale: 1, fontWeight: 400, theme: 'sage', notify: true, sound: true, secure: true }
     };
   }
@@ -284,6 +303,7 @@
       if (typeof db.locationEnabled !== 'boolean') db.locationEnabled = true;
       if (typeof db.bluetoothOn !== 'boolean') db.bluetoothOn = false;
       if (!Array.isArray(db.stickers)) db.stickers = [];
+      if (!Array.isArray(db.customCategories)) db.customCategories = [];
       if (!db.chatBgs || typeof db.chatBgs !== 'object') db.chatBgs = {};
       if (!db.settings || typeof db.settings !== 'object') db.settings = {};
       const s = db.settings;
@@ -392,8 +412,33 @@
     return { key: 'fresh', label: '还剩 ' + d + ' 天', days: d };
   }
 
+  function allCategories() {
+    return CATEGORIES.concat(db.customCategories || []);
+  }
+
+  function isCustomCategory(key) {
+    return typeof key === 'string' && key.indexOf('custom_') === 0;
+  }
+
+  function customCategoryLabel(key) {
+    if (!isCustomCategory(key)) return '';
+    const found = (db.customCategories || []).find(function (c) { return c.key === key; });
+    return found ? found.label : key.slice(7);
+  }
+
+  function ensureCustomCategory(label) {
+    const text = String(label || '').trim();
+    if (!text) return 'other';
+    const existing = (db.customCategories || []).find(function (c) { return c.label === text; });
+    if (existing) return existing.key;
+    if (!Array.isArray(db.customCategories)) db.customCategories = [];
+    const key = 'custom_' + uid();
+    db.customCategories.push({ key: key, label: text, color: '#b39ac4' });
+    return key;
+  }
+
   function catOf(key) {
-    return CATEGORIES.find(function (c) { return c.key === key; }) || CATEGORIES[CATEGORIES.length - 1];
+    return allCategories().find(function (c) { return c.key === key; }) || CATEGORIES[CATEGORIES.length - 1];
   }
 
   function toast(message, type) {
@@ -669,6 +714,7 @@
     if (state.view === 'guide') return guideHTML();
     if (state.view === 'community') return communityHTML();
     if (state.view === 'chat') return chatHTML();
+    if (state.view === 'location') return locationHTML();
     if (state.view === 'hub') return hubHTML();
     if (state.view === 'device') return deviceHTML();
     if (state.view === 'profile') return profileHTML();
@@ -830,18 +876,17 @@
             '<div class="hero-name">' + escapeHTML(name) + '</div></div>' +
             '<div class="hero-avatar">' + escapeHTML(name.charAt(0).toUpperCase()) + '</div></div>' +
           '<div class="hero-stats">' +
-            '<button class="hstat" data-action="show-all-items"><div class="hstat-num" data-count="' + items.length + '">0</div><div class="hstat-label">已收纳物品 ›</div></button>' +
-            '<button class="hstat alert" data-action="show-alerts"><div class="hstat-num" data-count="' + attentionItems().length + '">0</div><div class="hstat-label">需要关注 ›</div></button>' +
-            '<button class="hstat" data-action="show-categories"><div class="hstat-num" data-count="' + cats + '">0</div><div class="hstat-label">物品分类 ›</div></button>' +
+            '<button class="hstat" data-action="show-all-items"><div class="hstat-num" data-count="' + items.length + '">' + items.length + '</div><div class="hstat-label">已收纳物品 ›</div></button>' +
+            '<button class="hstat alert" data-action="show-alerts"><div class="hstat-num" data-count="' + attentionItems().length + '">' + attentionItems().length + '</div><div class="hstat-label">需要关注 ›</div></button>' +
+            '<button class="hstat" data-action="show-categories"><div class="hstat-num" data-count="' + cats + '">' + cats + '</div><div class="hstat-label">物品分类 ›</div></button>' +
           '</div>' +
+          '<button class="hero-add" data-action="add-item">' + ICON.plus + ' 添加物品</button>' +
         '</div>' +
         '<div class="search-feature">' +
           '<div class="sf-title">' + ICON.search + '<span>搜索我的物品</span></div>' +
           '<div class="search-bar home-search">' +
             '<input id="search-input" placeholder="名称 / 位置 / 备注 / 分类" value="' + escapeHTML(state.search) + '">' +
-            (state.search
-              ? '<button class="search-cancel" data-action="cancel-search">取消</button>'
-              : '<button class="search-find" data-action="show-hub" title="功能中心">' + ICON.grid + '</button>') +
+            (state.search ? '<button class="search-cancel" data-action="cancel-search">取消</button>' : '') +
           '</div>' +
           (hist.length ? '<div class="search-history">' +
             '<div class="sh-row">' + histShown.map(function (h) {
@@ -867,12 +912,48 @@
                 sortBtn('expiry', '到期优先') + sortBtn('alpha', 'A-Z 字母') + sortBtn('newest', '最近收纳') +
               '</div>' +
               alphabetBar() +
+              searchResultNoticeHTML() +
               '<div id="list-area">' + listHTML() + '</div>' +
             '</div>' : '') +
         '</div>' +
         spaceCellsHTML() +
         achievementHTML() +
       '</div>';
+  }
+
+  function locationHTML() {
+    const key = state.locationKey || '';
+    const s = SPACES.find(function (x) { return x.key === key; }) || { key: key, label: key, icon: 'box' };
+    const list = getUserItems().filter(function (i) {
+      return String(i.location || '').indexOf(key) !== -1;
+    });
+    const sorted = sortedItems(list);
+    return '<div class="page location-page">' +
+      '<div class="section-head" style="margin-top:12px">' +
+        '<button class="icon-btn" data-action="back" title="返回">' + ICON.back + '</button>' +
+        '<h2 style="flex:1;margin-left:8px">' + escapeHTML(s.label) + '</h2>' +
+        '<span>共 ' + list.length + ' 件</span></div>' +
+      '<div class="location-hero">' +
+        '<div class="location-hero-ico">' + (ICON[s.icon] || ICON.box) + '</div>' +
+        '<div><h1>' + escapeHTML(s.label) + '</h1>' +
+          '<p>这里收纳了 ' + list.length + ' 件物品，点卡片可展开详情</p></div></div>' +
+      '<div class="location-actions">' +
+        '<button class="btn soft" data-action="add-item-at-location" data-location="' + escapeHTML(key) + '">' + ICON.plus + ' 添加物品到这里</button>' +
+      '</div>' +
+      (sorted.length
+        ? '<div class="item-list">' + sorted.map(itemCard).join('') + '</div>'
+        : '<div class="empty"><div class="empty-orb">' + ICON[s.icon] + '</div>' +
+          '<h3>这里还没有物品</h3><p>点上方按钮添加第一件物品</p>' +
+          '<button class="btn soft" data-action="add-item-at-location" data-location="' + escapeHTML(key) + '">添加物品</button></div>') +
+      '</div>';
+  }
+
+  function searchResultNoticeHTML() {
+    const q = state.search.trim();
+    if (!q) return '';
+    const n = visibleItems().length;
+    return '<div class="search-result-notice" id="search-result-notice">' +
+      ICON.search + '<span>搜索「' + escapeHTML(q) + '」· 找到 <b>' + n + '</b> 件物品</span></div>';
   }
 
   function sortBtn(value, label) {
@@ -1302,15 +1383,55 @@
             '<span class="set-label"><b>' + escapeHTML(f.name) + '</b><small>ID ' + escapeHTML(f.friendId || '') + '</small></span>' +
             '<span class="set-arrow">›</span></button>';
         }).join('') : '<p class="sheet-tip">还没有好友，输入 ID 添加一位吧</p>') +
-        '<div class="set-group-title">我的群聊（' + groups.length + '）</div>' +
-        groups.map(function (g) {
+        '<div class="section-head" style="margin:14px 2px 6px"><div class="set-group-title" style="padding:0">我的群聊（' + groups.length + '）</div>' +
+          '<button class="text-btn" data-action="create-group">+ 创建群聊</button></div>' +
+        (groups.length ? groups.map(function (g) {
           return '<button class="set-row" data-action="open-chat" data-id="' + escapeHTML(g.id) + '">' +
             '<span class="chat-avatar blue">' + escapeHTML(g.avatar || '群') + '</span>' +
             '<span class="set-label"><b>' + escapeHTML(g.name) + '</b><small>' + escapeHTML(g.desc || '') + '</small></span>' +
             '<span class="set-arrow">›</span></button>';
-        }).join('') +
+        }).join('') : '<p class="sheet-tip">还没有群聊，点右上角创建</p>') +
         '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">关闭</button></div>' +
       '</div></div>';
+  }
+
+  function openCreateGroupSheet() {
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>创建群聊</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<div class="field"><label>群聊名称 *</label><input id="group-name" maxlength="20" placeholder="例如：毕业季收纳交流群"></div>' +
+        '<div class="field"><label>群简介</label><input id="group-desc" maxlength="40" placeholder="简单介绍一下这个群"></div>' +
+        '<p class="sheet-tip">可从「社区群 / 学校群 / 家庭群」等模板快速创建，创建后即可在消息聊天中进入发言。</p>' +
+        '<div class="group-type-row">' +
+          PRESET_GROUPS.map(function (g, i) {
+            return '<button class="chip ' + (i === 0 ? 'active' : '') + '" data-action="pick-group-type" data-index="' + i + '">' + escapeHTML(g.name) + '</button>';
+          }).join('') +
+        '</div>' +
+        '<div class="form-error" id="group-error"></div>' +
+        '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">取消</button>' +
+          '<button class="btn primary" data-action="save-group">创建群聊</button></div>' +
+      '</div></div>';
+    state.groupTypeIndex = 0;
+  }
+
+  function createGroup() {
+    const user = currentUser();
+    const name = $('#group-name') ? $('#group-name').value.trim() : '';
+    const desc = $('#group-desc') ? $('#group-desc').value.trim() : '';
+    const err = $('#group-error');
+    if (!name) { if (err) err.textContent = '请输入群聊名称'; return; }
+    if (!Array.isArray(user.groups)) user.groups = [];
+    const tpl = PRESET_GROUPS[state.groupTypeIndex || 0] || PRESET_GROUPS[0];
+    const group = { id: 'g_' + uid(), name: name, desc: desc || tpl.desc, avatar: name.charAt(0) || '群' };
+    user.groups.push(group);
+    db.messages[group.id] = [];
+    saveDB();
+    closeSheet();
+    toast('群聊已创建');
+    state.view = 'chat';
+    renderApp(true);
+    setTimeout(function () { openChat(group.id); }, 60);
   }
 
   function addFriend() {
@@ -1961,18 +2082,19 @@
 
   function openCamera(target) {
     $('#overlay-root').innerHTML =
-      '<div class="full-mask">' +
-        '<div class="full-head" style="background:#2f3a34;color:#fff;border:none">' +
-          '<button class="back" data-action="close-overlay" style="background:rgba(255,255,255,.12);color:#fff">' + ICON.back + '</button>' +
-          '<h2>拍照</h2><span></span></div>' +
+      '<div class="full-mask camera-mask">' +
+        '<div class="full-head cam-head">' +
+          '<button class="back cam-back" data-action="close-overlay" aria-label="返回">' + ICON.back + '</button>' +
+          '<h2>拍照识物</h2>' +
+          '<button class="cam-cancel" data-action="close-overlay">取消</button></div>' +
         '<div class="camera-stage">' +
           '<video id="cam-video" autoplay playsinline></video>' +
           '<div class="cam-placeholder" id="cam-placeholder">' + ICON.camera + '<p>相机启动中…</p></div>' +
         '</div>' +
         '<div class="camera-controls">' +
-          '<button data-action="pick-photo" data-target="' + target + '">相册</button>' +
-          '<button class="capture-btn" data-action="capture-photo" data-target="' + target + '"></button>' +
-          '<button data-action="close-overlay">取消</button>' +
+          '<button class="cam-side" data-action="pick-photo" data-target="' + target + '">' + ICON.grid + '<span>相册</span></button>' +
+          '<button class="capture-btn" data-action="capture-photo" data-target="' + target + '" aria-label="拍照"></button>' +
+          '<button class="cam-side" data-action="camera-ai" data-target="' + target + '">' + ICON.sparkle + '<span>AI 识别</span></button>' +
         '</div>' +
       '</div>';
 
@@ -1997,7 +2119,7 @@
 
   function capturePhoto(target) {
     const video = $('#cam-video');
-    if (!video || !video.videoWidth) { toast('相机尚未就绪，请稍候', 'warn'); return; }
+    if (!video || !video.videoWidth) { toast('相机尚未就绪，可用相册选择照片', 'warn'); return; }
     const canvas = document.createElement('canvas');
     const max = 640;
     let w = video.videoWidth, h = video.videoHeight;
@@ -2006,6 +2128,24 @@
     canvas.width = w; canvas.height = h;
     canvas.getContext('2d').drawImage(video, 0, 0, w, h);
     setPhoto(target, canvas.toDataURL('image/jpeg', 0.6));
+  }
+
+  function cameraAI(target) {
+    const video = $('#cam-video');
+    if (video && video.videoWidth) {
+      const canvas = document.createElement('canvas');
+      const max = 640;
+      let w = video.videoWidth, h = video.videoHeight;
+      const scale = Math.min(1, max / Math.max(w, h));
+      w = Math.round(w * scale); h = Math.round(h * scale);
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+      closeOverlay();
+      setPhoto(target, canvas.toDataURL('image/jpeg', 0.6));
+      toast('AI 正在识别照片…');
+    } else {
+      pickPhoto(target);
+    }
   }
 
   function pickPhoto(target) {
@@ -2038,21 +2178,22 @@
   function openItemSheet(itemId) {
     const item = itemId ? getUserItems().find(function (i) { return i.id === itemId; }) : null;
     const isEdit = !!item;
-    const data = item || { name: '', category: 'food', quantity: 1, location: '', storedAt: todayStr(), expiryDate: '', notes: '', photo: '' };
+    const data = item || { name: '', category: 'food', quantity: 1, location: state.locationPreFill || '', storedAt: todayStr(), expiryDate: '', notes: '', photo: '' };
+    state.locationPreFill = '';
 
     $('#sheet-root').innerHTML =
       '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
         '<div class="sheet-handle"></div>' +
         '<div class="sheet-head"><h2>' + (isEdit ? '编辑物品' : '添加物品') + '</h2>' +
           '<button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<p class="required-hint"><b>*</b> 为必填项，未标注的为选填项</p>' +
         '<form id="item-form">' +
           '<div class="photo-field">' +
-            '<div class="photo-preview" id="item-photo-preview">' + (data.photo ? '<img src="' + data.photo + '" alt="预览">' : ICON.camera) + '</div>' +
+            '<button type="button" class="photo-preview" id="item-photo-preview" data-action="take-photo" data-target="item" title="点击拍照">' +
+              (data.photo ? '<img src="' + data.photo + '" alt="预览">' : ICON.camera + '<small>点击拍照</small>') + '</button>' +
             '<div class="photo-btns">' +
-              '<button type="button" data-action="take-photo" data-target="item">拍照</button>' +
               '<button type="button" data-action="pick-photo" data-target="item">相册选择</button>' +
-              '<button type="button" data-action="clear-photo" data-target="item">移除</button>' +
-              '<button type="button" class="ai-btn" data-action="ai-recognize">' + ICON.sparkle + ' AI 识别</button>' +
+              (data.photo ? '<button type="button" data-action="clear-photo" data-target="item">移除</button>' : '') +
             '</div>' +
             '<input type="hidden" id="item-photo" value="' + (data.photo || '') + '">' +
             '<input type="hidden" id="item-photo-name" value="">' +
@@ -2061,13 +2202,17 @@
           '<div class="field"><label>物品名称 *</label><input id="f-name" data-item-id="' + (isEdit ? item.id : '') + '" maxlength="60" placeholder="例如：牛奶、文件夹" value="' + escapeHTML(data.name) + '"></div>' +
           '<div class="form-row">' +
             '<div class="field"><label>分类</label><select id="f-category">' +
-              CATEGORIES.map(function (c) {
+              allCategories().map(function (c) {
                 return '<option value="' + c.key + '" ' + (data.category === c.key ? 'selected' : '') + '>' + c.label + '</option>';
               }).join('') +
-            '</select></div>' +
+            '</select>' +
+              '<div class="custom-cat-wrap" id="custom-cat-wrap" style="display:' + ((data.category === 'other' || isCustomCategory(data.category)) ? 'block' : 'none') + '">' +
+                '<input id="f-category-custom" maxlength="12" placeholder="输入自定义分类名" value="' + escapeHTML(customCategoryLabel(data.category)) + '">' +
+              '</div>' +
+            '</div>' +
             '<div class="field"><label>数量</label><input id="f-quantity" type="number" min="1" step="1" value="' + escapeHTML(data.quantity || 1) + '"></div>' +
           '</div>' +
-          '<div class="field"><label>存放位置 · 选择或自定义</label>' +
+          '<div class="field"><label>存放位置 · 选择或自定义（选填）</label>' +
             '<input id="f-location" maxlength="80" placeholder="例如：冰箱第二层（自定义会自动加入地图）" value="' + escapeHTML(data.location) + '">' +
             '<div class="hint">选择下方位置，或直接输入自定义位置</div>' +
             '<div class="loc-chips" id="loc-chips">' + locationChipsHTML(data.location) + '</div>' +
@@ -2173,10 +2318,33 @@
           settingRow('book', '使用指南', '操作步骤与颜色说明', 'open-guide') +
         '</div>' +
 
+        '<button class="set-row" data-action="show-changelog" style="width:100%;background:var(--paper);border-radius:14px;margin-bottom:14px">' +
+          '<span class="set-ico">' + ICON.book + '</span>' +
+          '<span class="set-label"><b>版本与更新</b><small>查看历史更新内容</small></span>' +
+          '<span class="version-badge">v' + APP_VERSION + '</span><span class="set-arrow">›</span></button>' +
         '<div class="info-card" style="text-align:center;color:var(--ink-soft);font-size:12px">' +
           '注册于 ' + formatDate(String(user.createdAt || '').slice(0, 10)) + ' · 已收纳 ' + getUserItems().length + ' 件物品</div>' +
         '<button class="btn ghost block" data-action="logout" style="color:#c98d86">退出登录</button>' +
       '</div>';
+  }
+
+  function showChangelog() {
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>版本与更新</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<p class="sheet-tip">当前版本 v' + APP_VERSION + ' · 版本号按 1.01 → 1.02 依次递进</p>' +
+        CHANGELOG.map(function (log, i) {
+          return '<div class="version-item">' +
+            '<div class="version-head"><span class="version-num">v' + log.version + '</span>' +
+              (i === 0 ? '<span class="version-latest">当前版本</span>' : '') +
+              '<span class="version-date">' + log.date + '</span></div>' +
+            '<h4>' + escapeHTML(log.title) + '</h4>' +
+            '<ul>' + log.items.map(function (t) { return '<li>' + escapeHTML(t) + '</li>'; }).join('') + '</ul>' +
+          '</div>';
+        }).join('') +
+        '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">关闭</button></div>' +
+      '</div></div>';
   }
 
   function settingsSheet(kind) {
@@ -2280,9 +2448,14 @@
       case 'close-chat': closeOverlay(); state.chatId = null; break;
       case 'back':
         if (state.view === 'community' || state.view === 'chat') state.view = 'hub';
+        else if (state.view === 'location') state.view = 'home';
         else state.view = (state.backTo === 'profile') ? 'profile' : 'home';
         state.communityTab = 'feed';
         renderApp(true); break;
+      case 'add-item-at-location':
+        state.locationPreFill = el.dataset.location || '';
+        openItemSheet();
+        break;
       case 'open-chat-list': state.view = 'chat'; vibrate(10); renderApp(true); break;
       case 'filter':
         state.filter = el.dataset.value;
@@ -2292,16 +2465,12 @@
         if (area) area.innerHTML = listHTML();
         break;
       case 'space':
-        state.search = el.dataset.location || '';
+        state.locationKey = el.dataset.location || '';
+        state.search = '';
         state.filter = 'all';
-        state.view = 'home';
+        state.view = 'location';
         vibrate(12);
         renderApp(true);
-        toast('已定位到「' + state.search + '」的物品');
-        const listEl = $('#list-area');
-        if (listEl && typeof listEl.scrollIntoView === 'function') {
-          listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
         break;
       case 'community-tab':
         state.communityTab = el.dataset.value;
@@ -2331,6 +2500,7 @@
       case 'take-photo': openCamera(el.dataset.target); break;
       case 'pick-photo': pickPhoto(el.dataset.target); break;
       case 'capture-photo': capturePhoto(el.dataset.target); break;
+      case 'camera-ai': cameraAI(el.dataset.target); break;
       case 'clear-photo':
         const hp = $('#item-photo'), pp = $('#item-photo-preview');
         if (hp) hp.value = '';
@@ -2578,8 +2748,15 @@
         if (!pu || oldPwd !== pu.password) { $('#pwd-error').textContent = '原密码不正确'; break; }
         if (!newPwd) { $('#pwd-error').textContent = '请输入新密码'; break; }
         pu.password = newPwd; saveDB(); closeSheet(); toast('密码已修改'); break;
+      case 'show-changelog': showChangelog(); break;
       case 'open-friends': openFriendsSheet(); break;
       case 'add-friend': addFriend(); break;
+      case 'create-group': openCreateGroupSheet(); break;
+      case 'pick-group-type':
+        state.groupTypeIndex = parseInt(el.dataset.index, 10) || 0;
+        $$('.group-type-row .chip').forEach(function (c) { c.classList.toggle('active', c === el); });
+        break;
+      case 'save-group': createGroup(); break;
       case 'open-device': state.view = 'device'; closeSheet(); renderApp(true); break;
       case 'open-guide': state.view = 'guide'; state.backTo = 'profile'; closeSheet(); renderApp(true); break;
 
@@ -2684,6 +2861,10 @@
   });
 
   document.addEventListener('change', function (e) {
+    if (e.target.id === 'f-category') {
+      const wrap = $('#custom-cat-wrap');
+      if (wrap) wrap.style.display = (e.target.value === 'other' || isCustomCategory(e.target.value)) ? 'block' : 'none';
+    }
     if (e.target.id === 'sp-building' || e.target.id === 'sp-floor') {
       const building = $('#sp-building');
       const floor = $('#sp-floor');
@@ -2702,6 +2883,8 @@
       state.search = e.target.value;
       const area = $('#list-area');
       if (area) area.innerHTML = listHTML();
+      const notice = $('#search-result-notice');
+      if (notice) notice.outerHTML = searchResultNoticeHTML();
     }
     if (e.target.id === 'hub-search-input') {
       state.hubSearch = e.target.value;
@@ -2772,8 +2955,13 @@
       if (!storedAt) { errorEl.textContent = '请选择收纳日期'; return; }
       if (expiryDate && expiryDate < storedAt) { errorEl.textContent = '保质期不能早于收纳日期'; return; }
       const location = $('#f-location').value.trim();
+      let categoryKey = $('#f-category').value;
+      const customCatInput = $('#f-category-custom');
+      if ((categoryKey === 'other' || isCustomCategory(categoryKey)) && customCatInput && customCatInput.value.trim()) {
+        categoryKey = ensureCustomCategory(customCatInput.value.trim());
+      }
       const payload = {
-        name: name, category: $('#f-category').value,
+        name: name, category: categoryKey,
         quantity: Math.max(1, parseInt($('#f-quantity').value, 10) || 1),
         location: location, storedAt: storedAt,
         expiryDate: expiryDate, notes: $('#f-notes').value.trim(),
@@ -2820,7 +3008,18 @@
     if (e.key === 'Escape') { closeOverlay(); closeSheet(); }
     if (e.key === 'Enter' && e.target && e.target.id === 'search-input') {
       const val = e.target.value.trim();
-      if (val) { pushSearchHistory(val); state.search = val; renderApp(); }
+      if (val) {
+        pushSearchHistory(val);
+        state.search = val;
+        state.itemsOpen = true;
+        renderApp();
+        const n = visibleItems().length;
+        toast(n ? ('找到 ' + n + ' 件相关物品') : '没有找到相关物品', n ? '' : 'warn');
+        setTimeout(function () {
+          const sec = $('#items-section');
+          if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 60);
+      }
     }
   });
 
