@@ -2,8 +2,40 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.05';
+  const APP_VERSION = '1.07';
   const CHANGELOG = [
+    { version: '1.07', date: '2026-11-19', title: '安装修复与成就装扮', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复安卓 Chrome「安装应用 / 添加到桌面」无反应的问题：补齐正规图标并支持应用内一键安装',
+        '修复收纳地图「添加物品」按钮过大、部分机型布局错乱的问题',
+        '修复自定义地图每次勾选都整页闪动的问题',
+        '修复苹果手机顶部下拉刷新露出的问题',
+        '修复功能中心「收纳地图」跳转到首页的问题，改为弹出地图弹窗',
+        '修复查找地图缩放时物品不跟随移动、定位失败的问题'
+      ] },
+      { label: '全新功能', icon: 'sparkle', items: [
+        '成就等级移入功能中心，升级可解锁头像框、名片、徽章等专属装扮',
+        '解锁的装扮可佩戴，好友在好友资料中可见',
+        '自定义收纳地图可添加自定义地点',
+        '功能中心新增「使用指南」「版本与更新」，移除重复的设备联动入口',
+        '使用指南每一步增加分步操作示意图'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '安卓定位授权被拦截时给出图文指引，并提供手动选择 / 校园示意位置兜底',
+        '全机型按钮尺寸与间距统一适配，触摸目标不小于 44px'
+      ] }
+    ] },
+    { version: '1.06', date: '2026-11-19', title: '高德地图一键联动', sections: [
+      { label: '全新功能', icon: 'sparkle', items: [
+        '可直接唤起手机上的高德地图 App，系统弹窗询问是否允许打开，无需任何配置',
+        '设备联动页、地图方案页新增「用高德地图打开这里」按钮，位置自动带入',
+        '未安装高德时自动回退到网页版地图'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '高德 Key 改为进阶选填项，默认使用手机高德 App，不再每次提示配置',
+        '网页地图配置一次即自动保存在本机，换设备才需重新填写'
+      ] }
+    ] },
     { version: '1.05', date: '2026-11-19', title: '权限兼容与地图稳定性', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '更新说明按「问题修复 / 全新功能 / 体验优化」分区展示',
@@ -101,6 +133,11 @@
     homePin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10H3V10Z"/><path d="M9 20v-6h6v6"/></svg>',
     battery: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 10v4"/></svg>',
     trophy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM6 6H4v2a3 3 0 0 0 3 3M18 6h2v2a3 3 0 0 1-3 3M12 13v4M9 21h6M10 17h4"/></svg>',
+    frame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 4v4a4 4 0 0 0 8 0V4M8 20v-4a4 4 0 0 1 8 0v4"/></svg>',
+    card: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><circle cx="8" cy="11" r="2"/><path d="M5.5 16a3 3 0 0 1 5 0M14 10h5M14 13h5M14 16h3"/></svg>',
+    medal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m7 3 3 6M17 3l-3 6"/><circle cx="12" cy="15" r="6"/><path d="m12 11 1 2.4 2.6.2-2 1.7.6 2.5L12 16.5 9.8 17.8l.6-2.5-2-1.7 2.6-.2L12 11Z"/></svg>',
+    install: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>',
+    chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
     fridge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M5 10h14M8 6v2M8 14v3"/></svg>',
     drawer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 7h6M9 12.5h6M9 17.5h6"/></svg>',
     shelf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 5h18M3 12h18M3 19h18M6 5v7M18 5v7M6 12v7M18 12v7"/></svg>',
@@ -301,7 +338,8 @@
     communityTab: 'feed', chatId: null, backTo: 'home',
     itemsOpen: true, hubSearch: '', sortBy: 'expiry', letter: '',
     mapExpanded: false, devicesOpen: false, searchExpanded: false,
-    settingsPage: '', stickerPanel: '', guideStep: 0, locationKey: ''
+    settingsPage: '', stickerPanel: '', guideStep: 0, locationKey: '',
+    mapZoom: 1, mapPanX: 0, mapPanY: 0
   };
   let lastView = null;
   let activeStream = null;
@@ -311,8 +349,8 @@
       users: [], items: [], session: null,
       posts: DEMO_POSTS.slice(),
       messages: { c1: (DEMO_MESSAGES.c1 || []).slice(), c2: (DEMO_MESSAGES.c2 || []).slice(), c3: (DEMO_MESSAGES.c3 || []).slice() },
-      devices: [], spaceKeys: DEFAULT_SPACE_KEYS.slice(), locationEnabled: true,
-      bluetoothOn: false, stickers: [], chatBgs: {}, customCategories: [], lastSeenVersion: '',
+      devices: [], spaceKeys: DEFAULT_SPACE_KEYS.slice(), customSpaces: [], locationEnabled: true,
+      bluetoothOn: false, stickers: [], chatBgs: {}, customCategories: [], lastSeenVersion: '', mapMode: 'auto',
       settings: { fontScale: 1, fontWeight: 400, theme: 'sage', notify: true, sound: true, secure: true }
     };
   }
@@ -339,11 +377,14 @@
       }
       if (!Array.isArray(db.devices)) db.devices = [];
       if (!Array.isArray(db.spaceKeys)) db.spaceKeys = DEFAULT_SPACE_KEYS.slice();
+      if (!Array.isArray(db.customSpaces)) db.customSpaces = [];
+      db.users.forEach(function (u) { if (!u.equipped || typeof u.equipped !== 'object') u.equipped = {}; });
       if (typeof db.locationEnabled !== 'boolean') db.locationEnabled = true;
       if (typeof db.bluetoothOn !== 'boolean') db.bluetoothOn = false;
       if (!Array.isArray(db.stickers)) db.stickers = [];
       if (!Array.isArray(db.customCategories)) db.customCategories = [];
       if (typeof db.lastSeenVersion !== 'string') db.lastSeenVersion = '';
+      if (db.mapMode !== 'auto' && db.mapMode !== 'web' && db.mapMode !== 'demo') db.mapMode = 'auto';
       if (!db.chatBgs || typeof db.chatBgs !== 'object') db.chatBgs = {};
       if (!db.settings || typeof db.settings !== 'object') db.settings = {};
       const s = db.settings;
@@ -635,6 +676,36 @@
     setTimeout(showUpdatePopup, 120);
   }
 
+  function installApp() {
+    const deferred = window.__organizerInstallPrompt;
+    if (deferred && typeof deferred.prompt === 'function') {
+      deferred.prompt();
+      if (deferred.userChoice && typeof deferred.userChoice.then === 'function') {
+        deferred.userChoice.then(function () { window.__organizerInstallPrompt = null; }).catch(function () {});
+      }
+      return;
+    }
+    const ua = (navigator.userAgent || '').toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(ua);
+    const inStandalone = navigator.standalone === true ||
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    if (inStandalone) { toast('已经是以 App 模式运行啦'); return; }
+    const steps = isIOS
+      ? ['用 Safari 打开本网址', '点底部中间的「分享」按钮', '下滑找到「添加到主屏幕」', '点右上角「添加」，桌面即出现 App 图标']
+      : ['用 Chrome 打开本网址', '点右上角「⋮」菜单', '点「安装应用」或「添加到主屏幕」', '确认后桌面即出现 App 图标，可全屏使用'];
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>安装到手机桌面</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<p class="sheet-tip">像普通 App 一样全屏打开，无需从浏览器进入。请按下面步骤操作：</p>' +
+        '<div class="install-steps">' + steps.map(function (s, i) {
+          return '<div class="install-step"><span>' + (i + 1) + '</span><p>' + escapeHTML(s) + '</p></div>';
+        }).join('') + '</div>' +
+        '<p class="sheet-note">若菜单里没有「安装应用」，请确认网址通过 HTTPS 打开（GitHub Pages 已支持），并稍等几秒让页面完全加载后再试。</p>' +
+        '<div class="sheet-actions"><button class="btn primary block" data-action="close-sheet">知道了</button></div>' +
+      '</div></div>';
+  }
+
   function showUpdatePopup(force) {
     if (!force && db.lastSeenVersion === APP_VERSION) return;
     const log = CHANGELOG.find(function (l) { return l.version === APP_VERSION; });
@@ -826,11 +897,17 @@
     if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch (e) { /* ignore */ } }
   }
 
+  function spaceByKey(key) {
+    return SPACES.find(function (x) { return x.key === key; }) ||
+      (db.customSpaces || []).find(function (x) { return x.key === key; }) ||
+      { key: key, label: key, icon: 'box' };
+  }
+
   function spaceCellsHTML() {
     const items = getUserItems();
     const keys = db.spaceKeys || DEFAULT_SPACE_KEYS;
     const cells = keys.map(function (key) {
-      const s = SPACES.find(function (x) { return x.key === key; }) || { key: key, label: key, icon: 'box' };
+      const s = spaceByKey(key);
       return {
         key: s.key, label: s.label, icon: ICON[s.icon] ? s.icon : 'box',
         count: items.filter(function (i) { return String(i.location || '').indexOf(s.key) !== -1; }).length
@@ -858,18 +935,53 @@
 
   function achievementLevels() {
     return [
-      { min: 0, name: '初出茅庐', next: 5, perk: '解锁基础收纳记录' },
-      { min: 5, name: '收纳新秀', next: 10, perk: '解锁 A-Z 字母排序' },
-      { min: 10, name: '整理达人', next: 20, perk: '解锁到期自动预警' },
-      { min: 20, name: '空间大师', next: null, perk: '解锁全部专属成就徽章' }
+      { min: 0, name: '初出茅庐', next: 5, perk: '解锁「新芽」头像框' },
+      { min: 5, name: '收纳新秀', next: 10, perk: '解锁「青叶」头像框 / 名片' },
+      { min: 10, name: '整理达人', next: 20, perk: '解锁「达人」头像框 / 徽章' },
+      { min: 20, name: '空间大师', next: null, perk: '解锁全套「星海」头像框 / 名片 / 徽章' }
     ];
+  }
+
+  const ACH_REWARDS = [
+    { key: 'sprout', type: 'frame', name: '新芽头像框', min: 0, cls: 'rw-sprout' },
+    { key: 'leaf', type: 'frame', name: '青叶头像框', min: 5, cls: 'rw-leaf' },
+    { key: 'leaf', type: 'card', name: '青叶名片', min: 5, cls: 'rw-leaf' },
+    { key: 'star', type: 'frame', name: '达人头像框', min: 10, cls: 'rw-star' },
+    { key: 'star', type: 'badge', name: '达人徽章', min: 10, cls: 'rw-star' },
+    { key: 'galaxy', type: 'frame', name: '星海头像框', min: 20, cls: 'rw-galaxy' },
+    { key: 'galaxy', type: 'card', name: '星海名片', min: 20, cls: 'rw-galaxy' },
+    { key: 'galaxy', type: 'badge', name: '星海徽章', min: 20, cls: 'rw-galaxy' }
+  ];
+  const REWARD_LABEL = { frame: '头像框', card: '名片', badge: '徽章' };
+  const REWARD_ICON = { frame: 'frame', card: 'card', badge: 'medal' };
+
+  function achIndex(n) {
+    const levels = achievementLevels();
+    let idx = 0;
+    levels.forEach(function (l, i) { if (n >= l.min) idx = i; });
+    return idx;
+  }
+  function itemCountOf(userId) {
+    return db.items.filter(function (i) { return i.userId === userId; }).length;
+  }
+  function rewardUnlocked(r, n) { return n >= r.min; }
+  function equippedOf(user) {
+    const e = (user && user.equipped) || {};
+    return { frame: e.frame || '', card: e.card || '', badge: e.badge || '' };
+  }
+  function rewardByKey(type, key) {
+    return ACH_REWARDS.find(function (r) { return r.type === type && r.key === key; }) || null;
+  }
+  function rewardPill(r, n) {
+    const on = rewardUnlocked(r, n);
+    return '<span class="reward-pill ' + (on ? 'on ' : '') + r.cls + '">' +
+      (on ? ICON[REWARD_ICON[r.type]] : ICON.lock) + '<span>' + escapeHTML(r.name) + '</span></span>';
   }
 
   function achievementHTML() {
     const n = getUserItems().length;
     const levels = achievementLevels();
-    let idx = 0;
-    levels.forEach(function (l, i) { if (n >= l.min) idx = i; });
+    const idx = achIndex(n);
     const cur = levels[idx];
     const next = cur.next;
     const pct = next ? Math.round((n - cur.min) / (next - cur.min) * 100) : 100;
@@ -877,34 +989,68 @@
       '<div class="ach-badge">' + ICON.trophy + '</div>' +
       '<div class="ach-info">' +
         '<div class="ach-title">' + cur.name + '<small>等级 ' + (idx + 1) + '</small></div>' +
-        '<div class="ach-sub">' + (next ? '再收纳 ' + (next - n) + ' 件即可升级' : '已达最高等级，太厉害了') + '</div>' +
+        '<div class="ach-sub">' + (next ? '再收纳 ' + (next - n) + ' 件即可升级解锁新装扮' : '已达最高等级，全部装扮已解锁') + '</div>' +
         '<div class="ach-bar"><div class="ach-fill" style="width:' + pct + '%"></div></div>' +
       '</div><div class="ach-level">' + n + ' 件<span class="ach-more">›</span></div>' +
       '</button>';
   }
 
   function showAchievements() {
+    const user = currentUser();
     const n = getUserItems().length;
     const levels = achievementLevels();
-    let curIdx = 0;
-    levels.forEach(function (l, i) { if (n >= l.min) curIdx = i; });
+    const curIdx = achIndex(n);
+    const eq = equippedOf(user);
+    const types = ['frame', 'card', 'badge'];
     $('#sheet-root').innerHTML =
       '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
         '<div class="sheet-handle"></div>' +
         '<div class="sheet-head"><h2>成就等级</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
-        '<p class="sheet-tip">已收纳 ' + n + ' 件物品 · 收纳越多，等级越高，解锁更多专属权益</p>' +
+        '<p class="sheet-tip">已收纳 ' + n + ' 件物品 · 升级解锁头像框 / 名片 / 徽章，佩戴后好友可见</p>' +
         levels.map(function (l, i) {
           const unlocked = n >= l.min;
-          const current = i === curIdx;
-          return '<div class="ach-row' + (unlocked ? ' unlocked' : '') + (current ? ' current' : '') + '">' +
+          return '<div class="ach-row' + (unlocked ? ' unlocked' : '') + (i === curIdx ? ' current' : '') + '">' +
             '<span class="ach-row-ico">' + (unlocked ? ICON.trophy : ICON.lock) + '</span>' +
             '<span class="ach-row-info"><b>' + l.name + '</b><small>等级 ' + (i + 1) + ' · ' + l.perk + '</small>' +
-              '<em>' + (unlocked ? (current ? '当前等级' : '已解锁') : '收纳满 ' + l.min + ' 件解锁') + '</em></span>' +
-            (current ? '<span class="ach-row-tag">当前</span>' : '') +
+              '<em>' + (unlocked ? (i === curIdx ? '当前等级' : '已解锁') : '收纳满 ' + l.min + ' 件解锁') + '</em></span>' +
+            (i === curIdx ? '<span class="ach-row-tag">当前</span>' : '') +
           '</div>';
+        }).join('') +
+        '<h4 class="rw-title">我的装扮 · 点击佩戴</h4>' +
+        types.map(function (type) {
+          const list = ACH_REWARDS.filter(function (r) { return r.type === type; });
+          return '<div class="rw-group"><div class="rw-group-label">' + REWARD_LABEL[type] + '</div>' +
+            '<div class="rw-options">' + list.map(function (r) {
+              const on = rewardUnlocked(r, n);
+              const worn = eq[type] === r.key;
+              return '<button class="rw-opt ' + (on ? 'on ' : 'locked ') + r.cls + (worn ? ' worn' : '') + '" ' +
+                (on ? 'data-action="equip-reward" data-type="' + type + '" data-key="' + r.key + '"' : 'disabled') + '>' +
+                '<span class="rw-ico">' + (on ? ICON[REWARD_ICON[type]] : ICON.lock) + '</span>' +
+                '<span class="rw-name">' + escapeHTML(r.name) + '</span>' +
+                (worn ? '<i>佩戴中</i>' : (on ? '' : '<i>' + r.min + '件</i>')) +
+              '</button>';
+            }).join('') + '</div></div>';
         }).join('') +
         '<div class="sheet-actions"><button class="btn primary block" data-action="add-item">去添加物品升级</button></div>' +
       '</div></div>';
+  }
+
+  function frameClassOf(user, n) {
+    const key = equippedOf(user).frame;
+    const r = key ? rewardByKey('frame', key) : null;
+    return (r && rewardUnlocked(r, n)) ? ' ' + r.cls : '';
+  }
+  function badgeOf(user, n) {
+    const key = equippedOf(user).badge;
+    const r = key ? rewardByKey('badge', key) : null;
+    return (r && rewardUnlocked(r, n))
+      ? '<span class="ach-badge-decor ' + r.cls + '" title="' + escapeHTML(r.name) + '">' + ICON.medal + '</span>' : '';
+  }
+  function cardOf(user, n) {
+    const key = equippedOf(user).card;
+    const r = key ? rewardByKey('card', key) : null;
+    return (r && rewardUnlocked(r, n))
+      ? '<div class="ach-card-decor ' + r.cls + '">' + ICON.card + '<span>' + escapeHTML(r.name) + ' · LV' + (achIndex(n) + 1) + '</span></div>' : '';
   }
 
   function ringHTML(item) {
@@ -1035,7 +1181,7 @@
 
   function locationHTML() {
     const key = state.locationKey || '';
-    const s = SPACES.find(function (x) { return x.key === key; }) || { key: key, label: key, icon: 'box' };
+    const s = spaceByKey(key);
     const list = getUserItems().filter(function (i) {
       return String(i.location || '').indexOf(key) !== -1;
     });
@@ -1194,18 +1340,26 @@
       '</article>';
   }
 
+  function spaceOptHTML(s, keys) {
+    const on = keys.indexOf(s.key) !== -1;
+    return '<button class="space-opt ' + (on ? 'on' : '') + '" data-action="toggle-space" data-key="' + escapeHTML(s.key) + '">' +
+      ICON[s.icon] + '<span>' + escapeHTML(s.label) + '</span>' + (on ? '<i>✓</i>' : '') + '</button>';
+  }
+
   function openSpaceEditor() {
     const keys = db.spaceKeys || DEFAULT_SPACE_KEYS;
+    const custom = (db.customSpaces || []).map(function (s) {
+      return { key: s.key, label: s.label, icon: s.icon || 'box', custom: true };
+    });
+    const all = SPACES.map(function (s) { return Object.assign({}, s, { custom: false }); }).concat(custom);
     $('#sheet-root').innerHTML =
       '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
         '<div class="sheet-handle"></div>' +
         '<div class="sheet-head"><h2>自定义收纳地图</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
-        '<p class="sheet-tip">系统提供常用地点预设，选择你想显示在首页的格子（至少 3 个），物品会按存放位置自动归类。</p>' +
-        '<div class="space-editor">' + SPACES.map(function (s) {
-          const on = keys.indexOf(s.key) !== -1;
-          return '<button class="space-opt ' + (on ? 'on' : '') + '" data-action="toggle-space" data-key="' + escapeHTML(s.key) + '">' +
-            ICON[s.icon] + '<span>' + escapeHTML(s.label) + '</span>' + (on ? '<i>✓</i>' : '') + '</button>';
-        }).join('') + '</div>' +
+        '<p class="sheet-tip">选择想显示在首页的格子（至少 3 个），点一下即时生效不会闪动；也可添加自定义地点。</p>' +
+        '<div class="space-editor" id="space-editor">' + all.map(function (s) { return spaceOptHTML(s, keys); }).join('') + '</div>' +
+        '<div class="custom-space-add"><input id="custom-space-input" maxlength="10" placeholder="输入自定义地点名称，如「琴房」">' +
+          '<button class="btn soft" data-action="add-custom-space">' + ICON.plus + ' 添加</button></div>' +
         '<div class="sheet-actions"><button class="btn ghost" data-action="reset-spaces">恢复默认</button>' +
           '<button class="btn primary" data-action="close-sheet">完成</button></div>' +
       '</div></div>';
@@ -1252,16 +1406,48 @@
       '</div></div>';
   }
 
+  function guideImage(kind) {
+    const phone = function (inner) {
+      return '<svg viewBox="0 0 220 150" class="guide-svg" xmlns="http://www.w3.org/2000/svg">' +
+        '<rect x="66" y="6" width="88" height="138" rx="14" fill="#fffcf7" stroke="#cdded2" stroke-width="2"/>' +
+        '<rect x="76" y="14" width="68" height="8" rx="4" fill="#e4efe7"/>' +
+        '<rect x="76" y="126" width="68" height="10" rx="5" fill="#e4efe7"/>' +
+        inner + '</svg>';
+    };
+    const tap = '<g><circle cx="152" cy="96" r="11" fill="#d59275" opacity=".28"/><circle cx="152" cy="96" r="5" fill="#c9805f"/><path d="M152 96l10-12" stroke="#c9805f" stroke-width="2" stroke-linecap="round"/></g>';
+    let inner = '';
+    if (kind === 'add') {
+      inner = '<rect x="76" y="30" width="68" height="20" rx="5" fill="#dbece0"/><rect x="80" y="34" width="26" height="6" rx="3" fill="#9dbdaa"/>' +
+        '<rect x="76" y="56" width="68" height="10" rx="4" fill="#f0ece4"/><rect x="76" y="70" width="52" height="10" rx="4" fill="#f0ece4"/>' +
+        '<rect x="76" y="92" width="68" height="18" rx="9" fill="#4f7a63"/><text x="110" y="104" font-size="8" fill="#fff" text-anchor="middle">＋ 添加物品</text>' + tap;
+    } else if (kind === 'map') {
+      inner = '<rect x="76" y="30" width="68" height="9" rx="4" fill="#9dbdaa"/>' +
+        '<rect x="76" y="44" width="31" height="27" rx="6" fill="#e4efe7" stroke="#7ba48d"/><rect x="113" y="44" width="31" height="27" rx="6" fill="#e4efe7" stroke="#7ba48d"/>' +
+        '<rect x="76" y="76" width="31" height="27" rx="6" fill="#e4efe7" stroke="#7ba48d"/><rect x="113" y="76" width="31" height="27" rx="6" fill="#e4efe7" stroke="#7ba48d"/>' +
+        '<text x="91" y="61" font-size="9" fill="#4f7a63" text-anchor="middle">冰箱</text><text x="128" y="61" font-size="9" fill="#4f7a63" text-anchor="middle">柜子</text>' + tap;
+    } else if (kind === 'find') {
+      inner = '<circle cx="110" cy="72" r="34" fill="#edf5ec" stroke="#cdded2"/><circle cx="110" cy="72" r="20" fill="none" stroke="#9dbdaa" stroke-dasharray="3 3"/>' +
+        '<circle cx="110" cy="72" r="7" fill="#4f7a63"/><text x="110" y="76" font-size="6" fill="#fff" text-anchor="middle">我</text>' +
+        '<circle cx="92" cy="56" r="8" fill="#d59275"/><circle cx="132" cy="88" r="8" fill="#7ba48d"/>' + tap;
+    } else {
+      inner = '<rect x="76" y="30" width="68" height="10" rx="5" fill="#dbece0"/>' +
+        '<circle cx="86" cy="54" r="8" fill="#f0ece4"/><rect x="98" y="49" width="40" height="5" rx="2" fill="#e0d8cc"/><rect x="98" y="58" width="28" height="4" rx="2" fill="#ece5da"/>' +
+        '<circle cx="86" cy="78" r="8" fill="#f0ece4"/><rect x="98" y="73" width="40" height="5" rx="2" fill="#e0d8cc"/><rect x="98" y="82" width="24" height="4" rx="2" fill="#ece5da"/>' +
+        '<rect x="76" y="96" width="68" height="18" rx="9" fill="#e4efe7"/>' + tap;
+    }
+    return phone(inner);
+  }
+
   function guideHTML() {
     return '<div class="page">' +
       '<div class="section-head" style="margin-top:12px">' +
         '<button class="icon-btn" data-action="back">' + ICON.back + '</button>' +
         '<h2 style="flex:1;margin-left:6px">使用指南</h2></div>' +
-      '<div class="guide-hero"><h1>轻松上手</h1><p>四步掌握，记录收纳更省心</p></div>' +
-      step('1', '添加物品', '点击底部 + 按钮，可拍照识物，填写名称、分类、数量和存放位置，保存后自动归入收纳地图。', 'camera') +
-      step('2', '随时查看', '首页展示收纳日期、位置与备注，支持搜索、字母排序和到期提醒，点地图格子可查看该位置的物品。', 'home') +
-      step('3', '社区交流', '在功能中心进入社区发布动态、添加好友、加入群聊，发文字表情和贴纸，还能更换聊天背景。', 'users') +
-      step('4', '设备联动', '点击底部「联动」进入设备联动，搜索并连接蓝牙标签，给物品贴上标签后可一键查找、离位提醒。', 'signal') +
+      '<div class="guide-hero"><h1>轻松上手</h1><p>跟着图解一步步操作，记录收纳更省心</p></div>' +
+      step('1', '添加物品', '① 点底部中间的「＋」→ ② 拍照或填写名称、分类、数量、位置 → ③ 点「保存」，物品自动归入收纳地图。', 'add') +
+      step('2', '用地图找东西', '① 在首页「我的收纳地图」点冰箱 / 柜子等格子 → ② 查看该位置的全部物品 → ③ 点卡片展开详情、编辑或删除。', 'map') +
+      step('3', '一键查找物品', '① 点底部「联动」→ ② 给物品绑定蓝牙标签 → ③ 点「一键查找」，地图会响铃并显示物品位置。', 'find') +
+      step('4', '加好友与装扮', '① 功能中心进入社区 → ② 用编号 ID 搜索添加好友 → ③ 升级成就解锁头像框 / 名片 / 徽章，在成就等级里佩戴，好友可见。', 'social') +
       '<h3 class="card-title">颜色说明</h3>' +
       '<div class="legend">' +
         '<span class="expiry fresh">绿色 · 新鲜</span><span class="expiry soon">浅黄 · 30 天内</span>' +
@@ -1270,40 +1456,75 @@
       '</div></div>';
   }
 
-  function step(num, title, desc, icon) {
-    return '<div class="step">' +
-      '<div class="step-illustration">' + (ICON[icon] || ICON.box) + '<span class="step-num">' + num + '</span></div>' +
+  function step(num, title, desc, kind) {
+    return '<div class="step step-guide">' +
+      '<div class="step-illustration">' + guideImage(kind) + '<span class="step-num">' + num + '</span></div>' +
       '<div class="step-text"><h3>' + title + '</h3><p>' + desc + '</p></div></div>';
   }
 
   /* ---------------- Function Hub ---------------- */
 
-  const HUB_FEATURES = [
-    { key: 'chat', label: '消息聊天', desc: '和好友群友聊天交流', icon: 'comment', nav: 'chat', color: 'clay' },
-    { key: 'community', label: '社区动态', desc: '看看大家的收纳灵感', icon: 'users', nav: 'community', color: 'mint' },
-    { key: 'map', label: '收纳地图', desc: '按位置分类快速找东西', icon: 'pin', nav: 'home', tab: 'map', color: 'clay' },
-    { key: 'device', label: '设备联动', desc: '蓝牙标签定位与查找', icon: 'signal', nav: 'device', color: 'mint' },
-    { key: 'alerts', label: '到期提醒', desc: '临期物品优先处理', icon: 'bell', nav: 'alerts', color: 'clay' }
-  ];
+  function HUB_FEATURES() {
+    return [
+      { key: 'chat', label: '消息聊天', desc: '和好友群友聊天交流', icon: 'comment', nav: 'chat', color: 'clay' },
+      { key: 'community', label: '社区动态', desc: '看看大家的收纳灵感', icon: 'users', nav: 'community', color: 'mint' },
+      { key: 'map', label: '收纳地图', desc: '按位置分类快速找东西', icon: 'pin', action: 'open-storage-map', color: 'clay' },
+      { key: 'achievement', label: '成就等级', desc: '升级解锁头像框名片徽章', icon: 'trophy', action: 'show-achievements', color: 'mint' },
+      { key: 'alerts', label: '到期提醒', desc: '临期物品优先处理', icon: 'bell', nav: 'alerts', color: 'clay' },
+      { key: 'guide', label: '使用指南', desc: '分步图解快速上手', icon: 'book', nav: 'guide', color: 'mint' },
+      { key: 'install', label: '安装到桌面', desc: '像 App 一样全屏使用', icon: 'install', action: 'install-app', color: 'clay' }
+    ];
+  }
+
+  function hubTileHTML(f) {
+    const attrs = f.action
+      ? 'data-action="' + f.action + '"'
+      : 'data-action="hub-go" data-nav-target="' + f.nav + '" data-tab="' + (f.tab || '') + '"';
+    return '<button class="hub-tile ' + f.color + '" ' + attrs + '>' +
+      '<span class="hub-ico">' + (ICON[f.icon] || ICON.grid) + '</span>' +
+      '<b>' + escapeHTML(f.label) + '</b><small>' + escapeHTML(f.desc) + '</small>' +
+    '</button>';
+  }
 
   function hubHTML() {
     const q = (state.hubSearch || '').trim().toLowerCase();
-    const list = q ? HUB_FEATURES.filter(function (f) {
+    const all = HUB_FEATURES();
+    const list = q ? all.filter(function (f) {
       return (f.label + f.desc + f.key).toLowerCase().indexOf(q) !== -1;
-    }) : HUB_FEATURES;
+    }) : all;
     return '<div class="page hub-page">' +
       '<div class="hub-hero">' + ICON.grid + '<div><h1>功能中心</h1><p>所有功能都在这里，搜一下就能到</p></div></div>' +
       '<div class="search-bar hub-search">' + ICON.search +
-        '<input id="hub-search-input" placeholder="搜索功能，如「查找」「提醒」" value="' + escapeHTML(state.hubSearch || '') + '">' +
+        '<input id="hub-search-input" placeholder="搜索功能，如「查找」「地图」「提醒」" value="' + escapeHTML(state.hubSearch || '') + '">' +
         '<button class="search-find" data-action="clear-hub-search">✕</button></div>' +
-      '<div class="hub-grid">' + list.map(function (f) {
-        return '<button class="hub-tile ' + f.color + '" data-action="hub-go" data-nav-target="' + f.nav + '" data-tab="' + (f.tab || '') + '">' +
-          '<span class="hub-ico">' + (ICON[f.icon] || ICON.grid) + '</span>' +
-          '<b>' + escapeHTML(f.label) + '</b><small>' + escapeHTML(f.desc) + '</small>' +
-        '</button>';
-      }).join('') + '</div>' +
+      '<div class="hub-grid">' + list.map(hubTileHTML).join('') + '</div>' +
       (list.length ? '' : '<div class="empty"><h3>没有找到相关功能</h3><p>试试「查找」「地图」「提醒」</p></div>') +
     '</div>';
+  }
+
+  function showStorageMapSheet() {
+    const items = getUserItems();
+    const keys = db.spaceKeys || DEFAULT_SPACE_KEYS;
+    const cells = keys.map(function (key) {
+      const sp = spaceByKey(key);
+      return { key: sp.key, label: sp.label, icon: ICON[sp.icon] ? sp.icon : 'box',
+        count: items.filter(function (i) { return String(i.location || '').indexOf(sp.key) !== -1; }).length };
+    });
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>我的收纳地图</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<p class="sheet-tip">点一个位置查看这里收纳的物品，也可自定义地点。</p>' +
+        '<div class="space-grid sheet-space-grid">' + cells.map(function (c) {
+          return '<button class="space-cell ' + (c.count ? '' : 'empty') + '" data-action="space" data-location="' + escapeHTML(c.key) + '">' +
+            '<div class="space-icon">' + ICON[c.icon] + '</div>' +
+            '<div class="space-name">' + escapeHTML(c.label) + '</div>' +
+            '<div class="space-count">' + c.count + '<small> 件</small></div>' +
+          '</button>';
+        }).join('') + '</div>' +
+        '<div class="sheet-actions"><button class="btn ghost" data-action="edit-spaces">自定义地点</button>' +
+          '<button class="btn primary" data-action="close-sheet">关闭</button></div>' +
+      '</div></div>';
   }
 
   /* ---------------- Community ---------------- */
@@ -1520,15 +1741,18 @@
     const signature = (target && target.profile && target.profile.bio) || (friend && friend.signature) || '这个人很懒，还没有留下个性签名';
     const contact = (target && target.profile && target.profile.contact) || '未填写';
     const avatarText = name.charAt(0).toUpperCase();
+    const u = target || { equipped: {} };
+    const uCount = target ? itemCountOf(target.id) : 0;
     $('#sheet-root').innerHTML =
       '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
         '<div class="sheet-handle"></div>' +
         '<div class="sheet-head"><h2>好友资料</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
         '<div class="friend-profile-head">' +
-          '<div class="friend-profile-avatar">' + escapeHTML(avatarText) + '</div>' +
+          '<div class="friend-profile-avatar' + frameClassOf(u, uCount) + '">' + escapeHTML(avatarText) + badgeOf(u, uCount) + '</div>' +
           '<h2>' + escapeHTML(name) + '</h2>' +
           '<p>ID ' + escapeHTML((friend && friend.friendId) || (target && target.friendId) || '') + '</p>' +
         '</div>' +
+        cardOf(u, uCount) +
         '<div class="info-card">' +
           '<div class="friend-profile-row"><b>个性签名</b><span>' + escapeHTML(signature) + '</span></div>' +
           '<div class="friend-profile-row"><b>联系方式</b><span>' + escapeHTML(contact) + '</span></div>' +
@@ -1729,6 +1953,8 @@
         '<button class="btn ghost" data-action="open-space-picker">手动选择</button>' +
         '<button class="btn ghost" data-action="bind-school">' + (school ? '切换学校' : '绑定学校') + '</button>' +
       '</div>' +
+      '<button class="text-btn loc-help-link" data-action="location-help">' + ICON.alert + ' 定位授权失败？点这里查看解决办法</button>' +
+      '<button class="btn primary block sn-amap" data-action="open-amap-current">' + ICON.pin + ' 用高德地图打开这里</button>' +
       (nearby.length ? '<div class="sn-items">' + nearby.slice(0, 3).map(function (i) {
         return '<span>' + escapeHTML(i.name) + '</span>';
       }).join('') + '</div>' : '') +
@@ -1854,6 +2080,40 @@
   }
 
   function wamap() { return window.AMap || null; }
+
+  /* 唤起手机上的高德地图 App（无需 Key / 无需配置）。
+     高德 URI：androidamap:// / iosamap://，未安装则回退到网页版 uri.amap.com */
+  function openInAmap(name, lat, lng) {
+    const ua = (navigator.userAgent || '').toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(ua);
+    const label = encodeURIComponent(name || '我的位置');
+    const lc = Number(lat), ln = Number(lng);
+    if (!isFinite(lc) || !isFinite(ln)) { toast('暂无可用坐标，请先手动选择位置', 'warn'); return; }
+    const dev = 0; // GCJ-02，与高德坐标一致
+    const scheme = (isIOS ? 'iosamap://' : 'androidamap://') +
+      'viewMap?sourceApplication=' + encodeURIComponent('收纳小管家') +
+      '&poiname=' + label + '&lat=' + lc + '&lon=' + ln + '&dev=' + dev;
+    const web = 'https://uri.amap.com/marker?position=' + ln + ',' + lc +
+      '&name=' + label + '&src=' + encodeURIComponent('收纳小管家') +
+      '&coordinate=gaode&callnative=1';
+
+    let done = false;
+    function fallback() { if (done) return; done = true; window.open(web, '_blank'); }
+    const timer = setTimeout(fallback, 1200);
+    document.addEventListener('visibilitychange', function onHide() {
+      if (document.hidden) { done = true; clearTimeout(timer); document.removeEventListener('visibilitychange', onHide); }
+    });
+    try {
+      const a = document.createElement('a');
+      a.href = scheme;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (e) { clearTimeout(timer); fallback(); }
+    toast('正在打开高德地图…');
+  }
+
   let activeRealMap = null;
   function destroyRealMap() {
     if (activeRealMap && typeof activeRealMap.destroy === 'function') {
@@ -1937,18 +2197,46 @@
     renderApp(true);
   }
 
+  function showLocationHelp() {
+    const ua = (navigator.userAgent || '').toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(ua);
+    const steps = isIOS
+      ? ['打开「设置 → 隐私与安全性 → 定位服务」，确认已开启', '找到 Chrome / Safari，设为「使用 App 或网站期间」', '完全关闭其他App的悬浮窗后，回到本页点「自动检索位置」', '若系统仍拦截，直接用下方「手动选择」或「用高德地图打开」']
+      : ['关闭其他应用的悬浮窗 / 气泡 / 分屏（提示里说的"叠加层"）', '打开「设置 → 应用 → 浏览器 → 权限」，允许「位置信息」', '浏览器地址栏左侧锁图标 → 权限 → 位置 → 允许，然后刷新本页', '若授权仍被拦截，点「手动选择」或用「高德地图打开」，功能不受影响'];
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>定位授权解决方法</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<p class="sheet-tip">安卓提示「此网站无法请求您授权」是因为有悬浮窗 / 叠加层拦截了系统的授权弹窗，按下面步骤处理即可：</p>' +
+        '<div class="install-steps">' + steps.map(function (s, i) {
+          return '<div class="install-step"><span>' + (i + 1) + '</span><p>' + escapeHTML(s) + '</p></div>';
+        }).join('') + '</div>' +
+        '<p class="sheet-note">定位只用于自动检索你所在的楼栋，属于可选项。不想授权时，用「手动选择」或「高德地图打开」一样能正常使用全部功能。</p>' +
+        '<div class="sheet-actions"><button class="btn ghost" data-action="open-space-picker">手动选择</button>' +
+          '<button class="btn primary" data-action="close-sheet">知道了</button></div>' +
+      '</div></div>';
+  }
+
   function showMapPlanSheet() {
     const cfg = mapConfig();
+    const space = getUserSpace();
     $('#sheet-root').innerHTML =
       '<div class="sheet-mask" data-mask="1"><div class="sheet map-plan-sheet">' +
         '<div class="sheet-handle"></div>' +
         '<div class="sheet-head"><h2>高德地图 · 真实中国地图</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
         '<div class="mp-body">' +
-          '<div class="amap-status ' + (cfg ? 'on' : '') + '"><i></i>' +
-            (cfg ? '已配置 Key：' + escapeHTML(cfg.key.slice(0, 6) + '****' + cfg.key.slice(-4)) : '尚未配置 Key，当前使用示意地图') +
+          '<div class="amap-recommend">' +
+            '<div class="ar-ico">' + ICON.pin + '</div>' +
+            '<div class="ar-text"><b>直接用手机上的高德地图（推荐）</b>' +
+              '<span>无需任何配置，点下方按钮会弹出「是否允许打开高德地图」，就像其他 App 一样，位置自动带到「' + escapeHTML(spaceLabel(space)) + '」。</span></div>' +
           '</div>' +
-          '<button class="btn primary block" data-action="open-map-config">' + (cfg ? '修改高德配置' : '配置高德 Key') + '</button>' +
-          '<p class="mp-note">高德 Key 需到 https://console.amap.com 免费申请，选择「Web端(JS API)」类型并获取安全密钥 jscode。</p>' +
+          '<button class="btn primary block" data-action="open-amap-current">' + ICON.pin + ' 用高德地图打开当前位置</button>' +
+          '<div class="mp-divider">— 以下是进阶选项（一般无需设置）—</div>' +
+          '<div class="amap-status ' + (cfg ? 'on' : '') + '"><i></i>' +
+            (cfg ? '网页地图已配置 Key：' + escapeHTML(cfg.key.slice(0, 6) + '****' + cfg.key.slice(-4)) : '网页地图未配置 Key（不影响上面的功能）') +
+          '</div>' +
+          '<button class="btn soft block" data-action="open-map-config">' + (cfg ? '修改网页地图配置' : '配置网页版高德 Key（选填）') + '</button>' +
+          '<p class="mp-note">只有在 App 内嵌网页地图时才需要 Key，需到 console.amap.com 申请「Web端(JS API)」类型。用手机高德 App 打开不需要它。</p>' +
           MAP_SDK_PLAN.map(function (sec) {
             return '<div class="mp-sec"><h4>' + escapeHTML(sec.title) + '</h4><ol>' +
               sec.steps.map(function (s) { return '<li>' + escapeHTML(s) + '</li>'; }).join('') +
@@ -2055,15 +2343,29 @@
     }).join('');
 
     return '<div class="find-map" id="find-map">' +
-      '<div class="map-grid"></div>' +
-      '<div class="map-ring r1"></div><div class="map-ring r2"></div><div class="map-ring r3"></div>' +
-      '<span class="room room-1">客厅</span><span class="room room-2">厨房</span>' +
-      '<span class="room room-3">卧室</span><span class="room room-4">书房</span>' +
+      '<div class="map-stage" id="map-stage">' +
+        '<div class="map-grid"></div>' +
+        '<div class="map-ring r1"></div><div class="map-ring r2"></div><div class="map-ring r3"></div>' +
+        '<span class="room room-1">客厅</span><span class="room room-2">厨房</span>' +
+        '<span class="room room-3">卧室</span><span class="room room-4">书房</span>' +
+        '<div class="map-me">' + ICON.user + '<span class="map-me-label">你在这里</span></div>' +
+        (tags || '<div class="map-empty">暂无物品标签</div>') +
+      '</div>' +
       '<div class="space-banner">' + ICON.homePin + '<span>当前空间：' + escapeHTML(spaceLabel(space)) + '</span></div>' +
-      '<div class="map-me">' + ICON.user + '<span class="map-me-label">你在这里</span></div>' +
-      (tags || '<div class="map-empty">暂无物品标签</div>') +
+      '<div class="map-zoom-ctrl">' +
+        '<button data-action="map-zoom-in" aria-label="放大">＋</button>' +
+        '<button id="map-zoom-label" data-action="map-zoom-reset" aria-label="复位">' + Math.round(state.mapZoom * 100) + '%</button>' +
+        '<button data-action="map-zoom-out" aria-label="缩小">－</button>' +
+      '</div>' +
       '<div id="amap-container" class="amap-container hidden"></div>' +
     '</div>';
+  }
+
+  function applyMapTransform() {
+    const stage = $('#map-stage');
+    if (stage) stage.style.transform = 'translate(' + state.mapPanX + 'px,' + state.mapPanY + 'px) scale(' + state.mapZoom + ')';
+    const label = $('#map-zoom-label');
+    if (label) label.textContent = Math.round(state.mapZoom * 100) + '%';
   }
 
   function initRealMap(target) {
@@ -2172,11 +2474,45 @@
       '</div>';
 
     vibrate([20, 60, 20]);
+    state.mapZoom = 1; state.mapPanX = 0; state.mapPanY = 0;
+    applyMapTransform();
+    initMapGestures();
     setTimeout(function () {
       const s = $('#find-status');
       if (s && !s.textContent.includes('高德')) s.textContent = '标签已响铃';
     }, 1400);
     initRealMap(d);
+  }
+
+  function initMapGestures() {
+    const map = $('#find-map');
+    if (!map) return;
+    let lastDist = null, lastX = null, lastY = null, mode = null;
+    function dist(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
+    map.addEventListener('touchstart', function (e) {
+      if (e.touches.length === 2) { mode = 'pinch'; lastDist = dist(e.touches); }
+      else if (e.touches.length === 1) { mode = 'pan'; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; }
+    }, { passive: true });
+    map.addEventListener('touchmove', function (e) {
+      if (mode === 'pinch' && e.touches.length === 2) {
+        const d = dist(e.touches);
+        if (lastDist) {
+          state.mapZoom = Math.min(2.4, Math.max(0.6, state.mapZoom * d / lastDist));
+          applyMapTransform();
+        }
+        lastDist = d;
+      } else if (mode === 'pan' && e.touches.length === 1) {
+        const x = e.touches[0].clientX, y = e.touches[0].clientY;
+        if (lastX !== null) {
+          const limit = 90 * state.mapZoom;
+          state.mapPanX = Math.max(-limit, Math.min(limit, state.mapPanX + (x - lastX)));
+          state.mapPanY = Math.max(-limit, Math.min(limit, state.mapPanY + (y - lastY)));
+          applyMapTransform();
+        }
+        lastX = x; lastY = y;
+      }
+    }, { passive: true });
+    map.addEventListener('touchend', function () { mode = null; lastDist = null; lastX = null; lastY = null; }, { passive: true });
   }
 
   function openBind(id) {
@@ -2437,13 +2773,16 @@
       : escapeHTML(name.charAt(0).toUpperCase());
     const fontLabel = s.fontScale <= 0.8 ? '小' : (s.fontScale <= 1 ? '标准' : (s.fontScale <= 1.2 ? '大' : '超大'));
     const weightLabel = s.fontWeight >= 600 ? '加粗' : (s.fontWeight <= 300 ? '细体' : '标准');
+    const myCount = getUserItems().length;
 
     return '<div class="page settings-page">' +
       '<button class="profile-head" data-action="change-avatar" style="width:100%;cursor:pointer">' +
-        '<div class="profile-avatar">' + avatar + '<span class="avatar-edit">✎</span></div>' +
+        '<div class="profile-avatar' + frameClassOf(user, myCount) + '">' + avatar + '<span class="avatar-edit">✎</span>' + badgeOf(user, myCount) + '</div>' +
         '<h2>' + escapeHTML(name) + '</h2><p>@' + escapeHTML(user.username) + ' · ID ' + (user.friendId || '—') + '</p></button>' +
+      cardOf(user, myCount) +
 
         '<div class="set-group"><div class="set-group-title">个人信息</div>' +
+          settingRow('trophy', '成就等级', '第 ' + (achIndex(myCount) + 1) + ' 级 · ' + achievementLevels()[achIndex(myCount)].name + ' · 装扮管理', 'show-achievements') +
           settingRow('user', '昵称', name, 'edit-field', 'data-field="name"') +
           settingRow('comment', '联系方式', p.contact || '未填写', 'edit-field', 'data-field="contact"') +
           settingRow('book', '个性签名', p.bio || '未填写', 'edit-field', 'data-field="bio"') +
@@ -2588,16 +2927,63 @@
         if (el.dataset.tab === 'map') { state.view = 'home'; state.itemsOpen = true; }
         vibrate(10); renderApp(true); break;
       case 'clear-hub-search': state.hubSearch = ''; renderApp(); break;
+      case 'open-storage-map': showStorageMapSheet(); break;
+      case 'equip-reward':
+        (function () {
+          const u = currentUser();
+          if (!u) return;
+          const type = el.dataset.type, key = el.dataset.key;
+          const r = rewardByKey(type, key);
+          if (!r || !rewardUnlocked(r, getUserItems().length)) { toast('该装扮尚未解锁', 'warn'); return; }
+          if (!u.equipped || typeof u.equipped !== 'object') u.equipped = {};
+          u.equipped[type] = (u.equipped[type] === key) ? '' : key;
+          saveDB(); showAchievements(); renderApp();
+          toast(u.equipped[type] ? '已佩戴' + r.name : '已取下' + r.name);
+        })();
+        break;
+      case 'install-app': installApp(); break;
       case 'edit-spaces': openSpaceEditor(); break;
       case 'toggle-space':
-        const sk = el.dataset.key;
-        const si = (db.spaceKeys || []).indexOf(sk);
-        if (si >= 0) {
-          if (db.spaceKeys.length <= 3) { toast('至少保留 3 个格子', 'warn'); break; }
-          db.spaceKeys.splice(si, 1);
-        } else db.spaceKeys.push(sk);
-        saveDB(); openSpaceEditor(); break;
-      case 'reset-spaces': db.spaceKeys = DEFAULT_SPACE_KEYS.slice(); saveDB(); openSpaceEditor(); toast('已恢复默认格子'); break;
+        (function () {
+          const sk = el.dataset.key;
+          const keys = db.spaceKeys || (db.spaceKeys = []);
+          const si = keys.indexOf(sk);
+          if (si >= 0) {
+            if (keys.length <= 3) { toast('至少保留 3 个格子', 'warn'); return; }
+            keys.splice(si, 1);
+          } else keys.push(sk);
+          saveDB();
+          const on = keys.indexOf(sk) !== -1;
+          el.classList.toggle('on', on);
+          let tick = el.querySelector('i');
+          if (on && !tick) el.insertAdjacentHTML('beforeend', '<i>✓</i>');
+          if (!on && tick) tick.remove();
+        })();
+        break;
+      case 'add-custom-space':
+        (function () {
+          const input = $('#custom-space-input');
+          const name = input ? input.value.trim() : '';
+          if (!name) { toast('请先输入地点名称', 'warn'); return; }
+          if (name.length > 10) { toast('地点名称最多 10 个字', 'warn'); return; }
+          const exists = SPACES.some(function (s) { return s.key === name || s.label === name; }) ||
+            (db.customSpaces || []).some(function (s) { return s.key === name; });
+          if (exists) { toast('该地点已存在', 'warn'); return; }
+          if (!db.customSpaces) db.customSpaces = [];
+          db.customSpaces.push({ key: name, label: name, icon: 'box' });
+          if (!db.spaceKeys) db.spaceKeys = [];
+          if (db.spaceKeys.indexOf(name) === -1) db.spaceKeys.push(name);
+          saveDB();
+          const editor = $('#space-editor');
+          if (editor) editor.insertAdjacentHTML('beforeend', spaceOptHTML({ key: name, label: name, icon: 'box' }, db.spaceKeys));
+          if (input) input.value = '';
+          toast('已添加地点「' + name + '」');
+        })();
+        break;
+      case 'reset-spaces':
+        db.spaceKeys = DEFAULT_SPACE_KEYS.slice();
+        (db.customSpaces || []).forEach(function (s) { if (db.spaceKeys.indexOf(s.key) < 0) db.spaceKeys.push(s.key); });
+        saveDB(); openSpaceEditor(); toast('已恢复默认格子'); break;
       case 'edit-device': openDeviceEditor(el.dataset.id); break;
       case 'save-device':
         const ed = db.devices.find(function (d) { return d.id === el.dataset.id; });
@@ -2632,6 +3018,7 @@
         if (area) area.innerHTML = listHTML();
         break;
       case 'space':
+        closeSheet();
         state.locationKey = el.dataset.location || '';
         state.search = '';
         state.filter = 'all';
@@ -2755,6 +3142,19 @@
         if (deviceResults) deviceResults.innerHTML = deviceSearchResultsHTML('');
         break;
       case 'show-map-plan': showMapPlanSheet(); break;
+      case 'location-help': showLocationHelp(); break;
+      case 'map-zoom-in':
+        state.mapZoom = Math.min(2.4, Math.round((state.mapZoom + 0.2) * 100) / 100); applyMapTransform(); break;
+      case 'map-zoom-out':
+        state.mapZoom = Math.max(0.6, Math.round((state.mapZoom - 0.2) * 100) / 100); applyMapTransform(); break;
+      case 'map-zoom-reset':
+        state.mapZoom = 1; state.mapPanX = 0; state.mapPanY = 0; applyMapTransform(); break;
+      case 'open-amap-current':
+        (function () {
+          const sp = getUserSpace();
+          openInAmap(spaceLabel(sp), sp.lat, sp.lng);
+        })();
+        break;
       case 'open-map-config':
         $('#sheet-root').innerHTML =
           '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
@@ -3062,14 +3462,11 @@
       const grid = $('.hub-grid');
       if (grid) {
         const q = state.hubSearch.trim().toLowerCase();
-        const list = q ? HUB_FEATURES.filter(function (f) {
+        const all = HUB_FEATURES();
+        const list = q ? all.filter(function (f) {
           return (f.label + f.desc + f.key).toLowerCase().indexOf(q) !== -1;
-        }) : HUB_FEATURES;
-        grid.innerHTML = list.map(function (f) {
-          return '<button class="hub-tile ' + f.color + '" data-action="hub-go" data-nav-target="' + f.nav + '" data-tab="' + (f.tab || '') + '">' +
-            '<span class="hub-ico">' + (ICON[f.icon] || ICON.grid) + '</span>' +
-            '<b>' + escapeHTML(f.label) + '</b><small>' + escapeHTML(f.desc) + '</small></button>';
-        }).join('');
+        }) : all;
+        grid.innerHTML = list.map(hubTileHTML).join('');
       }
     }
   });
@@ -3204,6 +3601,9 @@
     const scroller = $('#app-view');
     const screen = $('.device-screen');
     if (!scroller || !screen || !('ontouchstart' in window)) return;
+    const ua = (navigator.userAgent || '').toLowerCase();
+    if (/iphone|ipad|ipod/.test(ua)) return;
+    scroller.style.overscrollBehaviorY = 'contain';
 
     const indicator = document.createElement('div');
     indicator.className = 'pull-indicator';

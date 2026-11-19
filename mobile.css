@@ -1216,6 +1216,23 @@ button.photo-preview { border: 0; cursor: pointer; }
 .location-actions { margin-bottom: 14px; }
 .location-actions .btn { width: 100%; }
 
+/* 高德联动推荐 */
+.amap-recommend {
+  display: flex; gap: 11px; align-items: flex-start;
+  background: linear-gradient(135deg, var(--sage-mist), var(--butter-mist));
+  border-radius: 16px; padding: 13px; margin-bottom: 12px;
+}
+.ar-ico {
+  width: 34px; height: 34px; border-radius: 11px; flex: none;
+  background: var(--paper); color: var(--sage-deep); display: grid; place-items: center;
+}
+.ar-ico svg { width: 18px; height: 18px; }
+.ar-text b { display: block; font-size: 12px; margin-bottom: 3px; }
+.ar-text span { font-size: 10px; color: var(--ink-soft); line-height: 1.7; }
+.mp-divider { text-align: center; font-size: 10px; color: var(--muted); margin: 14px 0 10px; }
+.sn-amap { margin-top: 10px; }
+.sn-amap svg { width: 15px; height: 15px; vertical-align: -3px; margin-right: 3px; }
+
 /* 成就等级详情 */
 button.achievement { border: 0; font: inherit; color: inherit; }
 .ach-more { display: inline-block; margin-left: 4px; font-size: 14px; }
@@ -1331,3 +1348,88 @@ button.achievement { border: 0; font: inherit; color: inherit; }
 .version-item h4 { font-size: 13px; margin: 8px 0 6px; }
 .version-item ul { margin: 0; padding-left: 18px; }
 .version-item li { font-size: 11px; color: var(--ink-soft); line-height: 1.8; }
+
+/* ---------- v1.07 全局按钮尺寸适配 ---------- */
+.btn svg { width: 16px; height: 16px; flex: none; }
+button { touch-action: manipulation; }
+.location-actions .btn { min-height: 46px; }
+/* 防止地点页「添加物品」图标被放大：显式限制按钮内 svg */
+.location-actions .btn svg { width: 16px; height: 16px; }
+/* 苹果手机去掉原生下拉刷新露出的空隙 */
+html, body { overscroll-behavior-y: none; }
+.screen-scroll { overscroll-behavior-y: contain; }
+
+/* ---------- 成就装扮奖励 ---------- */
+.reward-pill { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; padding: 2px 7px; border-radius: 8px; background: #f0eee9; color: var(--muted); }
+.reward-pill.on { background: var(--sage-mist); color: var(--sage-deep); }
+.reward-pill svg { width: 11px; height: 11px; }
+.reward-pill.rw-leaf.on { background: #e3f2e6; color: #4f8a5c; }
+.reward-pill.rw-star.on { background: #eef0fb; color: #5a63a8; }
+.reward-pill.rw-galaxy.on { background: linear-gradient(135deg,#e7e3f7,#e9f1fb); color: #6a54a3; }
+.rw-title { font-size: 12px; margin: 16px 0 8px; color: var(--ink); }
+.rw-group { margin-bottom: 12px; }
+.rw-group-label { font-size: 10px; color: var(--muted); margin-bottom: 6px; }
+.rw-options { display: flex; gap: 8px; flex-wrap: wrap; }
+.rw-opt { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 76px; padding: 10px 8px; border-radius: 13px; background: #f6f4f0; color: var(--muted); border: 1.5px solid transparent; }
+.rw-opt .rw-ico { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: #ece9e2; }
+.rw-opt .rw-ico svg { width: 18px; height: 18px; }
+.rw-opt .rw-name { font-size: 10px; font-weight: 600; }
+.rw-opt i { font-style: normal; font-size: 9px; opacity: .8; }
+.rw-opt.locked { opacity: .55; }
+.rw-opt.on { color: var(--ink); }
+.rw-opt.on.rw-sprout { background: #eef6ee; border-color: #a9cfae; }
+.rw-opt.on.rw-sprout .rw-ico { background: #d8ecd9; color: #4f8a5c; }
+.rw-opt.on.rw-leaf { background: #e9f5ea; border-color: #8fc99a; }
+.rw-opt.on.rw-leaf .rw-ico { background: #cdeacf; color: #3f8a50; }
+.rw-opt.on.rw-star { background: #eef0fb; border-color: #a6ade0; }
+.rw-opt.on.rw-star .rw-ico { background: #dfe2f6; color: #5a63a8; }
+.rw-opt.on.rw-galaxy { background: linear-gradient(135deg,#efeaf9,#e8f0fb); border-color: #a58fd6; }
+.rw-opt.on.rw-galaxy .rw-ico { background: linear-gradient(135deg,#d9cfee,#cfe0f4); color: #6a54a3; }
+.rw-opt.worn { border-width: 2px; box-shadow: 0 0 0 3px rgba(123,164,141,.18); }
+.rw-opt.worn i { color: var(--sage-deep); font-weight: 700; }
+/* 个人 / 好友资料上的装扮 */
+.profile-avatar, .friend-profile-avatar { position: relative; }
+.profile-avatar.rw-sprout::before, .friend-profile-avatar.rw-sprout::before,
+.profile-avatar.rw-leaf::before, .friend-profile-avatar.rw-leaf::before,
+.profile-avatar.rw-star::before, .friend-profile-avatar.rw-star::before,
+.profile-avatar.rw-galaxy::before, .friend-profile-avatar.rw-galaxy::before {
+  content: ''; position: absolute; inset: -5px; border-radius: 50%; pointer-events: none;
+}
+.profile-avatar.rw-sprout::before, .friend-profile-avatar.rw-sprout::before { border: 3px solid #8fc99a; }
+.profile-avatar.rw-leaf::before, .friend-profile-avatar.rw-leaf::before { border: 3px solid #4f9a5c; box-shadow: 0 0 0 2px #cdeacf; }
+.profile-avatar.rw-star::before, .friend-profile-avatar.rw-star::before { border: 3px solid #7a84cf; box-shadow: 0 0 0 2px #dfe2f6; }
+.profile-avatar.rw-galaxy::before, .friend-profile-avatar.rw-galaxy::before { border: 3px solid #9b7fd6; box-shadow: 0 0 8px rgba(155,127,214,.6); }
+.ach-badge-decor { position: absolute; right: -4px; bottom: -4px; width: 22px; height: 22px; border-radius: 50%; background: var(--paper); display: grid; place-items: center; box-shadow: var(--shadow-sm); color: #7a84cf; }
+.ach-badge-decor.rw-galaxy { color: #9b7fd6; background: linear-gradient(135deg,#efeaf9,#e8f0fb); }
+.ach-badge-decor svg { width: 15px; height: 15px; }
+.ach-card-decor { display: flex; align-items: center; gap: 7px; margin: -4px 0 12px; padding: 9px 13px; border-radius: 12px; font-size: 11px; font-weight: 700; background: #eef6ee; color: #4f8a5c; border: 1px solid #cdeacf; }
+.ach-card-decor.rw-leaf { background: #e9f5ea; }
+.ach-card-decor.rw-star { background: #eef0fb; color: #5a63a8; border-color: #dfe2f6; }
+.ach-card-decor.rw-galaxy { background: linear-gradient(135deg,#efeaf9,#e8f0fb); color: #6a54a3; border-color: #cfc2ea; }
+.ach-card-decor svg { width: 16px; height: 16px; }
+
+/* ---------- 使用指南分步示意图 ---------- */
+.step-guide { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px; }
+.step-guide .step-illustration { width: 100%; height: auto; padding-top: 68%; border-radius: 14px; }
+.step-guide .step-illustration .guide-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.step-guide .step-num { top: -6px; left: -6px; }
+
+/* ---------- 安装 / 定位帮助步骤 ---------- */
+.install-steps { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
+.install-step { display: flex; align-items: flex-start; gap: 10px; background: var(--sage-mist); border-radius: 12px; padding: 10px 12px; }
+.install-step span { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--sage-deep); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.install-step p { margin: 1px 0 0; font-size: 12px; color: var(--ink); line-height: 1.6; }
+.sheet-note { font-size: 10px; color: var(--muted); line-height: 1.7; margin: 10px 2px; }
+.loc-help-link { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; margin-top: 10px; color: var(--clay); }
+
+/* ---------- 自定义地点 ---------- */
+.custom-space-add { display: flex; gap: 8px; margin: 12px 0 4px; }
+.custom-space-add input { flex: 1; min-width: 0; border: 1.5px solid var(--line); border-radius: 12px; padding: 0 12px; font-size: 13px; background: var(--paper); color: var(--ink); height: 44px; }
+.custom-space-add .btn { min-height: 44px; padding: 0 14px; }
+.sheet-space-grid { margin: 4px 0 8px; }
+
+/* ---------- 查找地图缩放 ---------- */
+.map-stage { position: absolute; inset: 0; transform-origin: 50% 50%; transition: transform .12s ease-out; }
+.map-zoom-ctrl { position: absolute; right: 10px; bottom: 10px; z-index: 6; display: flex; flex-direction: column; gap: 4px; }
+.map-zoom-ctrl button { min-width: 34px; min-height: 34px; border-radius: 10px; background: rgba(255,255,255,.95); color: var(--sage-deep); font-size: 16px; font-weight: 700; box-shadow: var(--shadow-sm); }
+.map-zoom-ctrl button#map-zoom-label { font-size: 10px; }

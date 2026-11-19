@@ -1,11 +1,13 @@
 /* 收纳小管家 · Service Worker（缓存优先，支持离线打开） */
-const CACHE = 'organizer-v1.05';
+const CACHE = 'organizer-v1.07';
 const ASSETS = [
   './',
   './index.html',
   './mobile.css',
   './mobile.js',
-  './manifest.webmanifest'
+  './manifest.webmanifest',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', function (e) {
