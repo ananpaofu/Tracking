@@ -35,6 +35,8 @@
     camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h3l1.5-2h7L18 6h1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z"/><circle cx="12" cy="13" r="3.5"/></svg>',
     back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>',
+    eyeOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 5.7A9.8 9.8 0 0 1 12 5.5c6.5 0 10 6.5 10 6.5a16 16 0 0 1-3.1 3.9M6.4 6.6A15.7 15.7 0 0 0 2 12s3.5 6.5 10 6.5a9.7 9.7 0 0 0 4.1-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
     tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M20.6 13.4 12 22l-9-9V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>',
     refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg>',
     shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>',
@@ -296,6 +298,32 @@
   }
 
   let db = loadDB();
+
+  function ensureLocalSession() {
+    if (db.session && db.users.some(function (u) { return u.id === db.session; })) return;
+    let local = db.users.find(function (u) { return u.username === '我的收纳'; });
+    if (!local) {
+      local = {
+        id: uid(), username: '我的收纳', password: 'local',
+        friendId: makeFriendId(),
+        profile: { name: '我的收纳', contact: '', bio: '', avatar: '' },
+        friends: [], groups: PRESET_GROUPS.map(function (g) { return Object.assign({}, g); }),
+        searchHistory: [], guideSeen: true,
+        createdAt: new Date().toISOString()
+      };
+      db.users.push(local);
+      if (!db.items.some(function (i) { return i.userId === local.id; })) {
+        db.items.push({
+          id: uid(), userId: local.id, name: '我的第一个收纳盒', category: 'other', quantity: 1,
+          location: '柜子', storedAt: todayStr(), expiryDate: '', notes: '示例物品，可编辑或删除',
+          photo: '', createdAt: new Date().toISOString()
+        });
+      }
+      if (db.spaceKeys.indexOf('柜子') === -1) db.spaceKeys.push('柜子');
+    }
+    db.session = local.id;
+    saveDB();
+  }
 
   function saveDB() {
     try { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
@@ -579,7 +607,9 @@
 
   function renderAuth() {
     closeOverlay();
+    document.body.classList.add('auth-mode');
     $('#bottom-nav').classList.add('hidden');
+    $('#app-view').scrollTop = 0;
     $('#app-view').innerHTML =
       '<div class="page auth-page">' +
         '<div class="auth-art"><div class="auth-orb">' + ICON.box + '</div>' +
@@ -593,7 +623,13 @@
             '<div class="field"><label>用户名</label><input id="auth-username" autocomplete="username" placeholder="请输入用户名"></div>' +
             (state.authTab === 'register'
               ? '<div class="field"><label>昵称（选填）</label><input id="auth-nickname" placeholder="希望我们怎么称呼你"></div>' : '') +
-            '<div class="field"><label>密码</label><input id="auth-password" type="password" autocomplete="current-password" placeholder="请输入密码"></div>' +
+            '<div class="field"><label>密码</label><div class="pwd-wrap">' +
+              '<input id="auth-password" type="password" autocomplete="current-password" placeholder="请输入密码">' +
+              '<button type="button" class="pwd-eye" data-action="toggle-pwd" data-target="auth-password" aria-label="显示密码">' + ICON.eyeOff + '</button></div></div>' +
+            (state.authTab === 'register'
+              ? '<div class="field"><label>确认密码</label><div class="pwd-wrap">' +
+                '<input id="auth-password2" type="password" autocomplete="new-password" placeholder="请再次输入密码">' +
+                '<button type="button" class="pwd-eye" data-action="toggle-pwd" data-target="auth-password2" aria-label="显示密码">' + ICON.eyeOff + '</button></div></div>' : '') +
             '<div class="form-error" id="auth-error"></div>' +
             '<button type="submit" class="btn primary block">' + (state.authTab === 'login' ? '登录' : '注册并进入') + '</button>' +
           '</form>' +
@@ -619,6 +655,7 @@
     const changed = forceTop || lastView !== state.view;
     const prevScroll = (!forceTop && lastView === state.view) ? scroller.scrollTop : 0;
     applySettings();
+    document.body.classList.remove('auth-mode');
     $('#bottom-nav').classList.remove('hidden');
     $('#bottom-nav').innerHTML = navHTML();
     scroller.innerHTML = viewHTML();
@@ -631,6 +668,7 @@
     if (state.view === 'alerts') return alertsHTML();
     if (state.view === 'guide') return guideHTML();
     if (state.view === 'community') return communityHTML();
+    if (state.view === 'chat') return chatHTML();
     if (state.view === 'hub') return hubHTML();
     if (state.view === 'device') return deviceHTML();
     if (state.view === 'profile') return profileHTML();
@@ -1046,14 +1084,11 @@
   /* ---------------- Function Hub ---------------- */
 
   const HUB_FEATURES = [
-    { key: 'feed', label: '社区动态', desc: '看看大家的收纳灵感', icon: 'users', nav: 'community', tab: 'feed', color: 'mint' },
-    { key: 'chat', label: '消息聊天', desc: '和同好交流心得', icon: 'comment', nav: 'community', tab: 'chat', color: 'clay' },
-    { key: 'items', label: '我的物品', desc: '查看全部收纳记录', icon: 'box', nav: 'home', color: 'mint' },
-    { key: 'map', label: '收纳地图', desc: '按位置快速找东西', icon: 'pin', nav: 'home', tab: 'map', color: 'clay' },
-    { key: 'device', label: '设备联动', desc: '定位标签一键查找', icon: 'signal', nav: 'device', color: 'mint' },
-    { key: 'alerts', label: '到期提醒', desc: '临期物品优先处理', icon: 'bell', nav: 'alerts', color: 'clay' },
-    { key: 'guide', label: '使用指南', desc: '第一次用也不迷茫', icon: 'book', nav: 'guide', color: 'mint' },
-    { key: 'profile', label: '个人设置', desc: '资料、偏好与地图配置', icon: 'user', nav: 'profile', color: 'clay' }
+    { key: 'chat', label: '消息聊天', desc: '和好友群友聊天交流', icon: 'comment', nav: 'chat', color: 'clay' },
+    { key: 'community', label: '社区动态', desc: '看看大家的收纳灵感', icon: 'users', nav: 'community', color: 'mint' },
+    { key: 'map', label: '收纳地图', desc: '按位置分类快速找东西', icon: 'pin', nav: 'home', tab: 'map', color: 'clay' },
+    { key: 'device', label: '设备联动', desc: '蓝牙标签定位与查找', icon: 'signal', nav: 'device', color: 'mint' },
+    { key: 'alerts', label: '到期提醒', desc: '临期物品优先处理', icon: 'bell', nav: 'alerts', color: 'clay' }
   ];
 
   function hubHTML() {
@@ -1073,11 +1108,6 @@
         '</button>';
       }).join('') + '</div>' +
       (list.length ? '' : '<div class="empty"><h3>没有找到相关功能</h3><p>试试「查找」「地图」「提醒」</p></div>') +
-      '<button class="hub-community-entry" data-action="hub-go" data-nav-target="community" data-tab="feed">' +
-        '<span class="hub-ico">' + ICON.users + '</span>' +
-        '<span><b>社区一角</b><small>看看大家的收纳灵感与最新动态</small></span>' +
-        '<span class="hub-arrow">›</span>' +
-      '</button>' +
     '</div>';
   }
 
@@ -1087,15 +1117,24 @@
     return '<div class="page">' +
       '<div class="section-head community-head" style="margin-top:12px">' +
         '<button class="icon-btn" data-action="back" title="返回">' + ICON.back + '</button>' +
-        '<h2 style="flex:1;margin-left:8px">社区</h2>' +
-        '<button class="icon-btn" data-action="back" title="关闭">' + ICON.close + '</button>' +
+        '<h2 style="flex:1;margin-left:8px">社区动态</h2>' +
+        '<button class="icon-btn" data-action="open-chat-list" title="消息聊天">' + ICON.comment + '</button>' +
       '</div>' +
-      '<p class="community-sub">和收纳同好交流，看看大家的新鲜动态</p>' +
-      '<div class="section-head mini-head"><h3>消息 · 聊天</h3><span>点开就能聊</span></div>' +
-      '<div class="chat-list-panel">' + chatListHTML() + '</div>' +
-      '<div class="section-head mini-head"><h3>社区动态</h3><span>最新分享</span></div>' +
+      '<p class="community-sub">看看大家的收纳灵感与最新动态</p>' +
       '<div id="community-content">' + feedHTML() + '</div>' +
       '<button class="fab-post" data-action="new-post">' + ICON.plus + '</button>' +
+      '</div>';
+  }
+
+  function chatHTML() {
+    return '<div class="page">' +
+      '<div class="section-head community-head" style="margin-top:12px">' +
+        '<button class="icon-btn" data-action="back" title="返回">' + ICON.back + '</button>' +
+        '<h2 style="flex:1;margin-left:8px">消息聊天</h2>' +
+        '<button class="icon-btn" data-action="open-friends" title="添加好友">' + ICON.plus + '</button>' +
+      '</div>' +
+      '<p class="community-sub">和好友、群友交流收纳心得</p>' +
+      '<div class="chat-list-panel">' + chatListHTML() + '</div>' +
       '</div>';
   }
 
@@ -2195,6 +2234,14 @@
     switch (action) {
       case 'auth-tab':
         state.authTab = el.dataset.value; renderAuth(); break;
+      case 'toggle-pwd':
+        const pwd = $('#' + el.dataset.target);
+        if (pwd) {
+          const show = pwd.type === 'password';
+          pwd.type = show ? 'text' : 'password';
+          el.innerHTML = show ? ICON.eye : ICON.eyeOff;
+        }
+        break;
       case 'add-item': openItemSheet(); break;
       case 'edit-item': openItemSheet(el.dataset.id); break;
       case 'delete-item': deleteItem(el.dataset.id); break;
@@ -2232,10 +2279,11 @@
       case 'close-overlay': closeOverlay(); break;
       case 'close-chat': closeOverlay(); state.chatId = null; break;
       case 'back':
-        if (state.view === 'community') state.view = 'hub';
+        if (state.view === 'community' || state.view === 'chat') state.view = 'hub';
         else state.view = (state.backTo === 'profile') ? 'profile' : 'home';
         state.communityTab = 'feed';
         renderApp(true); break;
+      case 'open-chat-list': state.view = 'chat'; vibrate(10); renderApp(true); break;
       case 'filter':
         state.filter = el.dataset.value;
         vibrate(8);
@@ -2683,6 +2731,8 @@
       errorEl.textContent = '';
       if (!username || !password) { errorEl.textContent = '请填写用户名和密码'; return; }
       if (state.authTab === 'register') {
+        const password2 = $('#auth-password2') ? $('#auth-password2').value : '';
+        if (password !== password2) { errorEl.textContent = '两次输入的密码不一致'; return; }
         if (db.users.some(function (u) { return u.username === username; })) { errorEl.textContent = '该用户名已被注册'; return; }
         const nickname = $('#auth-nickname').value.trim() || username;
         const user = { id: uid(), username: username, password: password,
@@ -2830,6 +2880,7 @@
   }
 
   function render() {
+    ensureLocalSession();
     if (currentUser()) { renderApp(true); showTutorial(); }
     else renderAuth();
   }

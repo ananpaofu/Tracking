@@ -566,14 +566,32 @@ button { cursor: pointer; border: none; background: none; }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
 
 @media (max-width: 480px) {
+  html, body {
+    width: 100%; height: 100%; min-height: 0;
+    overflow: hidden; overscroll-behavior: none;
+  }
   body { padding: 0; display: block; background: var(--cream); }
   .ambient { display: none; }
-  .device-frame { width: 100vw; height: 100vh; height: 100dvh; max-height: none; border: none; border-radius: 0; padding: 0; box-shadow: none; }
+  .device-frame {
+    width: 100vw; height: 100vh; height: 100dvh;
+    max-height: none; border: none; border-radius: 0; padding: 0; box-shadow: none;
+  }
   .device-screen { border-radius: 0; }
-  .device-notch { display: none; }
-  .status-bar { height: 44px; padding: 6px 24px 0; }
-  .page { padding-left: 18px; padding-right: 18px; }
-  .home-indicator { background: #cfc9c0; }
+  .device-notch, .status-bar, .home-indicator { display: none !important; }
+  .screen-scroll { padding-top: env(safe-area-inset-top, 0px); }
+  .bottom-nav {
+    height: calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .page { padding-left: 18px; padding-right: 18px; padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+  .auth-page { padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px)); }
+  .toast-root { top: calc(12px + env(safe-area-inset-top, 0px)); }
+  .pull-indicator { top: calc(8px + env(safe-area-inset-top, 0px)); }
+  body.auth-mode #bottom-nav { display: none !important; }
+  .chat-input { padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .sheet { padding-bottom: calc(26px + env(safe-area-inset-bottom, 0px)); }
+  .camera-controls { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .fab-post { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* ============================================================
@@ -1005,3 +1023,66 @@ button { cursor: pointer; border: none; background: none; }
 .fw-light .page, .fw-light .item-title, .fw-light .set-label b { font-weight: 300; }
 
 @keyframes liveBlink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+/* ============================================================
+   Mobile final polish · 文字清晰 / 底栏固定 / +按钮归位 / 状态栏
+   ============================================================ */
+@media (max-width: 480px) {
+  html, body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  /* 去掉噪点背景与毛玻璃，避免文字被模糊 */
+  .screen-scroll {
+    background-image: none !important;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .bottom-nav, .hstat, .sheet-mask {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  /* 关闭位移动画，避免合成层导致字体发虚 */
+  .page, .item-card { animation: none !important; }
+  .nav-add { animation: none !important; }
+
+  /* 底部导航：完全固定贴底、不透明、下移贴近屏幕底边 */
+  .bottom-nav {
+    position: absolute !important;
+    left: 0; right: 0; bottom: 0;
+    height: calc(66px + env(safe-area-inset-bottom, 0px));
+    padding: 0 6px env(safe-area-inset-bottom, 0px);
+    background: var(--paper) !important;
+    border-top: 1px solid var(--line);
+    align-items: center;
+  }
+  /* + 按钮收回导航栏内，不再凸出方框 */
+  .nav-add {
+    width: 42px; height: 42px;
+    margin: 0 auto;
+    border-radius: 13px;
+    box-shadow: 0 6px 14px rgba(127,160,141,.3);
+  }
+  .home-indicator, .status-bar, .device-notch { display: none !important; }
+
+  /* 登录表单：小眼睛 */
+  .pwd-wrap { position: relative; }
+  .pwd-wrap input { padding-right: 44px; }
+  .pwd-eye {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 30px; height: 30px; border-radius: 9px;
+    display: grid; place-items: center; color: var(--muted);
+  }
+  .pwd-eye svg { width: 18px; height: 18px; }
+  .pwd-eye:active { background: var(--sage-mist); color: var(--sage-deep); }
+}
+
+/* 桌面预览也支持小眼睛 */
+.pwd-wrap { position: relative; }
+.pwd-wrap input { padding-right: 44px; }
+.pwd-eye {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 30px; height: 30px; border-radius: 9px;
+  display: grid; place-items: center; color: var(--muted);
+}
+.pwd-eye svg { width: 18px; height: 18px; }
