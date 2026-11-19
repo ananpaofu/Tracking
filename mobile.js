@@ -2,23 +2,61 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.02';
+  const APP_VERSION = '1.05';
   const CHANGELOG = [
-    { version: '1.02', date: '2026-11-19', title: '搜索与地图体验优化', items: [
-      '修复搜索时"已收纳物品"数量变成 0 的问题，统计数字始终显示真实总数',
-      '搜索时显示"找到 N 件物品"提示，并自动定位到下方的物品记录',
-      '点击收纳地图格子改为打开独立页面，专门展示该位置收纳的具体物品',
-      '可在位置详情页直接添加物品到该位置',
-      '修复底部导航栏位置，固定在屏幕最底部，兼容安卓与苹果手机'
+    { version: '1.05', date: '2026-11-19', title: '权限兼容与地图稳定性', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '更新说明按「问题修复 / 全新功能 / 体验优化」分区展示',
+        '修复安卓手机拍照、定位授权弹窗被拦截导致无法打开的问题',
+        '修复查找地图中「我的位置」标记会到处飘动的问题'
+      ] },
+      { label: '全新功能', icon: 'sparkle', items: [
+        '支持 PWA 安装：安卓 Chrome 可将 App 添加到桌面并全屏启动',
+        '成就系统可点击查看详情，查看各等级与升级进度'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '相机与定位授权失败时给出清晰指引，不再阻断使用',
+        '地图「我的位置」固定显示，定位更稳定可靠'
+      ] }
     ] },
-    { version: '1.01', date: '2026-11-19', title: '首个正式版本', items: [
-      '新手教程与首页物品展示优化，圆圈数字居中放大',
-      'AI 拍照识物、存放位置联动收纳地图、自定义位置自动同步',
-      '搜索历史、字母 A-Z 排序、统计项可点开查看',
-      '设备联动重构：蓝牙搜索连接、联动物品折叠',
-      '微信风格设置页：头像昵称、字号粗细、主题色',
-      '好友与群聊：编号 ID 加好友、表情表情包、聊天背景',
-      '组建群聊、拍照界面优化、版本号与更新历史'
+    { version: '1.04', date: '2026-11-19', title: '资料展示与提醒优化', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复字体大小档位：小/标准/大/超大四档清晰区分',
+        '修复主题色：极简灰与草绿明显区分'
+      ] },
+      { label: '全新功能', icon: 'sparkle', items: [
+        '「个人备注」改为「个性签名」，加好友后可查看对方签名与资料',
+        '使用指南每个步骤增加配图',
+        '「需要关注」改为「到期提醒」，临期物品自动预警'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '精简「我的」页面，移除好友与群聊、设备联动入口'
+      ] }
+    ] },
+    { version: '1.03', date: '2026-11-19', title: '更新提示与机型适配', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '重构底部导航栏布局与视口高度适配，兼容安卓、苹果、刘海屏与曲面屏'
+      ] },
+      { label: '全新功能', icon: 'sparkle', items: [
+        '进入 App 弹出版本更新提示，展示更新摘要，同一版本只弹一次',
+        '社区移入功能中心，设备联动调整到底部导航第 4 格'
+      ] }
+    ] },
+    { version: '1.02', date: '2026-11-19', title: '搜索与地图体验优化', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复搜索时「已收纳物品」数量变成 0 的问题',
+        '修复底部导航栏位置，固定在屏幕最底部'
+      ] },
+      { label: '全新功能', icon: 'sparkle', items: [
+        '搜索时显示「找到 N 件物品」提示并自动定位到结果',
+        '收纳地图格子改为独立页面，可查看该位置物品并直接添加'
+      ] }
+    ] },
+    { version: '1.01', date: '2026-11-19', title: '首个正式版本', sections: [
+      { label: '全新功能', icon: 'sparkle', items: [
+        '新手教程、AI 拍照识物、收纳地图联动、搜索历史与 A-Z 排序',
+        '设备联动、微信风格设置页、好友与群聊、组建群聊'
+      ] }
     ] }
   ];
 
@@ -54,6 +92,7 @@
     camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 8a2 2 0 0 1 2-2h3l1.5-2h7L18 6h1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z"/><circle cx="12" cy="13" r="3.5"/></svg>',
     back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
     eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.6"/></svg>',
     eyeOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 5.7A9.8 9.8 0 0 1 12 5.5c6.5 0 10 6.5 10 6.5a16 16 0 0 1-3.1 3.9M6.4 6.6A15.7 15.7 0 0 0 2 12s3.5 6.5 10 6.5a9.7 9.7 0 0 0 4.1-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
     tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M20.6 13.4 12 22l-9-9V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>',
@@ -205,7 +244,7 @@
     { key: 'ocean', label: '海洋蓝', vars: { '--sage': '#6f9dbd', '--sage-deep': '#3f6f92', '--sage-mist': '#e5f0f7', '--cream': '#f3f8fb', '--paper': '#fbfdff', '--clay': '#7fa8c9', '--clay-mist': '#e8f1f8' } },
     { key: 'sunset', label: '暖阳橘', vars: { '--sage': '#d5937a', '--sage-deep': '#b2684e', '--sage-mist': '#f8e8df', '--cream': '#fbf4ee', '--paper': '#fffaf5', '--clay': '#d9a24f', '--clay-mist': '#fbf0dc' } },
     { key: 'lilac', label: '丁香紫', vars: { '--sage': '#a38cbd', '--sage-deep': '#7a619a', '--sage-mist': '#efe9f6', '--cream': '#f7f4fa', '--paper': '#fdfaff', '--clay': '#bd8fa8', '--clay-mist': '#f7eaf1' } },
-    { key: 'ink', label: '极简灰', vars: { '--sage': '#7f8c86', '--sage-deep': '#55635c', '--sage-mist': '#ecefec', '--cream': '#f6f6f4', '--paper': '#fdfdfc', '--clay': '#a99a8f', '--clay-mist': '#f2eee9' } }
+    { key: 'ink', label: '极简灰', vars: { '--sage': '#8a8f96', '--sage-deep': '#4b5563', '--sage-mist': '#eef0f3', '--cream': '#f5f6f7', '--paper': '#fdfdfe', '--clay': '#9aa0a6', '--clay-mist': '#f0f1f3' } }
   ];
 
   const AI_KEYWORDS = [
@@ -273,7 +312,7 @@
       posts: DEMO_POSTS.slice(),
       messages: { c1: (DEMO_MESSAGES.c1 || []).slice(), c2: (DEMO_MESSAGES.c2 || []).slice(), c3: (DEMO_MESSAGES.c3 || []).slice() },
       devices: [], spaceKeys: DEFAULT_SPACE_KEYS.slice(), locationEnabled: true,
-      bluetoothOn: false, stickers: [], chatBgs: {}, customCategories: [],
+      bluetoothOn: false, stickers: [], chatBgs: {}, customCategories: [], lastSeenVersion: '',
       settings: { fontScale: 1, fontWeight: 400, theme: 'sage', notify: true, sound: true, secure: true }
     };
   }
@@ -304,10 +343,11 @@
       if (typeof db.bluetoothOn !== 'boolean') db.bluetoothOn = false;
       if (!Array.isArray(db.stickers)) db.stickers = [];
       if (!Array.isArray(db.customCategories)) db.customCategories = [];
+      if (typeof db.lastSeenVersion !== 'string') db.lastSeenVersion = '';
       if (!db.chatBgs || typeof db.chatBgs !== 'object') db.chatBgs = {};
       if (!db.settings || typeof db.settings !== 'object') db.settings = {};
       const s = db.settings;
-      if (!s.fontScale || s.fontScale < 0.8 || s.fontScale > 1.4) s.fontScale = 1;
+      if (!s.fontScale || s.fontScale < 0.8 || s.fontScale > 1.45) s.fontScale = 1;
       if (s.fontWeight !== 300 && s.fontWeight !== 400 && s.fontWeight !== 600 && s.fontWeight !== 700) s.fontWeight = 400;
       if (!THEMES.some(function (t) { return t.key === s.theme; })) s.theme = 'sage';
       if (typeof s.notify !== 'boolean') s.notify = true;
@@ -486,9 +526,7 @@
     Object.keys(theme.vars).forEach(function (k) { screen.style.setProperty(k, theme.vars[k]); });
     screen.style.setProperty('--app-font-scale', String(s.fontScale));
     screen.style.setProperty('--app-font-weight', String(s.fontWeight));
-    screen.classList.remove('fs-small', 'fs-large', 'fw-bold', 'fw-light');
-    if (s.fontScale < 0.9) screen.classList.add('fs-small');
-    if (s.fontScale > 1.1) screen.classList.add('fs-large');
+    screen.classList.remove('fw-bold', 'fw-light');
     if (s.fontWeight >= 600) screen.classList.add('fw-bold');
     if (s.fontWeight <= 300) screen.classList.add('fw-light');
   }
@@ -594,6 +632,35 @@
     if (u) { u.guideSeen = true; saveDB(); }
     closeOverlay();
     renderApp(true);
+    setTimeout(showUpdatePopup, 120);
+  }
+
+  function showUpdatePopup(force) {
+    if (!force && db.lastSeenVersion === APP_VERSION) return;
+    const log = CHANGELOG.find(function (l) { return l.version === APP_VERSION; });
+    if (!log) return;
+    const preview = logAllItems(log).slice(0, 3).map(function (t) {
+      return '<li>' + escapeHTML(t) + '</li>';
+    }).join('');
+    $('#overlay-root').innerHTML =
+      '<div class="full-mask update-mask">' +
+        '<div class="update-card">' +
+          '<button class="update-close" data-action="close-update" aria-label="关闭">' + ICON.close + '</button>' +
+          '<div class="update-illustration">' + ICON.sparkle + '</div>' +
+          '<div class="update-badge">新版本 v' + log.version + '</div>' +
+          '<h2>' + escapeHTML(log.title) + '</h2>' +
+          '<p class="update-date">更新日期 ' + log.date + '</p>' +
+          '<ul class="update-list">' + preview + '</ul>' +
+          '<p class="update-more">详细内容请到「我的 → 版本与更新」查看</p>' +
+          '<button class="btn primary block" data-action="close-update">知道了</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function closeUpdatePopup() {
+    db.lastSeenVersion = APP_VERSION;
+    saveDB();
+    closeOverlay();
   }
 
   function recognizePhoto(name, callback) {
@@ -692,7 +759,7 @@
     }
     return item('home', '首页', ICON.home) + item('hub', '功能', ICON.grid) +
       '<button class="nav-add" data-action="add-item" aria-label="添加物品">' + ICON.plus + '</button>' +
-      item('community', '社区', ICON.users) + item('profile', '我的', ICON.user);
+      item('device', '联动', ICON.signal) + item('profile', '我的', ICON.user);
   }
 
   function renderApp(forceTop) {
@@ -737,6 +804,22 @@
     });
   }
 
+  function expiryWarningHTML() {
+    const list = sortedItems(attentionItems());
+    if (!list.length) return '';
+    const top = list[0];
+    const info = expiryInfo(top);
+    const expiredCount = list.filter(function (i) { return expiryInfo(i).key === 'expired'; }).length;
+    let headline;
+    if (expiredCount) headline = '有 ' + expiredCount + ' 件物品已过期，请尽快处理';
+    else headline = '「' + top.name + '」' + (info.days === 0 ? '今天到期' : '还有 ' + info.days + ' 天到期');
+    const more = list.length > 1 ? ' 等 ' + list.length + ' 件' : '';
+    return '<button class="expiry-warning" data-action="show-alerts">' +
+      '<span class="ew-ico">' + ICON.alert + '</span>' +
+      '<span class="ew-text"><b>到期预警</b><span>' + escapeHTML(headline) + more + '</span></span>' +
+      '<span class="ew-arrow">›</span></button>';
+  }
+
   /* ---------------- Home ---------------- */
 
   function vibrate(pattern) {
@@ -773,27 +856,55 @@
       '</div>';
   }
 
+  function achievementLevels() {
+    return [
+      { min: 0, name: '初出茅庐', next: 5, perk: '解锁基础收纳记录' },
+      { min: 5, name: '收纳新秀', next: 10, perk: '解锁 A-Z 字母排序' },
+      { min: 10, name: '整理达人', next: 20, perk: '解锁到期自动预警' },
+      { min: 20, name: '空间大师', next: null, perk: '解锁全部专属成就徽章' }
+    ];
+  }
+
   function achievementHTML() {
     const n = getUserItems().length;
-    const levels = [
-      { min: 0, name: '初出茅庐', next: 5 },
-      { min: 5, name: '收纳新秀', next: 10 },
-      { min: 10, name: '整理达人', next: 20 },
-      { min: 20, name: '空间大师', next: null }
-    ];
+    const levels = achievementLevels();
     let idx = 0;
     levels.forEach(function (l, i) { if (n >= l.min) idx = i; });
     const cur = levels[idx];
     const next = cur.next;
     const pct = next ? Math.round((n - cur.min) / (next - cur.min) * 100) : 100;
-    return '<div class="panel achievement">' +
+    return '<button class="panel achievement" data-action="show-achievements" style="width:100%;text-align:left">' +
       '<div class="ach-badge">' + ICON.trophy + '</div>' +
       '<div class="ach-info">' +
         '<div class="ach-title">' + cur.name + '<small>等级 ' + (idx + 1) + '</small></div>' +
         '<div class="ach-sub">' + (next ? '再收纳 ' + (next - n) + ' 件即可升级' : '已达最高等级，太厉害了') + '</div>' +
         '<div class="ach-bar"><div class="ach-fill" style="width:' + pct + '%"></div></div>' +
-      '</div><div class="ach-level">' + n + ' 件</div>' +
-      '</div>';
+      '</div><div class="ach-level">' + n + ' 件<span class="ach-more">›</span></div>' +
+      '</button>';
+  }
+
+  function showAchievements() {
+    const n = getUserItems().length;
+    const levels = achievementLevels();
+    let curIdx = 0;
+    levels.forEach(function (l, i) { if (n >= l.min) curIdx = i; });
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>成就等级</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<p class="sheet-tip">已收纳 ' + n + ' 件物品 · 收纳越多，等级越高，解锁更多专属权益</p>' +
+        levels.map(function (l, i) {
+          const unlocked = n >= l.min;
+          const current = i === curIdx;
+          return '<div class="ach-row' + (unlocked ? ' unlocked' : '') + (current ? ' current' : '') + '">' +
+            '<span class="ach-row-ico">' + (unlocked ? ICON.trophy : ICON.lock) + '</span>' +
+            '<span class="ach-row-info"><b>' + l.name + '</b><small>等级 ' + (i + 1) + ' · ' + l.perk + '</small>' +
+              '<em>' + (unlocked ? (current ? '当前等级' : '已解锁') : '收纳满 ' + l.min + ' 件解锁') + '</em></span>' +
+            (current ? '<span class="ach-row-tag">当前</span>' : '') +
+          '</div>';
+        }).join('') +
+        '<div class="sheet-actions"><button class="btn primary block" data-action="add-item">去添加物品升级</button></div>' +
+      '</div></div>';
   }
 
   function ringHTML(item) {
@@ -877,11 +988,12 @@
             '<div class="hero-avatar">' + escapeHTML(name.charAt(0).toUpperCase()) + '</div></div>' +
           '<div class="hero-stats">' +
             '<button class="hstat" data-action="show-all-items"><div class="hstat-num" data-count="' + items.length + '">' + items.length + '</div><div class="hstat-label">已收纳物品 ›</div></button>' +
-            '<button class="hstat alert" data-action="show-alerts"><div class="hstat-num" data-count="' + attentionItems().length + '">' + attentionItems().length + '</div><div class="hstat-label">需要关注 ›</div></button>' +
+            '<button class="hstat alert' + (attentionItems().length ? ' pulse' : '') + '" data-action="show-alerts"><div class="hstat-num" data-count="' + attentionItems().length + '">' + attentionItems().length + '</div><div class="hstat-label">到期提醒 ›</div></button>' +
             '<button class="hstat" data-action="show-categories"><div class="hstat-num" data-count="' + cats + '">' + cats + '</div><div class="hstat-label">物品分类 ›</div></button>' +
           '</div>' +
           '<button class="hero-add" data-action="add-item">' + ICON.plus + ' 添加物品</button>' +
         '</div>' +
+        expiryWarningHTML() +
         '<div class="search-feature">' +
           '<div class="sf-title">' + ICON.search + '<span>搜索我的物品</span></div>' +
           '<div class="search-bar home-search">' +
@@ -1146,10 +1258,10 @@
         '<button class="icon-btn" data-action="back">' + ICON.back + '</button>' +
         '<h2 style="flex:1;margin-left:6px">使用指南</h2></div>' +
       '<div class="guide-hero"><h1>轻松上手</h1><p>四步掌握，记录收纳更省心</p></div>' +
-      step('1', '添加物品', '点击底部 + 按钮，可拍照记录外观，填写名称、分类、数量和存放位置。') +
-      step('2', '随时查看', '首页展示收纳日期、位置与备注，支持搜索和按状态筛选。') +
-      step('3', '社区交流', '在社区发布动态、和其他用户聊天，交流收纳心得。') +
-      step('4', '设备联动', '绑定定位标签后可一键查找、离位提醒，并返回时自动更新收纳时间。') +
+      step('1', '添加物品', '点击底部 + 按钮，可拍照识物，填写名称、分类、数量和存放位置，保存后自动归入收纳地图。', 'camera') +
+      step('2', '随时查看', '首页展示收纳日期、位置与备注，支持搜索、字母排序和到期提醒，点地图格子可查看该位置的物品。', 'home') +
+      step('3', '社区交流', '在功能中心进入社区发布动态、添加好友、加入群聊，发文字表情和贴纸，还能更换聊天背景。', 'users') +
+      step('4', '设备联动', '点击底部「联动」进入设备联动，搜索并连接蓝牙标签，给物品贴上标签后可一键查找、离位提醒。', 'signal') +
       '<h3 class="card-title">颜色说明</h3>' +
       '<div class="legend">' +
         '<span class="expiry fresh">绿色 · 新鲜</span><span class="expiry soon">浅黄 · 30 天内</span>' +
@@ -1158,8 +1270,10 @@
       '</div></div>';
   }
 
-  function step(num, title, desc) {
-    return '<div class="step"><div class="step-num">' + num + '</div><div><h3>' + title + '</h3><p>' + desc + '</p></div></div>';
+  function step(num, title, desc, icon) {
+    return '<div class="step">' +
+      '<div class="step-illustration">' + (ICON[icon] || ICON.box) + '<span class="step-num">' + num + '</span></div>' +
+      '<div class="step-text"><h3>' + title + '</h3><p>' + desc + '</p></div></div>';
   }
 
   /* ---------------- Function Hub ---------------- */
@@ -1378,10 +1492,13 @@
         '<div class="info-card" id="friend-error" style="min-height:0;padding:6px 12px;color:#c98d86;font-size:11px"></div>' +
         '<div class="set-group-title">我的好友（' + friends.length + '）</div>' +
         (friends.length ? friends.map(function (f) {
-          return '<button class="set-row" data-action="open-chat" data-id="u_' + f.userId + '">' +
-            '<span class="chat-avatar">' + escapeHTML(f.name.charAt(0)) + '</span>' +
-            '<span class="set-label"><b>' + escapeHTML(f.name) + '</b><small>ID ' + escapeHTML(f.friendId || '') + '</small></span>' +
-            '<span class="set-arrow">›</span></button>';
+          return '<div class="friend-row">' +
+            '<button class="set-row friend-main" data-action="open-chat" data-id="u_' + f.userId + '">' +
+              '<span class="chat-avatar">' + escapeHTML(f.name.charAt(0)) + '</span>' +
+              '<span class="set-label"><b>' + escapeHTML(f.name) + '</b><small>' + (f.signature ? escapeHTML(f.signature) : 'ID ' + escapeHTML(f.friendId || '')) + '</small></span>' +
+              '<span class="set-arrow">›</span></button>' +
+            '<button class="friend-profile-btn" data-action="friend-profile" data-id="' + f.userId + '" title="查看资料">资料</button>' +
+          '</div>';
         }).join('') : '<p class="sheet-tip">还没有好友，输入 ID 添加一位吧</p>') +
         '<div class="section-head" style="margin:14px 2px 6px"><div class="set-group-title" style="padding:0">我的群聊（' + groups.length + '）</div>' +
           '<button class="text-btn" data-action="create-group">+ 创建群聊</button></div>' +
@@ -1392,6 +1509,34 @@
             '<span class="set-arrow">›</span></button>';
         }).join('') : '<p class="sheet-tip">还没有群聊，点右上角创建</p>') +
         '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">关闭</button></div>' +
+      '</div></div>';
+  }
+
+  function showFriendProfile(userId) {
+    const target = db.users.find(function (u) { return u.id === userId; });
+    const friend = currentUser().friends.find(function (f) { return f.userId === userId; });
+    if (!target && !friend) return;
+    const name = (target && target.profile && target.profile.name) || (friend && friend.name) || '好友';
+    const signature = (target && target.profile && target.profile.bio) || (friend && friend.signature) || '这个人很懒，还没有留下个性签名';
+    const contact = (target && target.profile && target.profile.contact) || '未填写';
+    const avatarText = name.charAt(0).toUpperCase();
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>好友资料</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<div class="friend-profile-head">' +
+          '<div class="friend-profile-avatar">' + escapeHTML(avatarText) + '</div>' +
+          '<h2>' + escapeHTML(name) + '</h2>' +
+          '<p>ID ' + escapeHTML((friend && friend.friendId) || (target && target.friendId) || '') + '</p>' +
+        '</div>' +
+        '<div class="info-card">' +
+          '<div class="friend-profile-row"><b>个性签名</b><span>' + escapeHTML(signature) + '</span></div>' +
+          '<div class="friend-profile-row"><b>联系方式</b><span>' + escapeHTML(contact) + '</span></div>' +
+        '</div>' +
+        '<div class="sheet-actions">' +
+          '<button class="btn ghost" data-action="open-friends">返回</button>' +
+          '<button class="btn primary" data-action="open-chat" data-id="u_' + escapeHTML(userId) + '">发消息</button>' +
+        '</div>' +
       '</div></div>';
   }
 
@@ -1445,7 +1590,11 @@
     if (user.friends.some(function (f) { return f.friendId === id; })) { if (err) err.textContent = '该好友已添加'; return; }
     const target = db.users.find(function (u) { return u.friendId === id; });
     if (target) {
-      user.friends.push({ userId: target.id, friendId: id, name: (target.profile && target.profile.name) || target.username });
+      user.friends.push({
+        userId: target.id, friendId: id,
+        name: (target.profile && target.profile.name) || target.username,
+        signature: (target.profile && target.profile.bio) || ''
+      });
       saveDB(); toast('已添加好友'); openFriendsSheet(); renderApp();
     } else {
       if (err) err.textContent = '未找到该 ID 对应用户（演示版仅可添加本机已注册用户）';
@@ -1666,9 +1815,14 @@
       }
       const near = nearestBuilding(gcj.lat, gcj.lng);
       apply(near.building, '已进入' + school.short + '，距你最近的是');
-    }, function () {
-      toast('未能获取定位权限，已保留上次位置；可在浏览器设置中允许定位，或手动选择空间', 'warn');
-    }, { enableHighAccuracy: true, timeout: 4000, maximumAge: 30000 });
+    }, function (err) {
+      const msg = (err && err.code === 1)
+        ? '定位权限未授予：请在浏览器设置中允许定位，或点「手动选择」'
+        : '定位不可用（可能有悬浮窗拦截）：请关闭其他应用的气泡/悬浮层后重试，或点「手动选择」';
+      toast(msg, 'warn');
+      const btn = $('#space-detect-btn');
+      if (btn) btn.textContent = '自动检索位置';
+    }, { enableHighAccuracy: false, timeout: 6000, maximumAge: 60000 });
   }
 
   function mapConfig() {
@@ -1906,7 +2060,7 @@
       '<span class="room room-1">客厅</span><span class="room room-2">厨房</span>' +
       '<span class="room room-3">卧室</span><span class="room room-4">书房</span>' +
       '<div class="space-banner">' + ICON.homePin + '<span>当前空间：' + escapeHTML(spaceLabel(space)) + '</span></div>' +
-      '<div class="map-me">' + ICON.user + '</div>' +
+      '<div class="map-me">' + ICON.user + '<span class="map-me-label">你在这里</span></div>' +
       (tags || '<div class="map-empty">暂无物品标签</div>') +
       '<div id="amap-container" class="amap-container hidden"></div>' +
     '</div>';
@@ -2087,34 +2241,33 @@
           '<button class="back cam-back" data-action="close-overlay" aria-label="返回">' + ICON.back + '</button>' +
           '<h2>拍照识物</h2>' +
           '<button class="cam-cancel" data-action="close-overlay">取消</button></div>' +
-        '<div class="camera-stage">' +
-          '<video id="cam-video" autoplay playsinline></video>' +
-          '<div class="cam-placeholder" id="cam-placeholder">' + ICON.camera + '<p>相机启动中…</p></div>' +
+        '<div class="camera-stage cam-choice">' +
+          '<div class="cam-choice-art">' + ICON.camera + '</div>' +
+          '<h3>选择照片来源</h3>' +
+          '<p>拍照后会自动进行 AI 识别</p>' +
         '</div>' +
-        '<div class="camera-controls">' +
-          '<button class="cam-side" data-action="pick-photo" data-target="' + target + '">' + ICON.grid + '<span>相册</span></button>' +
-          '<button class="capture-btn" data-action="capture-photo" data-target="' + target + '" aria-label="拍照"></button>' +
-          '<button class="cam-side" data-action="camera-ai" data-target="' + target + '">' + ICON.sparkle + '<span>AI 识别</span></button>' +
+        '<div class="camera-controls cam-choice-controls">' +
+          '<button class="cam-big-btn" data-action="native-camera" data-target="' + target + '">' + ICON.camera + '<span>拍照</span></button>' +
+          '<button class="cam-big-btn" data-action="pick-photo" data-target="' + target + '">' + ICON.grid + '<span>相册</span></button>' +
         '</div>' +
       '</div>';
+  }
 
-    const video = $('#cam-video');
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(function (stream) {
-          activeStream = stream;
-          video.srcObject = stream;
-          const ph = $('#cam-placeholder');
-          if (ph) ph.style.display = 'none';
-        })
-        .catch(function () {
-          const ph = $('#cam-placeholder');
-          if (ph) ph.innerHTML = ICON.camera + '<p>无法访问相机<br>请使用相册选择</p>';
-        });
-    } else {
-      const ph = $('#cam-placeholder');
-      if (ph) ph.innerHTML = ICON.camera + '<p>当前环境不支持相机<br>请使用相册选择</p>';
-    }
+  function nativeCamera(target) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.setAttribute('capture', 'environment');
+    input.onchange = function (e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const nameField = $('#item-photo-name');
+      if (nameField && target === 'item') nameField.value = file.name;
+      const reader = new FileReader();
+      reader.onload = function (ev) { compressImage(ev.target.result, function (data) { setPhoto(target, data); }); };
+      reader.readAsDataURL(file);
+    };
+    input.click();
   }
 
   function capturePhoto(target) {
@@ -2282,7 +2435,7 @@
     const avatar = p.avatar
       ? '<img src="' + p.avatar + '" alt="头像">'
       : escapeHTML(name.charAt(0).toUpperCase());
-    const fontLabel = s.fontScale < 0.9 ? '小' : (s.fontScale > 1.1 ? '大' : '标准');
+    const fontLabel = s.fontScale <= 0.8 ? '小' : (s.fontScale <= 1 ? '标准' : (s.fontScale <= 1.2 ? '大' : '超大'));
     const weightLabel = s.fontWeight >= 600 ? '加粗' : (s.fontWeight <= 300 ? '细体' : '标准');
 
     return '<div class="page settings-page">' +
@@ -2293,7 +2446,7 @@
         '<div class="set-group"><div class="set-group-title">个人信息</div>' +
           settingRow('user', '昵称', name, 'edit-field', 'data-field="name"') +
           settingRow('comment', '联系方式', p.contact || '未填写', 'edit-field', 'data-field="contact"') +
-          settingRow('book', '个人备注', p.bio || '未填写', 'edit-field', 'data-field="bio"') +
+          settingRow('book', '个性签名', p.bio || '未填写', 'edit-field', 'data-field="bio"') +
         '</div>' +
 
         '<div class="set-group"><div class="set-group-title">界面设置</div>' +
@@ -2313,8 +2466,6 @@
             '<span class="set-label"><b>账号安全</b><small>登录验证与密码保护</small></span>' +
             '<span class="switch ' + (s.secure ? 'on' : '') + '"><i></i></span></div>' +
           settingRow('shield', '修改密码', '更新登录密码', 'change-password') +
-          settingRow('users', '好友与群聊', getUserFriends().length + ' 位好友 · ' + getUserGroups().length + ' 个群', 'open-friends') +
-          settingRow('signal', '设备联动', '蓝牙标签、查找与提醒', 'open-device') +
           settingRow('book', '使用指南', '操作步骤与颜色说明', 'open-guide') +
         '</div>' +
 
@@ -2326,6 +2477,17 @@
           '注册于 ' + formatDate(String(user.createdAt || '').slice(0, 10)) + ' · 已收纳 ' + getUserItems().length + ' 件物品</div>' +
         '<button class="btn ghost block" data-action="logout" style="color:#c98d86">退出登录</button>' +
       '</div>';
+  }
+
+  function logSections(log) {
+    if (log.sections && log.sections.length) return log.sections;
+    return [{ label: '更新内容', icon: 'sparkle', items: log.items || [] }];
+  }
+
+  function logAllItems(log) {
+    const out = [];
+    logSections(log).forEach(function (s) { s.items.forEach(function (t) { out.push(t); }); });
+    return out;
   }
 
   function showChangelog() {
@@ -2340,7 +2502,12 @@
               (i === 0 ? '<span class="version-latest">当前版本</span>' : '') +
               '<span class="version-date">' + log.date + '</span></div>' +
             '<h4>' + escapeHTML(log.title) + '</h4>' +
-            '<ul>' + log.items.map(function (t) { return '<li>' + escapeHTML(t) + '</li>'; }).join('') + '</ul>' +
+            logSections(log).map(function (sec) {
+              return '<div class="cl-section">' +
+                '<div class="cl-label ' + (sec.icon || 'sparkle') + '">' + (ICON[sec.icon] || ICON.sparkle) + escapeHTML(sec.label) + '</div>' +
+                '<ul>' + sec.items.map(function (t) { return '<li>' + escapeHTML(t) + '</li>'; }).join('') + '</ul>' +
+              '</div>';
+            }).join('') +
           '</div>';
         }).join('') +
         '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">关闭</button></div>' +
@@ -2354,7 +2521,7 @@
     if (kind === 'font') {
       title = '字体大小';
       body = '<p class="sheet-tip">选择适合自己的阅读字号</p>' +
-        [[0.85, '小'], [1, '标准'], [1.15, '大'], [1.3, '超大']].map(function (o) {
+        [[0.8, '小'], [1, '标准'], [1.2, '大'], [1.4, '超大']].map(function (o) {
           return '<button class="opt-row ' + (s.fontScale === o[0] ? 'on' : '') + '" data-action="set-font" data-value="' + o[0] + '"><b>' + o[1] + '</b><span>' + (s.fontScale === o[0] ? '✓' : '') + '</span></button>';
         }).join('');
     } else if (kind === 'weight') {
@@ -2383,7 +2550,7 @@
   function openEditField(field) {
     const user = currentUser();
     const p = user.profile || {};
-    const labelMap = { name: '昵称', contact: '联系方式', bio: '个人备注' };
+    const labelMap = { name: '昵称', contact: '联系方式', bio: '个性签名' };
     $('#sheet-root').innerHTML =
       '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
         '<div class="sheet-handle"></div>' +
@@ -2498,6 +2665,7 @@
         publishPost(text, $('#post-photo').value);
         break;
       case 'take-photo': openCamera(el.dataset.target); break;
+      case 'native-camera': nativeCamera(el.dataset.target); break;
       case 'pick-photo': pickPhoto(el.dataset.target); break;
       case 'capture-photo': capturePhoto(el.dataset.target); break;
       case 'camera-ai': cameraAI(el.dataset.target); break;
@@ -2634,6 +2802,7 @@
         else renderTutorial();
         break;
       case 'tutorial-skip': finishTutorial(); break;
+      case 'close-update': closeUpdatePopup(); break;
 
       case 'show-all-items':
         state.itemsOpen = true; state.view = 'home'; state.search = ''; state.filter = 'all';
@@ -2749,7 +2918,9 @@
         if (!newPwd) { $('#pwd-error').textContent = '请输入新密码'; break; }
         pu.password = newPwd; saveDB(); closeSheet(); toast('密码已修改'); break;
       case 'show-changelog': showChangelog(); break;
+      case 'show-achievements': showAchievements(); break;
       case 'open-friends': openFriendsSheet(); break;
+      case 'friend-profile': showFriendProfile(el.dataset.id); break;
       case 'add-friend': addFriend(); break;
       case 'create-group': openCreateGroupSheet(); break;
       case 'pick-group-type':
@@ -3080,8 +3251,12 @@
 
   function render() {
     ensureLocalSession();
-    if (currentUser()) { renderApp(true); showTutorial(); }
-    else renderAuth();
+    if (currentUser()) {
+      renderApp(true);
+      const u = currentUser();
+      if (u && !u.guideSeen) showTutorial();
+      else showUpdatePopup();
+    } else renderAuth();
   }
 
   updateClock();

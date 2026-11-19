@@ -37,11 +37,22 @@ npx serve .
 3. Source 选择 **Deploy from a branch**，分支选 `main`，目录选 `/ (root)`
 4. 保存后等待部署完成，访问 `https://<用户名>.github.io/<仓库名>/`
 
+## 安装到手机桌面（PWA）
+
+部署到 GitHub Pages（HTTPS）后：
+
+- **安卓 Chrome**：打开网址 → 右上角菜单 → 「安装应用 / 添加到主屏幕」，确认后即可像普通 App 一样全屏打开。
+- **苹果 Safari**：打开网址 → 底部分享按钮 → 「添加到主屏幕」。
+
+> 必须把所有文件（含 `manifest.webmanifest` 和 `sw.js`）一起上传，且通过 HTTPS 访问（GitHub Pages 符合），浏览器才会显示安装选项。
+
 ## 文件说明
 
 | 文件 | 说明 |
 |------|------|
 | `index.html` | 入口页面（手机外框 + 状态栏） |
+| `manifest.webmanifest` | PWA 应用清单（安装到桌面用） |
+| `sw.js` | Service Worker（离线缓存 / PWA 安装用） |
 | `mobile.css` | 全部样式 |
 | `mobile.js` | 全部逻辑（约 2000+ 行，纯原生 JS，无依赖） |
 
