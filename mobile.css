@@ -824,6 +824,24 @@ button { cursor: pointer; border: none; background: none; }
 .mini-head { margin: 18px 2px 10px; }
 .mini-head h3 { font-size: 15px; margin: 0; }
 .community-tabs { display: none; }
+/* 添加好友入口：顶部按钮 + 列表横幅，明显更好找 */
+.chat-add-friend {
+  flex: none; display: inline-flex; align-items: center; gap: 4px;
+  min-height: 34px; padding: 0 12px; border-radius: 11px;
+  background: var(--sage-deep); color: #fff; font-size: 12px; font-weight: 700;
+}
+.chat-add-friend svg { width: 15px; height: 15px; }
+.chat-add-friend-banner {
+  display: flex; align-items: center; gap: 11px; width: 100%;
+  margin: 4px 0 14px; padding: 13px 15px; border-radius: 16px;
+  background: linear-gradient(135deg, #e4efe7, #fbf3e0);
+  color: var(--sage-deep); text-align: left;
+}
+.chat-add-friend-banner > svg:first-child { width: 22px; height: 22px; flex: none; }
+.chat-add-friend-banner > svg:last-child { width: 16px; height: 16px; flex: none; opacity: .6; transform: rotate(180deg); }
+.chat-add-friend-banner span { flex: 1; min-width: 0; }
+.chat-add-friend-banner b { display: block; font-size: 13px; }
+.chat-add-friend-banner small { display: block; font-size: 10px; color: var(--ink-soft); margin-top: 2px; }
 .chat-list-panel { background: var(--paper); border-radius: 18px; padding: 6px 14px; box-shadow: var(--shadow-sm); border: 1px solid rgba(255,255,255,.7); }
 .chat-list-panel .chat-row { border-bottom: 1px dashed var(--line); }
 .chat-list-panel .chat-row:last-child { border-bottom: 0; }
@@ -900,6 +918,19 @@ button { cursor: pointer; border: none; background: none; }
 .amap-name { font-size: 10px; font-weight: 600; background: #fff; padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
 .amap-tag.target .amap-animal { background: var(--sage-deep); color: #fff; }
 .amap-tag.selected .amap-animal { background: var(--clay); color: #fff; transform: scale(1.12); }
+/* 高德地图上的“你在这里”醒目定位标记 */
+.amap-me { position: relative; display: flex; flex-direction: column; align-items: center; transform: translateY(-4px); }
+.amap-me-dot {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #2f7dff; border: 3px solid #fff; box-shadow: 0 0 0 6px rgba(47,125,255,.28), 0 4px 12px rgba(0,0,0,.3);
+  animation: mePulse 1.6s ease-out infinite;
+}
+.amap-me-label {
+  margin-top: 4px; font-size: 11px; font-weight: 800; color: #fff;
+  background: #2f7dff; padding: 3px 9px; border-radius: 9px; white-space: nowrap;
+  box-shadow: 0 3px 8px rgba(47,125,255,.4);
+}
+@keyframes mePulse { 0%,100% { box-shadow: 0 0 0 6px rgba(47,125,255,.28), 0 4px 12px rgba(0,0,0,.3); } 50% { box-shadow: 0 0 0 12px rgba(47,125,255,.08), 0 4px 12px rgba(0,0,0,.3); } }
 
 @media (max-width: 360px) {
   .hub-grid { gap: 7px; }
@@ -1296,8 +1327,9 @@ button.achievement { border: 0; font: inherit; color: inherit; }
 .recommend-row .set-label b { font-size: 12px; }
 .recommend-row .set-label small { font-size: 10px; }
 .friend-add-btn {
-  flex: none; width: 30px; height: 30px; border-radius: 10px;
-  background: var(--sage-deep); color: #fff; display: grid; place-items: center;
+  flex: none; min-height: 38px; padding: 0 14px; border-radius: 12px;
+  background: var(--sage-deep); color: #fff; display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 700; white-space: nowrap;
 }
 .friend-add-btn svg { width: 16px; height: 16px; }
 .friend-profile-head { text-align: center; padding: 8px 0 18px; }
@@ -1477,3 +1509,53 @@ html, body { overscroll-behavior-y: none; }
 .map-zoom-ctrl { position: absolute; right: 10px; bottom: 10px; z-index: 6; display: flex; flex-direction: column; gap: 4px; }
 .map-zoom-ctrl button { min-width: 34px; min-height: 34px; border-radius: 10px; background: rgba(255,255,255,.95); color: var(--sage-deep); font-size: 16px; font-weight: 700; box-shadow: var(--shadow-sm); }
 .map-zoom-ctrl button#map-zoom-label { font-size: 10px; }
+
+/* ============================================================
+   iOS 响应式最终修正：全屏浮层避开状态栏 + 底栏贴住屏幕边缘
+   （放在文件末尾，覆盖前面所有 mobile media query）
+   ============================================================ */
+@media (max-width: 480px) {
+  /* 1) 全屏浮层顶部让出刘海 / 状态栏，标题不再被时间遮挡
+     （只给头部加安全区，避免与 .full-mask 通用 padding 叠加两次；
+       相机 .cam-head 已自行处理，故不重复） */
+  .full-head {
+    padding-top: calc(12px + env(safe-area-inset-top, 0px));
+    height: auto;
+    min-height: calc(56px + env(safe-area-inset-top, 0px));
+  }
+  .find-mask { padding-top: env(safe-area-inset-top, 0px); }
+  .find-head {
+    padding-top: calc(14px + env(safe-area-inset-top, 0px));
+  }
+  /* 教程 / 更新弹窗没有 .full-head，整体下移避免被状态栏盖住 */
+  .tutorial-mask, .update-mask { padding-top: calc(28px + env(safe-area-inset-top, 0px)); }
+
+  /* 2) 底部白边：让整条底栏连同安全区都使用与页面一致的底色，
+        并确认 frame / screen 铺满到物理屏幕边缘（含 home 指示区） */
+  html, body { background: var(--cream) !important; }
+  .device-frame { background: var(--cream) !important; }
+  .device-screen { background: var(--cream) !important; }
+  .bottom-nav {
+    background: var(--paper) !important;
+    border-bottom: 0 !important;
+    min-height: calc(64px + env(safe-area-inset-bottom, 0px));
+    /* 用渐变把安全区一起填色，杜绝白色断层 */
+    box-shadow: 0 -8px 16px rgba(250,246,239,.9);
+  }
+  /* 在底栏下方补一段同色安全区填充，彻底消除 home 条上方的白边 */
+  .device-frame::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+    height: env(safe-area-inset-bottom, 0px);
+    background: var(--paper); z-index: 26; pointer-events: none;
+  }
+  .page { padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+
+  /* 3) 独立浏览器全屏（standalone）时 d/vh 取满，杜绝底部留白 */
+  .device-frame {
+    height: 100vh;
+    min-height: 100vh;
+  }
+  @supports (height: 100dvh) {
+    .device-frame { height: 100dvh; min-height: 100dvh; }
+  }
+}

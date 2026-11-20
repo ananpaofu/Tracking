@@ -2,8 +2,25 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.08';
+  const APP_VERSION = '1.10';
   const CHANGELOG = [
+    { version: '1.10', date: '2026-11-20', title: '地图定位与加好友入口优化', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复高德地图打开后看不到自己位置的问题：新增醒目的蓝色「你在这里」定位点并自动居中放大'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '加好友按钮加大并加文字：聊天页顶部按钮 + 列表横幅，推荐好友一键添加更醒目'
+      ] }
+    ] },
+    { version: '1.09', date: '2026-11-20', title: '苹果手机屏幕适配', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复苹果手机发布动态等全屏页面标题被状态栏时间遮挡的问题',
+        '修复底部导航栏下方出现白边、没有贴住屏幕边缘的问题'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '全屏页面自动避开刘海与状态栏安全区，底栏与 home 指示区同色衔接'
+      ] }
+    ] },
     { version: '1.08', date: '2026-11-20', title: '好友系统与地图联动优化', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '修复宿舍房间号：2 层对应 101–124、3 层对应 201–224，与宿舍楼实际楼层一致',
@@ -1589,9 +1606,11 @@
       '<div class="section-head community-head" style="margin-top:12px">' +
         '<button class="icon-btn" data-action="back" title="返回">' + ICON.back + '</button>' +
         '<h2 style="flex:1;margin-left:8px">消息聊天</h2>' +
-        '<button class="icon-btn" data-action="open-friends" title="添加好友">' + ICON.plus + '</button>' +
+        '<button class="chat-add-friend" data-action="open-friends">' + ICON.plus + ' 加好友</button>' +
       '</div>' +
       '<p class="community-sub">和好友、群友交流收纳心得</p>' +
+      '<button class="chat-add-friend-banner" data-action="open-friends">' + ICON.users +
+        '<span><b>添加好友</b><small>用 ID 搜索，或从推荐里一键添加</small></span>' + ICON.back + '</button>' +
       '<div class="chat-list-panel">' + chatListHTML() + '</div>' +
       '</div>';
   }
@@ -1763,7 +1782,7 @@
               return '<div class="recommend-row">' +
                 '<span class="chat-avatar">' + escapeHTML(personName(p).charAt(0)) + '</span>' +
                 '<span class="set-label"><b>' + escapeHTML(personName(p)) + '</b><small>' + escapeHTML(personBio(p)) + ' · ID ' + escapeHTML(p.friendId) + '</small></span>' +
-                '<button class="friend-add-btn" data-action="add-friend-by-id" data-id="' + escapeHTML(p.friendId) + '" aria-label="添加">' + ICON.plus + '</button>' +
+                '<button class="friend-add-btn" data-action="add-friend-by-id" data-id="' + escapeHTML(p.friendId) + '">' + ICON.plus + ' 添加</button>' +
               '</div>';
             }).join('') + '</div>';
         })() +
@@ -2452,11 +2471,16 @@
         label: { content: school.name + '（校园范围 ' + school.radius + 'm）', direction: 'top' }
       }).setMap(map);
 
-      new AMap.Marker({
+      const meMarker = new AMap.Marker({
         position: [meLng, meLat],
         title: '我当前所在：' + spaceLabel(space),
-        label: { content: '我 · ' + spaceLabel(space), direction: 'top' }
-      }).setMap(map);
+        zIndex: 200,
+        anchor: 'bottom-center',
+        content: '<div class="amap-me"><span class="amap-me-dot"></span><span class="amap-me-label">你在这里</span></div>'
+      });
+      meMarker.setMap(map);
+      map.setCenter([meLng, meLat]);
+      map.setZoom(17);
 
       const items = getUserItems();
       const linked = items.find(function (i) { return i.id === target.itemId; });
