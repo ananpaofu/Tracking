@@ -2,8 +2,22 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.07';
+  const APP_VERSION = '1.08';
   const CHANGELOG = [
+    { version: '1.08', date: '2026-11-20', title: '好友系统与地图联动优化', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复宿舍房间号：2 层对应 101–124、3 层对应 201–224，与宿舍楼实际楼层一致',
+        '修复 iOS 点「用高德打开」报「网址无效」的问题，改用高德官方链接唤起'
+      ] },
+      { label: '全新功能', icon: 'sparkle', items: [
+        '加好友功能真正可用：内置好友目录可搜索 / 一键添加，支持聊天、看资料、删除好友',
+        '发现好友列表展示推荐用户，输入 ID 也可直接添加'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '头像框改为圆角矩形，与头像是同一形状',
+        '名片改为 QQ 风格的头像背景卡，好友资料中可见'
+      ] }
+    ] },
     { version: '1.07', date: '2026-11-19', title: '安装修复与成就装扮', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '修复安卓 Chrome「安装应用 / 添加到桌面」无反应的问题：补齐正规图标并支持应用内一键安装',
@@ -218,7 +232,7 @@
         list.push('宿管室', '自习区', '活动室');
         for (let n = 101; n <= 108; n++) list.push('教室' + n);
       } else {
-        for (let n = 1; n <= 24; n++) list.push(f * 100 + n + '');
+        for (let n = 1; n <= 24; n++) list.push((f - 1) * 100 + n + '');
       }
     } else if (isTeaching) {
       for (let n = 1; n <= 12; n++) list.push(f * 100 + n + '');
@@ -312,6 +326,15 @@
     { id: 'p1', name: '收纳达人阿晴', avatar: '晴', tone: 'pink', time: '2 小时前', tag: '收纳技巧', text: '分享一个小技巧：保质期快到的物品放在冰箱最显眼的位置，就不会忘记啦。', likes: 24, photo: '' },
     { id: 'p2', name: '小鹿', avatar: '鹿', tone: 'blue', time: '昨天', tag: '好物分享', text: '最近给重要物品都贴上了定位标签，手机一点就能找到，联动提醒也很实用！', likes: 18, photo: '' },
     { id: 'p3', name: '整理师 Mia', avatar: 'M', tone: '', time: '3 天前', tag: '生活灵感', text: '换季收纳时，给每件物品拍张照存档，之后找起来真的方便很多。', likes: 41, photo: '' }
+  ];
+
+  /* 内置好友目录：演示版里可被搜索 / 添加的真实用户，使加好友流程端到端可用 */
+  const FRIEND_DIRECTORY = [
+    { id: 'd_aqing', friendId: '100001', name: '收纳达人阿晴', signature: '收纳让生活更轻盈～欢迎交流技巧', contact: '', equipped: { frame: 'leaf', card: 'leaf', badge: '' }, itemCount: 12 },
+    { id: 'd_xiaolu', friendId: '100002', name: '小鹿', signature: '爱整理，爱生活，爱分享', contact: '', equipped: { frame: 'star', card: '', badge: 'star' }, itemCount: 8 },
+    { id: 'd_mia', friendId: '100003', name: '整理师 Mia', signature: '让每件物品都有它该在的位置', contact: '', equipped: { frame: 'galaxy', card: 'galaxy', badge: 'galaxy' }, itemCount: 26 },
+    { id: 'd_xiaorou', friendId: '100004', name: '小柔（邻居）', signature: '隔壁的小柔，很高兴认识大家～', contact: '', equipped: { frame: 'sprout', card: '', badge: '' }, itemCount: 3 },
+    { id: 'd_ta', friendId: '100005', name: '塔', signature: '编辑个签，展示我的独特态度。', contact: '', equipped: { frame: 'leaf', card: 'leaf', badge: '' }, itemCount: 6 }
   ];
 
   const CHATS = [
@@ -578,6 +601,20 @@
     while (db.users.some(function (u) { return u.friendId === id; }));
     return id;
   }
+
+  function findPersonByFriendId(fid) {
+    const local = db.users.find(function (u) { return u.friendId === fid; });
+    if (local) return local;
+    return FRIEND_DIRECTORY.find(function (u) { return u.friendId === fid; }) || null;
+  }
+  function findPersonById(id) {
+    const local = db.users.find(function (u) { return u.id === id; });
+    if (local) return local;
+    return FRIEND_DIRECTORY.find(function (u) { return u.id === id; }) || null;
+  }
+  function personName(u) { return (u.profile && u.profile.name) || u.name || u.username || '好友'; }
+  function personBio(u) { return (u.profile && u.profile.bio) || u.signature || ''; }
+  function personContact(u) { return (u.profile && u.profile.contact) || u.contact || ''; }
 
   function getUserFriends() {
     const u = currentUser();
@@ -1046,11 +1083,16 @@
     return (r && rewardUnlocked(r, n))
       ? '<span class="ach-badge-decor ' + r.cls + '" title="' + escapeHTML(r.name) + '">' + ICON.medal + '</span>' : '';
   }
-  function cardOf(user, n) {
+  function equippedCardOf(user, n) {
     const key = equippedOf(user).card;
     const r = key ? rewardByKey('card', key) : null;
-    return (r && rewardUnlocked(r, n))
-      ? '<div class="ach-card-decor ' + r.cls + '">' + ICON.card + '<span>' + escapeHTML(r.name) + ' · LV' + (achIndex(n) + 1) + '</span></div>' : '';
+    return (r && rewardUnlocked(r, n)) ? r : null;
+  }
+  function wrapCard(inner, user, n) {
+    const r = equippedCardOf(user, n);
+    if (!r) return inner;
+    const tag = '<span class="card-name-tag">' + ICON.card + ' ' + escapeHTML(r.name) + ' · LV' + (achIndex(n) + 1) + '</span>';
+    return '<div class="ach-card-decor ' + r.cls + '">' + inner + tag + '</div>';
   }
 
   function ringHTML(item) {
@@ -1711,6 +1753,20 @@
         '<div class="add-friend-row"><input id="friend-id-input" placeholder="输入对方编号 ID" maxlength="6">' +
           '<button class="btn primary" data-action="add-friend">添加好友</button></div>' +
         '<div class="info-card" id="friend-error" style="min-height:0;padding:6px 12px;color:#c98d86;font-size:11px"></div>' +
+        (function () {
+          const recommended = FRIEND_DIRECTORY.filter(function (p) {
+            return !friends.some(function (f) { return f.friendId === p.friendId; });
+          });
+          if (!recommended.length) return '';
+          return '<div class="set-group-title">发现好友 · 点「+」添加</div>' +
+            '<div class="recommend-list">' + recommended.map(function (p) {
+              return '<div class="recommend-row">' +
+                '<span class="chat-avatar">' + escapeHTML(personName(p).charAt(0)) + '</span>' +
+                '<span class="set-label"><b>' + escapeHTML(personName(p)) + '</b><small>' + escapeHTML(personBio(p)) + ' · ID ' + escapeHTML(p.friendId) + '</small></span>' +
+                '<button class="friend-add-btn" data-action="add-friend-by-id" data-id="' + escapeHTML(p.friendId) + '" aria-label="添加">' + ICON.plus + '</button>' +
+              '</div>';
+            }).join('') + '</div>';
+        })() +
         '<div class="set-group-title">我的好友（' + friends.length + '）</div>' +
         (friends.length ? friends.map(function (f) {
           return '<div class="friend-row">' +
@@ -1719,8 +1775,9 @@
               '<span class="set-label"><b>' + escapeHTML(f.name) + '</b><small>' + (f.signature ? escapeHTML(f.signature) : 'ID ' + escapeHTML(f.friendId || '')) + '</small></span>' +
               '<span class="set-arrow">›</span></button>' +
             '<button class="friend-profile-btn" data-action="friend-profile" data-id="' + f.userId + '" title="查看资料">资料</button>' +
+            '<button class="friend-remove-btn" data-action="remove-friend" data-id="' + f.userId + '" title="删除好友">✕</button>' +
           '</div>';
-        }).join('') : '<p class="sheet-tip">还没有好友，输入 ID 添加一位吧</p>') +
+        }).join('') : '<p class="sheet-tip">还没有好友，可在上方「发现好友」添加，或输入对方 ID</p>') +
         '<div class="section-head" style="margin:14px 2px 6px"><div class="set-group-title" style="padding:0">我的群聊（' + groups.length + '）</div>' +
           '<button class="text-btn" data-action="create-group">+ 创建群聊</button></div>' +
         (groups.length ? groups.map(function (g) {
@@ -1734,25 +1791,26 @@
   }
 
   function showFriendProfile(userId) {
-    const target = db.users.find(function (u) { return u.id === userId; });
+    const target = findPersonById(userId);
     const friend = currentUser().friends.find(function (f) { return f.userId === userId; });
     if (!target && !friend) return;
-    const name = (target && target.profile && target.profile.name) || (friend && friend.name) || '好友';
-    const signature = (target && target.profile && target.profile.bio) || (friend && friend.signature) || '这个人很懒，还没有留下个性签名';
-    const contact = (target && target.profile && target.profile.contact) || '未填写';
+    const name = (target && personName(target)) || (friend && friend.name) || '好友';
+    const signature = (target && personBio(target)) || (friend && friend.signature) || '这个人很懒，还没有留下个性签名';
+    const contact = (target && personContact(target)) || (friend && friend.contact) || '未填写';
     const avatarText = name.charAt(0).toUpperCase();
-    const u = target || { equipped: {} };
-    const uCount = target ? itemCountOf(target.id) : 0;
+    const u = target || friend || { equipped: {} };
+    const uCount = target ? (target.itemCount != null ? target.itemCount : itemCountOf(target.id)) : 0;
+    const friendHead =
+      '<div class="friend-profile-head">' +
+        '<div class="friend-profile-avatar' + frameClassOf(u, uCount) + '">' + escapeHTML(avatarText) + badgeOf(u, uCount) + '</div>' +
+        '<h2>' + escapeHTML(name) + '</h2>' +
+        '<p>ID ' + escapeHTML((friend && friend.friendId) || (target && target.friendId) || '') + '</p>' +
+      '</div>';
     $('#sheet-root').innerHTML =
       '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
         '<div class="sheet-handle"></div>' +
         '<div class="sheet-head"><h2>好友资料</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
-        '<div class="friend-profile-head">' +
-          '<div class="friend-profile-avatar' + frameClassOf(u, uCount) + '">' + escapeHTML(avatarText) + badgeOf(u, uCount) + '</div>' +
-          '<h2>' + escapeHTML(name) + '</h2>' +
-          '<p>ID ' + escapeHTML((friend && friend.friendId) || (target && target.friendId) || '') + '</p>' +
-        '</div>' +
-        cardOf(u, uCount) +
+        wrapCard(friendHead, u, uCount) +
         '<div class="info-card">' +
           '<div class="friend-profile-row"><b>个性签名</b><span>' + escapeHTML(signature) + '</span></div>' +
           '<div class="friend-profile-row"><b>联系方式</b><span>' + escapeHTML(contact) + '</span></div>' +
@@ -1803,26 +1861,41 @@
     setTimeout(function () { openChat(group.id); }, 60);
   }
 
+  function addFriendById(id, err) {
+    id = String(id || '').trim();
+    if (!id) { if (err) err.textContent = '请输入好友编号 ID'; return false; }
+    const user = currentUser();
+    if (!user) return false;
+    if (id === user.friendId) { if (err) err.textContent = '不能添加自己为好友'; return false; }
+    if (!Array.isArray(user.friends)) user.friends = [];
+    if (user.friends.some(function (f) { return f.friendId === id; })) { if (err) err.textContent = '该好友已添加'; return false; }
+    const target = findPersonByFriendId(id);
+    if (!target) { if (err) err.textContent = '未找到该 ID 对应用户，可试试下方推荐好友'; return false; }
+    user.friends.push({
+      userId: target.id, friendId: id,
+      name: personName(target),
+      signature: personBio(target),
+      contact: personContact(target),
+      avatar: target.profile && target.profile.avatar || ''
+    });
+    saveDB(); toast('已添加好友 ' + personName(target)); openFriendsSheet(); renderApp();
+    return true;
+  }
+
   function addFriend() {
     const input = $('#friend-id-input');
-    const err = $('#friend-error');
-    const id = input ? input.value.trim() : '';
-    if (!id) { if (err) err.textContent = '请输入好友编号 ID'; return; }
+    addFriendById(input ? input.value.trim() : '', $('#friend-error'));
+  }
+
+  function removeFriend(userId) {
     const user = currentUser();
-    if (id === user.friendId) { if (err) err.textContent = '不能添加自己为好友'; return; }
-    if (!Array.isArray(user.friends)) user.friends = [];
-    if (user.friends.some(function (f) { return f.friendId === id; })) { if (err) err.textContent = '该好友已添加'; return; }
-    const target = db.users.find(function (u) { return u.friendId === id; });
-    if (target) {
-      user.friends.push({
-        userId: target.id, friendId: id,
-        name: (target.profile && target.profile.name) || target.username,
-        signature: (target.profile && target.profile.bio) || ''
-      });
-      saveDB(); toast('已添加好友'); openFriendsSheet(); renderApp();
-    } else {
-      if (err) err.textContent = '未找到该 ID 对应用户（演示版仅可添加本机已注册用户）';
-    }
+    if (!user || !Array.isArray(user.friends)) return;
+    const f = user.friends.find(function (x) { return x.userId === userId; });
+    user.friends = user.friends.filter(function (x) { return x.userId !== userId; });
+    saveDB();
+    if (state.chatId === 'u_' + userId) state.chatId = null;
+    toast(f ? '已删除好友 ' + f.name : '已删除好友');
+    closeSheet(); openFriendsSheet(); renderApp();
   }
 
   function autoReply(chatId) {
@@ -1901,7 +1974,7 @@
     const user = currentUser();
     if (user && user.currentSpace) return user.currentSpace;
     const b = HIFA_BUILDINGS[5];
-    return { building: b.name, floor: '2层', room: '201', beacon: 'HIFA-6', lat: b.lat, lng: b.lng };
+    return { building: b.name, floor: '2层', room: '101', beacon: 'HIFA-6', lat: b.lat, lng: b.lng };
   }
 
   function getUserSchool() {
@@ -1913,7 +1986,7 @@
   function currentSpaces() {
     return getUserSchool().buildings.map(function (b) {
       return {
-        building: b.name, floor: '2层', room: '201',
+        building: b.name, floor: '2层', room: '101',
         beacon: 'HIFA-' + b.name.replace(/[^0-9A-Za-z]/g, ''),
         lat: b.lat, lng: b.lng, approx: b.approx
       };
@@ -2018,7 +2091,7 @@
     const school = getUserSchool();
     function apply(b, prefix) {
       user.currentSpace = {
-        building: b.name, floor: '2层', room: '201',
+        building: b.name, floor: '2层', room: '101',
         beacon: 'HIFA-' + b.name.replace(/[^0-9A-Za-z]/g, ''),
         lat: b.lat, lng: b.lng, approx: b.approx, school: school.name
       };
@@ -2081,37 +2154,23 @@
 
   function wamap() { return window.AMap || null; }
 
-  /* 唤起手机上的高德地图 App（无需 Key / 无需配置）。
-     高德 URI：androidamap:// / iosamap://，未安装则回退到网页版 uri.amap.com */
+  /* 唤起高德地图：使用高德官方 URI 页面（callnative=1）。
+     已安装 App 时由高德官方页弹出「是否允许打开高德地图」，未安装则显示网页地图。
+     不再直接拼 iosamap:// / androidamap://，避免 iOS Safari 报「网址无效」。 */
   function openInAmap(name, lat, lng) {
-    const ua = (navigator.userAgent || '').toLowerCase();
-    const isIOS = /iphone|ipad|ipod/.test(ua);
     const label = encodeURIComponent(name || '我的位置');
     const lc = Number(lat), ln = Number(lng);
     if (!isFinite(lc) || !isFinite(ln)) { toast('暂无可用坐标，请先手动选择位置', 'warn'); return; }
-    const dev = 0; // GCJ-02，与高德坐标一致
-    const scheme = (isIOS ? 'iosamap://' : 'androidamap://') +
-      'viewMap?sourceApplication=' + encodeURIComponent('收纳小管家') +
-      '&poiname=' + label + '&lat=' + lc + '&lon=' + ln + '&dev=' + dev;
     const web = 'https://uri.amap.com/marker?position=' + ln + ',' + lc +
       '&name=' + label + '&src=' + encodeURIComponent('收纳小管家') +
       '&coordinate=gaode&callnative=1';
-
-    let done = false;
-    function fallback() { if (done) return; done = true; window.open(web, '_blank'); }
-    const timer = setTimeout(fallback, 1200);
-    document.addEventListener('visibilitychange', function onHide() {
-      if (document.hidden) { done = true; clearTimeout(timer); document.removeEventListener('visibilitychange', onHide); }
-    });
-    try {
-      const a = document.createElement('a');
-      a.href = scheme;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } catch (e) { clearTimeout(timer); fallback(); }
     toast('正在打开高德地图…');
+    try {
+      const w = window.open(web, '_blank');
+      if (!w && window.location) window.location.href = web;
+    } catch (e) {
+      try { if (window.location) window.location.href = web; } catch (e2) { /* ignore */ }
+    }
   }
 
   let activeRealMap = null;
@@ -2775,11 +2834,13 @@
     const weightLabel = s.fontWeight >= 600 ? '加粗' : (s.fontWeight <= 300 ? '细体' : '标准');
     const myCount = getUserItems().length;
 
-    return '<div class="page settings-page">' +
+    const profileHead =
       '<button class="profile-head" data-action="change-avatar" style="width:100%;cursor:pointer">' +
         '<div class="profile-avatar' + frameClassOf(user, myCount) + '">' + avatar + '<span class="avatar-edit">✎</span>' + badgeOf(user, myCount) + '</div>' +
-        '<h2>' + escapeHTML(name) + '</h2><p>@' + escapeHTML(user.username) + ' · ID ' + (user.friendId || '—') + '</p></button>' +
-      cardOf(user, myCount) +
+        '<h2>' + escapeHTML(name) + '</h2><p>@' + escapeHTML(user.username) + ' · ID ' + (user.friendId || '—') + '</p></button>';
+
+    return '<div class="page settings-page">' +
+      wrapCard(profileHead, user, myCount) +
 
         '<div class="set-group"><div class="set-group-title">个人信息</div>' +
           settingRow('trophy', '成就等级', '第 ' + (achIndex(myCount) + 1) + ' 级 · ' + achievementLevels()[achIndex(myCount)].name + ' · 装扮管理', 'show-achievements') +
@@ -3081,7 +3142,7 @@
           '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
             '<div class="sheet-handle"></div>' +
             '<div class="sheet-head"><h2>手动选择空间</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
-            '<p class="sheet-tip">宿舍楼共 6 层：1 层为教室与宿管，2–6 层每间房按楼层编号（如 201–224）。</p>' +
+            '<p class="sheet-tip">宿舍楼共 6 层：1 层为教室与宿管；2 层是学生宿舍第 1 层（房间 101–124），3 层为 201–224，依次类推。</p>' +
             '<div class="field"><label>楼栋</label><select id="sp-building">' + opts(buildingOptions(), cur.building) + '</select></div>' +
             '<div class="field"><label>楼层</label><select id="sp-floor">' + opts(FLOOR_OPTIONS, cur.floor) + '</select></div>' +
             '<div class="field"><label>房间 / 区域</label><select id="sp-room">' + opts(roomList, curRoom) + '</select></div>' +
@@ -3127,7 +3188,7 @@
           const target = HIFA_BUILDINGS[5];
           schoolUser.school = school.name;
           schoolUser.currentSpace = {
-            building: target.name, floor: '2层', room: '201',
+            building: target.name, floor: '2层', room: '101',
             beacon: 'HIFA-6', lat: target.lat, lng: target.lng, school: school.name
           };
           saveDB(); closeSheet(); toast('已绑定 ' + school.name); renderApp(true);
@@ -3321,6 +3382,8 @@
       case 'show-achievements': showAchievements(); break;
       case 'open-friends': openFriendsSheet(); break;
       case 'friend-profile': showFriendProfile(el.dataset.id); break;
+      case 'add-friend-by-id': addFriendById(el.dataset.id, $('#friend-error')); break;
+      case 'remove-friend': removeFriend(el.dataset.id); break;
       case 'add-friend': addFriend(); break;
       case 'create-group': openCreateGroupSheet(); break;
       case 'pick-group-type':

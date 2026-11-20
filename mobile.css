@@ -1286,6 +1286,20 @@ button.achievement { border: 0; font: inherit; color: inherit; }
   flex: none; font-size: 11px; font-weight: 600; color: var(--sage-deep);
   background: var(--sage-mist); padding: 6px 10px; border-radius: 9px; margin-left: 6px;
 }
+.friend-remove-btn {
+  flex: none; width: 26px; height: 26px; margin-left: 4px; border-radius: 8px;
+  color: #c98d86; background: #f8ece9; font-size: 12px; display: grid; place-items: center;
+}
+.recommend-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.recommend-row { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 13px; background: var(--sage-mist); }
+.recommend-row .set-label { flex: 1; min-width: 0; }
+.recommend-row .set-label b { font-size: 12px; }
+.recommend-row .set-label small { font-size: 10px; }
+.friend-add-btn {
+  flex: none; width: 30px; height: 30px; border-radius: 10px;
+  background: var(--sage-deep); color: #fff; display: grid; place-items: center;
+}
+.friend-add-btn svg { width: 16px; height: 16px; }
 .friend-profile-head { text-align: center; padding: 8px 0 18px; }
 .friend-profile-avatar {
   width: 66px; height: 66px; border-radius: 24px; margin: 0 auto 10px;
@@ -1387,26 +1401,56 @@ html, body { overscroll-behavior-y: none; }
 .rw-opt.on.rw-galaxy .rw-ico { background: linear-gradient(135deg,#d9cfee,#cfe0f4); color: #6a54a3; }
 .rw-opt.worn { border-width: 2px; box-shadow: 0 0 0 3px rgba(123,164,141,.18); }
 .rw-opt.worn i { color: var(--sage-deep); font-weight: 700; }
-/* 个人 / 好友资料上的装扮 */
+/* 个人 / 好友资料上的装扮 —— 头像框（圆角矩形，与头像一致） */
 .profile-avatar, .friend-profile-avatar { position: relative; }
 .profile-avatar.rw-sprout::before, .friend-profile-avatar.rw-sprout::before,
 .profile-avatar.rw-leaf::before, .friend-profile-avatar.rw-leaf::before,
 .profile-avatar.rw-star::before, .friend-profile-avatar.rw-star::before,
 .profile-avatar.rw-galaxy::before, .friend-profile-avatar.rw-galaxy::before {
-  content: ''; position: absolute; inset: -5px; border-radius: 50%; pointer-events: none;
+  content: ''; position: absolute; inset: -5px; border-radius: 30px; pointer-events: none;
 }
 .profile-avatar.rw-sprout::before, .friend-profile-avatar.rw-sprout::before { border: 3px solid #8fc99a; }
 .profile-avatar.rw-leaf::before, .friend-profile-avatar.rw-leaf::before { border: 3px solid #4f9a5c; box-shadow: 0 0 0 2px #cdeacf; }
 .profile-avatar.rw-star::before, .friend-profile-avatar.rw-star::before { border: 3px solid #7a84cf; box-shadow: 0 0 0 2px #dfe2f6; }
 .profile-avatar.rw-galaxy::before, .friend-profile-avatar.rw-galaxy::before { border: 3px solid #9b7fd6; box-shadow: 0 0 8px rgba(155,127,214,.6); }
-.ach-badge-decor { position: absolute; right: -4px; bottom: -4px; width: 22px; height: 22px; border-radius: 50%; background: var(--paper); display: grid; place-items: center; box-shadow: var(--shadow-sm); color: #7a84cf; }
+.ach-badge-decor { position: absolute; right: -8px; bottom: -8px; width: 22px; height: 22px; border-radius: 50%; background: var(--paper); display: grid; place-items: center; box-shadow: var(--shadow-sm); color: #7a84cf; z-index: 2; }
 .ach-badge-decor.rw-galaxy { color: #9b7fd6; background: linear-gradient(135deg,#efeaf9,#e8f0fb); }
 .ach-badge-decor svg { width: 15px; height: 15px; }
-.ach-card-decor { display: flex; align-items: center; gap: 7px; margin: -4px 0 12px; padding: 9px 13px; border-radius: 12px; font-size: 11px; font-weight: 700; background: #eef6ee; color: #4f8a5c; border: 1px solid #cdeacf; }
-.ach-card-decor.rw-leaf { background: #e9f5ea; }
-.ach-card-decor.rw-star { background: #eef0fb; color: #5a63a8; border-color: #dfe2f6; }
-.ach-card-decor.rw-galaxy { background: linear-gradient(135deg,#efeaf9,#e8f0fb); color: #6a54a3; border-color: #cfc2ea; }
-.ach-card-decor svg { width: 16px; height: 16px; }
+
+/* 名片：像 QQ 一样作为头像背后的背景卡（不再是文字条） */
+.ach-card-decor {
+  position: relative; display: flex; align-items: flex-end; justify-content: center;
+  min-height: 104px; margin: -14px -4px 14px; padding: 0 12px 0;
+  border-radius: 22px; overflow: hidden; isolation: isolate;
+}
+.ach-card-decor::before, .ach-card-decor::after { content: ''; position: absolute; border-radius: 50%; z-index: -1; opacity: .45; }
+.ach-card-decor::before { width: 150px; height: 150px; right: -30px; top: -70px; background: rgba(255,255,255,.7); }
+.ach-card-decor::after { width: 90px; height: 90px; left: -20px; bottom: -45px; background: rgba(255,255,255,.5); }
+.ach-card-decor.rw-sprout { background: linear-gradient(135deg,#dcefe0,#b9ddc2); }
+.ach-card-decor.rw-leaf { background: linear-gradient(135deg,#cfeacf,#9bd1a8); }
+.ach-card-decor.rw-star { background: linear-gradient(135deg,#dfe3f8,#b9c3ef); }
+.ach-card-decor.rw-galaxy { background: linear-gradient(135deg,#4a3f83,#6f5cb0 55%,#2f3a72); }
+.ach-card-decor.rw-galaxy::before, .ach-card-decor.rw-galaxy::after { opacity: .25; background: #fff; }
+/* 名片里内嵌头像，并叠加名字信息 */
+.ach-card-decor .profile-avatar, .ach-card-decor .friend-profile-avatar {
+  margin: 0 0 8px; border: 3px solid rgba(255,255,255,.85); box-shadow: 0 8px 20px rgba(0,0,0,.15);
+}
+.ach-card-decor .profile-head, .ach-card-decor .friend-profile-head { text-align: center; z-index: 1; }
+.ach-card-decor h2, .ach-card-decor p { color: #fff !important; text-shadow: 0 1px 3px rgba(0,0,0,.25); }
+.ach-card-decor .avatar-edit { display: none; }
+.card-name-tag {
+  position: absolute; left: 12px; top: 10px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700; color: #fff;
+  background: rgba(0,0,0,.2); padding: 4px 9px; border-radius: 10px;
+  backdrop-filter: blur(4px);
+}
+.card-name-tag svg { width: 12px; height: 12px; }
+.ach-card-decor.rw-sprout .card-name-tag, .ach-card-decor.rw-leaf .card-name-tag { background: rgba(63,138,80,.35); }
+.ach-card-decor.rw-star .card-name-tag { background: rgba(90,99,168,.4); }
+/* 名片作为背景时，标题文字下移不遮挡头像 */
+.profile-head.card-backed { padding-top: 6px; }
+.ach-card-decor + .set-group, .ach-card-decor + .info-card { margin-top: 14px; }
 
 /* ---------- 使用指南分步示意图 ---------- */
 .step-guide { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px; }
