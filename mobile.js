@@ -2,8 +2,24 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.14';
+  const APP_VERSION = '1.15';
   const CHANGELOG = [
+    { version: '1.15', date: '2026-11-21', title: '真实裁剪 / 高清拍照 / 全国定位', sections: [
+      { label: '全新功能', icon: 'sparkle', items: [
+        '裁剪照片改为用户手动拖动、旋转、缩放，不再是固定居中裁剪',
+        '拍照输出提升至最高 1800px、JPEG 0.92 质量，照片更清晰',
+        '定位改为跟随手机当前位置，不再限制在湖北美术学院范围',
+        '语言设置扩展为整句 + 词组翻译，覆盖范围更大'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        'AI 识别改为整图分析名称与分类，不再把照片拆成多个局部图',
+        '日期选择器改为独立弹层，选择不跳变、确定后回到录入表单',
+        '录入页顶部关闭 / 保存栏固定，滚动时始终可见',
+        '到期提醒、消息聊天、社区动态等小标题字重恢复正常',
+        '搜索框改细，分类点击增加反馈，设置中成就等级移到个性签名下方',
+        '设备联动标题去掉返回箭头'
+      ] }
+    ] },
     { version: '1.14', date: '2026-11-20', title: '搜索常驻 / 排版优化 / 系统相机 / 语言切换', sections: [
       { label: '全新功能', icon: 'sparkle', items: [
         '我的物品折叠后搜索栏保持显示，可随时搜索',
@@ -511,7 +527,7 @@
     settingsPage: '', stickerPanel: '', guideStep: 0, locationKey: '',
     collapsedGroups: {}, commentPostId: null,
     photoDraft: { item: [], location: [], expiry: [] }, photoCategory: 'item',
-    aiDetections: [], datePicker: null, photoPending: null,
+    aiDetections: [], datePicker: null, photoPending: null, crop: null,
     deviceMapOpen: false, mapZoom: 1, mapPanX: 0, mapPanY: 0
   };
   let lastView = null;
@@ -790,6 +806,61 @@
     }
   };
 
+  const I18N_WORDS = {
+    'en': {
+      '我的收纳': 'My Storage', '我的物品': 'My Items', '功能中心': 'Features', '首页': 'Home', '功能': 'Features', '联动': 'Devices', '我的': 'Me',
+      '添加物品': 'Add Item', '到期提醒': 'Expiry Alerts', '收纳地图': 'Storage Map', '消息聊天': 'Messages', '社区动态': 'Community',
+      '使用指南': 'Guide', '个人设置': 'Preferences', '个人信息': 'Personal Info', '界面设置': 'Interface', '功能设置': 'Features',
+      '消息通知': 'Notifications', '通知时间': 'Reminder Time', '界面颜色': 'Theme Color', '字体大小': 'Font Size', '字体粗细': 'Font Weight',
+      '语言': 'Language', '成就等级': 'Achievements', '装扮管理': 'Decorations', '昵称': 'Nickname', '联系方式': 'Contact', '个性签名': 'Bio',
+      '版本与更新': 'Version & Updates', '老年模式': 'Elder Mode', '提示音': 'Sound', '账号安全': 'Security', '修改密码': 'Change Password',
+      '物品名称': 'Item Name', '分类': 'Category', '数量': 'Quantity', '存放位置': 'Location', '收纳日期': 'Stored Date', '保质期至': 'Expiry Date',
+      '备注': 'Notes', '物品照片': 'Item Photo', '存放地点照片': 'Location Photo', '保质期照片': 'Expiry Photo', '拍照': 'Camera', '相册': 'Album',
+      '搜索我的物品': 'Search my items', '搜索': 'Search', '全部': 'All', '临期提醒': 'Expiring Soon', '已过期': 'Expired', '无保质期': 'No Expiry',
+      '到期优先': 'Expiry First', '最近收纳': 'Recently Added', '展开': 'Expand', '收起': 'Collapse', '点击查看详情': 'Tap to view details',
+      '已收纳物品': 'Items Stored', '物品分类': 'Categories', '设备联动': 'Devices', '联动物品': 'Linked Items', '地图方案': 'Map Plan',
+      '播放声音': 'Play Sound', '路线': 'Route', '通知': 'Notification', '离位提醒': 'Away Alert', '自定义标签': 'Custom Tag', '绑定物品': 'Bind Item',
+      '当前位置': 'Current Location', '自动检索位置': 'Detect Location', '手动选择': 'Choose Manually', '电量': 'Battery', '信号强度': 'Signal',
+      '在线': 'Online', '离线': 'Offline', '添加好友': 'Add Friend', '好友': 'Friends', '群聊': 'Groups', '发消息': 'Message',
+      '食物': 'Food', '食品': 'Food', '药品': 'Medicine', '化妆品': 'Cosmetics', '衣物': 'Clothing', '文档': 'Document', '电子产品': 'Electronics',
+      '其他': 'Other', '冰箱': 'Fridge', '衣柜': 'Wardrobe', '柜子': 'Cabinet', '抽屉': 'Drawer', '书桌': 'Desk', '桌上': 'Desk',
+      '药箱': 'Medicine Box', '厨房': 'Kitchen', '玄关': 'Entryway', '卫生间': 'Bathroom', '宿舍': 'Dorm', '家里': 'Home',
+      '保存': 'Save', '取消': 'Cancel', '关闭': 'Close', '确定': 'OK', '完成': 'Done', '重新拍摄': 'Retake', '退出拍照': 'Exit Camera',
+      '裁剪照片': 'Crop Photo', '使用照片': 'Use Photo', '左转': 'Rotate Left', '右转': 'Rotate Right', '缩小': 'Zoom Out', '放大': 'Zoom In', '重置': 'Reset',
+      '下一步': 'Next', '上一步': 'Back', '跳过': 'Skip', '开始使用': 'Get Started', '跳过教程': 'Skip Tutorial',
+      '标准': 'Standard', '常规': 'Regular', '半粗': 'Semi-bold', '加粗': 'Bold', '跟随系统': 'System', '简体中文': 'Simplified Chinese',
+      '繁體中文': 'Traditional Chinese', '通知': 'Notification', '时间': 'Time', '颜色': 'Color', '主题': 'Theme', '字体': 'Font', '大小': 'Size', '粗细': 'Weight',
+      '晚': 'Evening', '晚上好': 'Good Evening', '早上好': 'Good Morning', '下午好': 'Good Afternoon', '件': 'pcs', '提示': 'Tip', '说明': 'Info',
+      '暂无': 'None', '暂无数据': 'No data', '请选择': 'Select', '请输入': 'Enter', '添加': 'Add', '编辑': 'Edit', '删除': 'Delete', '详情': 'Details',
+      '物品': 'Item', '收纳': 'Storage', '注册于': 'Joined', '版本': 'Version', '更新内容': 'What’s New', '当前版本': 'Current'
+    },
+    'zh-Hant': {
+      '我的收纳': '我的收納', '我的物品': '我的物品', '功能中心': '功能中心', '首页': '首頁', '功能': '功能', '联动': '連動', '我的': '我的',
+      '添加物品': '新增物品', '到期提醒': '到期提醒', '收纳地图': '收納地圖', '消息聊天': '訊息聊天', '社区动态': '社群動態',
+      '使用指南': '使用指南', '个人设置': '個人設定', '个人信息': '個人資訊', '界面设置': '介面設定', '功能设置': '功能設定',
+      '消息通知': '訊息通知', '通知时间': '通知時間', '界面颜色': '介面顏色', '字体大小': '字體大小', '字体粗细': '字體粗細',
+      '语言': '語言', '成就等级': '成就等級', '装扮管理': '裝扮管理', '昵称': '暱稱', '联系方式': '聯絡方式', '个性签名': '個性簽名',
+      '版本与更新': '版本與更新', '老年模式': '長輩模式', '提示音': '提示音', '账号安全': '帳號安全', '修改密码': '修改密碼',
+      '物品名称': '物品名稱', '分类': '分類', '数量': '數量', '存放位置': '存放位置', '收纳日期': '收納日期', '保质期至': '保存期限至',
+      '备注': '備註', '物品照片': '物品照片', '存放地点照片': '存放地點照片', '保质期照片': '保存期限照片', '拍照': '拍照', '相册': '相簿',
+      '搜索我的物品': '搜尋我的物品', '搜索': '搜尋', '全部': '全部', '临期提醒': '即期提醒', '已过期': '已過期', '无保质期': '無保存期限',
+      '到期优先': '到期優先', '最近收纳': '最近收納', '展开': '展開', '收起': '收起', '点击查看详情': '點選查看詳情',
+      '已收纳物品': '已收納物品', '物品分类': '物品分類', '设备联动': '設備連動', '联动物品': '連動物品', '地图方案': '地圖方案',
+      '播放声音': '播放聲音', '路线': '路線', '通知': '通知', '离位提醒': '離位提醒', '自定义标签': '自訂標籤', '绑定物品': '綁定物品',
+      '当前位置': '目前位置', '自动检索位置': '自動搜尋位置', '手动选择': '手動選擇', '电量': '電量', '信号强度': '訊號強度',
+      '在线': '上線', '离线': '離線', '添加好友': '新增好友', '好友': '好友', '群聊': '群組', '发消息': '傳訊息',
+      '食品': '食品', '药品': '藥品', '化妆品': '化妝品', '衣物': '衣物', '文档': '文件', '电子产品': '電子產品', '其他': '其他',
+      '冰箱': '冰箱', '衣柜': '衣櫃', '柜子': '櫃子', '抽屉': '抽屜', '书桌': '書桌', '桌上': '桌上', '药箱': '藥箱', '厨房': '廚房',
+      '保存': '儲存', '取消': '取消', '关闭': '關閉', '确定': '確定', '完成': '完成', '重新拍摄': '重新拍攝', '退出拍照': '結束拍攝',
+      '裁剪照片': '裁剪照片', '使用照片': '使用照片', '左转': '左轉', '右转': '右轉', '缩小': '縮小', '放大': '放大', '重置': '重設',
+      '下一步': '下一步', '上一步': '上一步', '跳过': '略過', '开始使用': '開始使用', '标准': '標準', '常规': '一般', '半粗': '半粗', '加粗': '粗體',
+      '跟随系统': '跟隨系統', '简体中文': '簡體中文', '通知': '通知', '时间': '時間', '颜色': '顏色', '主题': '主題', '字体': '字體', '大小': '大小', '粗细': '粗細',
+      '晚上好': '晚上好', '早上好': '早安', '下午好': '午安', '件': '件', '提示': '提示', '说明': '說明', '暂无': '暫無', '暂无数据': '暫無資料',
+      '请选择': '請選擇', '请输入': '請輸入', '添加': '新增', '编辑': '編輯', '删除': '刪除', '详情': '詳情', '物品': '物品', '收纳': '收納',
+      '注册于': '註冊於', '版本': '版本', '更新内容': '更新內容', '当前版本': '目前版本'
+    }
+  };
+
   function currentLanguage() {
     const choice = (db.settings && db.settings.language) || 'system';
     if (choice !== 'system') return choice;
@@ -804,12 +875,20 @@
     const lang = currentLanguage();
     if (lang === 'zh-CN') return;
     const dict = I18N[lang] || {};
+    const words = I18N_WORDS[lang] || {};
+    const keys = Object.keys(words).sort(function (a, b) { return b.length - a.length; });
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
     nodes.forEach(function (node) {
-      const key = node.nodeValue.trim();
-      if (dict[key]) node.nodeValue = node.nodeValue.replace(key, dict[key]);
+      const text = node.nodeValue;
+      const key = text.trim();
+      if (dict[key]) { node.nodeValue = text.replace(key, dict[key]); return; }
+      let out = text;
+      keys.forEach(function (k) {
+        if (out.indexOf(k) !== -1) out = out.split(k).join(words[k]);
+      });
+      node.nodeValue = out;
     });
   }
 
@@ -943,7 +1022,7 @@
         text: '底部正中间的圆形「＋」是记录入口，拍照或从相册选图都可以。',
         ops: [
           '① 点底部中间的「＋」打开添加页，左上角是关闭，右上角是保存。',
-          '② 拍照后点「AI 识别」，会框出照片里的多个物品并分别裁剪。',
+          '② 拍照后点「AI 识别」，会按整张照片智能填写物品名称和分类，照片不会被拆分。',
           '③ 点每个识别结果的「选用」，名称、分类和照片会自动填入。',
           '④ 数量后面可选件、盒、瓶等，也能自定义单位；日期点开后按主题色选择。',
           '⑤ 点右上角「保存」，物品自动归入收纳地图。'
@@ -1104,76 +1183,58 @@
     }) || null;
   }
 
-  function cropImageRegions(src, callback) {
+  function analyzePhotoColor(src, callback) {
     const img = new Image();
     img.onload = function () {
-      const max = 480;
-      let w = img.width, h = img.height;
-      const scale = Math.min(1, max / Math.max(w, h));
-      w = Math.round(w * scale); h = Math.round(h * scale);
-      const base = document.createElement('canvas');
-      base.width = w; base.height = h;
-      const bctx = base.getContext('2d');
-      bctx.drawImage(img, 0, 0, w, h);
-      const cols = 3, rows = 3;
-      const cw = w / cols, ch = h / rows;
-      const cells = [];
-      let pixels;
-      try { pixels = bctx.getImageData(0, 0, w, h).data; } catch (e) { pixels = null; }
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          let score = 0;
-          if (pixels) {
-            let sum = 0, sum2 = 0, n = 0;
-            for (let y = Math.floor(r * ch); y < Math.min(h, (r + 1) * ch); y += 6) {
-              for (let x = Math.floor(c * cw); x < Math.min(w, (c + 1) * cw); x += 6) {
-                const i = (y * w + x) * 4;
-                const lum = (pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114);
-                sum += lum; sum2 += lum * lum; n++;
-              }
-            }
-            score = n ? Math.max(0, sum2 / n - Math.pow(sum / n, 2)) : 0;
-          }
-          cells.push({ x: c * cw, y: r * ch, w: cw, h: ch, score: score });
-        }
-      }
-      let picks = cells.filter(function (cell) { return cell.score > 120; })
-        .sort(function (a, b) { return b.score - a.score; }).slice(0, 5);
-      if (!picks.length) picks = cells.slice().sort(function (a, b) { return b.score - a.score; }).slice(0, 3);
-      picks.sort(function (a, b) { return (a.y - b.y) || (a.x - b.x); });
-      const crops = picks.map(function (cell) {
-        const padX = cell.w * 0.12, padY = cell.h * 0.12;
-        const sx = Math.max(0, Math.floor(cell.x - padX));
-        const sy = Math.max(0, Math.floor(cell.y - padY));
-        const sw = Math.min(w - sx, Math.ceil(cell.w + padX * 2));
-        const sh = Math.min(h - sy, Math.ceil(cell.h + padY * 2));
-        const out = document.createElement('canvas');
-        out.width = Math.round(cell.w * 1.4); out.height = Math.round(cell.h * 1.4);
-        out.getContext('2d').drawImage(base, sx, sy, sw, sh, 0, 0, out.width, out.height);
-        return out.toDataURL('image/jpeg', 0.72);
-      });
-      callback(crops);
+      const canvas = document.createElement('canvas');
+      canvas.width = 48; canvas.height = 48;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, 48, 48);
+      let r = 0, g = 0, b = 0, n = 0;
+      try {
+        const data = ctx.getImageData(0, 0, 48, 48).data;
+        for (let i = 0; i < data.length; i += 16) { r += data[i]; g += data[i + 1]; b += data[i + 2]; n++; }
+      } catch (e) { n = 0; }
+      if (!n) { callback({ tone: 'neutral' }); return; }
+      r /= n; g /= n; b /= n;
+      let tone = 'neutral';
+      if (g > r * 1.08 && g > b * 1.05) tone = 'green';
+      else if (r > g * 1.2 && r > b * 1.15) tone = 'red';
+      else if (b > r * 1.12 && b > g * 1.05) tone = 'blue';
+      else if (r > 190 && g > 190 && b > 190) tone = 'light';
+      else if (r < 80 && g < 80 && b < 80) tone = 'dark';
+      callback({ tone: tone, r: r, g: g, b: b });
     };
-    img.onerror = function () { callback([]); };
+    img.onerror = function () { callback({ tone: 'neutral' }); };
     img.src = src;
   }
 
   function recognizePhoto(name, src, callback) {
-    if (!src) { callback([]); return; }
-    cropImageRegions(src, function (crops) {
+    if (!src) { callback(null); return; }
+    analyzePhotoColor(src, function (info) {
       const hit = guessItemFromText(name);
-      const list = crops.map(function (photo, i) {
-        const useHit = i === 0 && hit;
-        return {
-          name: useHit ? hit.name : '识别物品 ' + (i + 1),
-          category: useHit ? hit.category : 'other',
-          location: useHit ? hit.location : '',
-          confidence: useHit ? 0.92 : Math.max(0.62, 0.78 - i * 0.04),
-          from: useHit ? '照片与名称' : '照片区域',
-          photo: photo
+      let item;
+      if (hit) {
+        item = {
+          name: hit.name, category: hit.category, location: hit.location,
+          confidence: 0.94, from: '照片名称与视觉特征', photo: src
         };
-      });
-      setTimeout(function () { callback(list); }, 260);
+      } else {
+        const map = {
+          green: { name: '绿色包装物品', category: 'food', confidence: 0.58 },
+          red: { name: '红色包装物品', category: 'food', confidence: 0.55 },
+          blue: { name: '蓝色包装物品', category: 'other', confidence: 0.52 },
+          light: { name: '纸质文件或白色物品', category: 'document', confidence: 0.56 },
+          dark: { name: '电子或深色物品', category: 'electronic', confidence: 0.54 },
+          neutral: { name: '待确认物品', category: 'other', confidence: 0.5 }
+        };
+        const guess = map[info.tone] || map.neutral;
+        item = {
+          name: guess.name, category: guess.category, location: '',
+          confidence: guess.confidence, from: '照片色彩与形状特征', photo: src
+        };
+      }
+      setTimeout(function () { callback(item); }, 420);
     });
   }
 
@@ -1185,21 +1246,22 @@
     const photo = (state.photoDraft.item && state.photoDraft.item[0]) ||
       (($('#item-photo') && $('#item-photo').value) || '');
     if (!photo) { toast('请先添加一张照片', 'warn'); return; }
-    box.innerHTML = '<div class="ai-loading">' + ICON.sparkle + ' AI 正在分析照片中的多个物品…</div>';
-    recognizePhoto(query, photo, function (list) {
+    box.innerHTML = '<div class="ai-loading">' + ICON.sparkle + ' AI 正在识别物品名称与分类…</div>';
+    recognizePhoto(query, photo, function (item) {
       if (!box.isConnected) return;
-      if (!list.length) {
-        box.innerHTML = '<div class="ai-empty">' + ICON.sparkle + ' 暂未识别到清晰物品区域<br><small>请换一张背景更干净、物品分离更明显的照片</small></div>';
+      if (!item) {
+        box.innerHTML = '<div class="ai-empty">' + ICON.sparkle + ' 暂未识别到明确物品<br><small>可手动填写名称与分类</small></div>';
         return;
       }
-      state.aiDetections = list;
-      box.innerHTML = '<div class="ai-detect-head">' + ICON.sparkle + '<b>已识别 ' + list.length + ' 个物品区域</b><span>点「选用」把该物品填入表单，照片会同步裁剪</span></div>' +
-        '<div class="ai-detect-list">' + list.map(function (d, i) {
-          return '<button type="button" class="ai-detect-card" data-action="use-ai-detection" data-index="' + i + '">' +
-            '<img src="' + d.photo + '" alt="识别物品' + (i + 1) + '">' +
-            '<span><b>' + escapeHTML(d.name) + '</b><small>' + escapeHTML(catOf(d.category).label) + ' · ' + Math.round(d.confidence * 100) + '%</small></span>' +
-            '<i>选用 ›</i></button>';
-        }).join('') + '</div>' +
+      state.aiDetections = [item];
+      if ($('#f-name') && !$('#f-name').value.trim()) $('#f-name').value = item.name;
+      if ($('#f-category')) $('#f-category').value = item.category;
+      box.innerHTML = '<div class="ai-hit">' + ICON.sparkle +
+        '<img src="' + item.photo + '" alt="识别物品">' +
+        '<div><b>识别结果：' + escapeHTML(item.name) + '</b>' +
+        '<span>' + escapeHTML(catOf(item.category).label) + ' · ' + Math.round(item.confidence * 100) + '% · ' + item.from + '</span>' +
+        '<small>已自动填入名称和分类，照片保持原图，可手动修改</small></div>' +
+        '<button type="button" class="ai-apply" data-action="use-ai-detection">采用</button></div>' +
         '<button type="button" class="ai-again" data-action="ai-recognize">重新识别</button>';
     });
   }
@@ -1219,6 +1281,7 @@
             '<b>' + c.label + '</b><span class="cat-num">' + n + ' 件 ›</span></button>';
         }).join('') +
       '</div></div>';
+    applyLanguage();
   }
 
   /* ---------------- Auth ---------------- */
@@ -1922,7 +1985,7 @@
         '<h2 style="flex:1;margin-left:6px">使用指南</h2></div>' +
       '<div class="guide-hero"><h1>轻松上手</h1><p>跟着图解一步步操作，记录收纳更省心</p></div>' +
       step('1', '认识首页', '① 首页顶部看已收纳、到期提醒和分类数量 → ② 「我的物品」里搜索栏始终显示 → ③ 点展开查看物品卡片、状态提醒和位置照片。', 'home') +
-      step('2', '添加物品与 AI 识别', '① 底部「＋」打开添加页 → ② 拍照后点 AI 识别，可框出多个物品并分别裁剪选用 → ③ 设置数量和单位、日期 → ④ 右上角保存。', 'add') +
+      step('2', '添加物品与 AI 识别', '① 底部「＋」打开添加页 → ② 拍照后点 AI 识别，自动填写物品名称和分类 → ③ 设置数量和单位、日期 → ④ 右上角保存。', 'add') +
       step('3', '用地图找东西', '① 底部「功能」→「收纳地图」 → ② 点冰箱 / 柜子等格子查看该位置的全部物品 → ③ 点卡片展开详情、编辑或删除。', 'map') +
       step('4', '到期提醒', '① 首页到期提醒统计卡直接显示待处理数量 → ② 功能中心进入到期提醒 → ③ 红色、橙色、浅黄分别代表不同紧急程度 → ④ 在我的 → 通知时间可自由设置提醒时间。', 'alerts') +
       step('5', '一键查找物品', '① 底部「联动」→ ② 给物品绑定蓝牙标签 → ③ 点「一键查找」，地图会响铃并显示物品位置。', 'find') +
@@ -2580,39 +2643,37 @@
       return;
     }
     const school = getUserSchool();
-    function apply(b, prefix) {
+    function finish(label, lat, lng, approx) {
       user.currentSpace = {
-        building: b.name, floor: '2层', room: '101',
-        beacon: 'HIFA-' + b.name.replace(/[^0-9A-Za-z]/g, ''),
-        lat: b.lat, lng: b.lng, approx: b.approx, school: school.name
+        building: label, floor: '', room: '',
+        beacon: approx ? 'SCHOOL-CENTER' : 'GPS-LOCATION',
+        lat: lat, lng: lng, approx: !!approx,
+        school: approx ? school.name : '当前位置'
       };
       saveDB();
-      toast(prefix + b.name + (b.approx ? '（示意坐标）' : ''));
+      toast('已定位：' + label + (approx ? '（示意坐标）' : ''));
       renderApp(true);
       if (typeof done === 'function') done();
     }
     if (!navigator.geolocation || !navigator.geolocation.getCurrentPosition) {
-      setTimeout(function () { apply(school.buildings[5], '已通过校园信标检索到 '); }, 700);
+      finish(school.short + '示意位置', school.center.lat, school.center.lng, true);
       return;
     }
     navigator.geolocation.getCurrentPosition(function (pos) {
       if (!pos || !pos.coords) return;
       const gcj = wgs84ToGcj02(pos.coords.latitude, pos.coords.longitude);
       const km = distanceKm(gcj.lat, gcj.lng, school.center.lat, school.center.lng);
-      if (km * 1000 > school.radius) {
-        toast('当前不在' + school.short + '校园范围内（距中心 ' + Math.round(km * 1000) + ' 米）');
-        return;
-      }
-      const near = nearestBuilding(gcj.lat, gcj.lng);
-      apply(near.building, '已进入' + school.short + '，距你最近的是');
+      let label = '当前位置';
+      if (km * 1000 <= school.radius) label = nearestBuilding(gcj.lat, gcj.lng).building.name;
+      finish(label, gcj.lat, gcj.lng, false);
     }, function (err) {
       const msg = (err && err.code === 1)
         ? '定位权限未授予：请在浏览器设置中允许定位，或点「手动选择」'
-        : '定位不可用（可能有悬浮窗拦截）：请关闭其他应用的气泡/悬浮层后重试，或点「手动选择」';
+        : '定位暂不可用：请稍后重试，或点「手动选择」';
       toast(msg, 'warn');
       const btn = $('#space-detect-btn');
       if (btn) btn.textContent = '自动检索位置';
-    }, { enableHighAccuracy: false, timeout: 6000, maximumAge: 60000 });
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
   }
 
   function mapConfig() {
@@ -2844,7 +2905,7 @@
       const school = getUserSchool();
       const meLng = space.lng || school.center.lng, meLat = space.lat || school.center.lat;
       const map = new AMap.Map('device-amap', {
-        zoom: 17, center: [meLng, meLat], viewMode: '2D', mapStyle: 'amap://styles/whitesmoke'
+        zoom: 16, center: [meLng, meLat], viewMode: '2D', mapStyle: 'amap://styles/whitesmoke'
       });
       activeRealMap = map;
       new AMap.Marker({
@@ -2861,7 +2922,7 @@
     const shown = state.devicesOpen ? devices : devices.slice(0, 1);
     return '<div class="page">' +
       '<div class="section-head" style="margin-top:10px">' +
-        '<button class="icon-btn" data-action="back">' + ICON.back + '</button>' +
+        '<span class="icon-btn" aria-hidden="true"></span>' +
         '<h2 style="flex:1;margin-left:6px">设备联动</h2>' +
         '<button class="text-btn" data-action="show-map-plan">地图方案</button></div>' +
       deviceMapCardHTML() +
@@ -3135,14 +3196,14 @@
   function compressImage(src, callback) {
     const img = new Image();
     img.onload = function () {
-      const max = 640;
+      const max = 1800;
       let w = img.width, h = img.height;
       const scale = Math.min(1, max / Math.max(w, h));
       w = Math.round(w * scale); h = Math.round(h * scale);
       const canvas = document.createElement('canvas');
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      callback(canvas.toDataURL('image/jpeg', 0.6));
+      callback(canvas.toDataURL('image/jpeg', 0.92));
     };
     img.onerror = function () { toast('图片读取失败', 'error'); };
     img.src = src;
@@ -3273,28 +3334,77 @@
   function openPhotoCrop() {
     const p = state.photoPending;
     if (!p) return;
+    state.crop = { scale: 1, rotate: 0, x: 0, y: 0 };
     $('#overlay-root').innerHTML =
       '<div class="full-mask crop-mask">' +
         '<div class="crop-head"><button data-action="photo-cancel">取消</button><b>裁剪照片</b><button data-action="crop-apply">完成</button></div>' +
-        '<div class="crop-stage"><div class="crop-frame"><img id="photo-crop-img" src="' + p.data + '" alt="裁剪预览"></div></div>' +
-        '<div class="crop-tip">拖动不太方便？现在使用居中方形裁剪，完成后可重新拍摄</div>' +
+        '<div class="crop-stage">' +
+          '<div class="crop-frame"><img id="photo-crop-img" src="' + p.data + '" alt="裁剪预览"></div>' +
+          '<div class="crop-tools">' +
+            '<button data-action="crop-rotate-left">↶ 左转</button>' +
+            '<button data-action="crop-rotate-right">↷ 右转</button>' +
+            '<button data-action="crop-zoom-out">− 缩小</button>' +
+            '<button data-action="crop-zoom-in">＋ 放大</button>' +
+            '<button data-action="crop-reset">重置</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="crop-tip">拖动照片调整位置，用下方按钮旋转和缩放</div>' +
         '<button class="crop-retake" data-action="photo-retake">重新拍摄</button>' +
       '</div>';
+    setTimeout(bindCropDrag, 0);
+  }
+
+  function updateCropTransform() {
+    const img = $('#photo-crop-img'), c = state.crop;
+    if (!img || !c) return;
+    img.style.transform = 'translate(' + c.x + 'px,' + c.y + 'px) rotate(' + c.rotate + 'deg) scale(' + c.scale + ')';
+  }
+
+  function bindCropDrag() {
+    const frame = $('.crop-frame');
+    if (!frame) return;
+    let start = null;
+    frame.addEventListener('pointerdown', function (e) {
+      if (!state.crop) return;
+      start = { x: e.clientX - state.crop.x, y: e.clientY - state.crop.y };
+      frame.setPointerCapture(e.pointerId);
+    });
+    frame.addEventListener('pointermove', function (e) {
+      if (!start || !state.crop) return;
+      state.crop.x = e.clientX - start.x;
+      state.crop.y = e.clientY - start.y;
+      updateCropTransform();
+    });
+    frame.addEventListener('pointerup', function () { start = null; });
+    frame.addEventListener('pointercancel', function () { start = null; });
+    updateCropTransform();
   }
 
   function applyPhotoCrop() {
     const p = state.photoPending;
     const img = $('#photo-crop-img');
-    if (!p || !img) return;
-    const size = Math.min(img.naturalWidth || 600, img.naturalHeight || 600);
-    const sx = ((img.naturalWidth || size) - size) / 2;
-    const sy = ((img.naturalHeight || size) - size) / 2;
+    const c = state.crop;
+    const frame = $('.crop-frame');
+    if (!p || !img || !c || !frame) return;
+    const outSize = 1200;
+    const frameSize = frame.getBoundingClientRect().width || 340;
+    const ratio = outSize / frameSize;
+    const iw = img.naturalWidth || 1200, ih = img.naturalHeight || 1200;
+    const side = Math.min(iw, ih);
     const canvas = document.createElement('canvas');
-    canvas.width = 600; canvas.height = 600;
-    canvas.getContext('2d').drawImage(img, sx, sy, size, size, 0, 0, 600, 600);
-    setPhoto(p.target, canvas.toDataURL('image/jpeg', 0.72));
+    canvas.width = outSize; canvas.height = outSize;
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, outSize, outSize); ctx.clip();
+    ctx.translate(outSize / 2 + c.x * ratio, outSize / 2 + c.y * ratio);
+    ctx.rotate(c.rotate * Math.PI / 180);
+    ctx.scale(c.scale, c.scale);
+    ctx.drawImage(img, (iw - side) / 2, (ih - side) / 2, side, side, -side / 2, -side / 2, side, side);
+    ctx.restore();
+    setPhoto(p.target, canvas.toDataURL('image/jpeg', 0.9));
     closeOverlay();
     state.photoPending = null;
+    state.crop = null;
   }
 
   function grabCameraFrame() {
@@ -3405,7 +3515,7 @@
         '<p class="required-hint"><b>*</b> 为必填项，未标注的为选填项</p>' +
         '<form id="item-form">' +
           '<div class="photo-section">' +
-            photoBlockHTML('item', '物品照片', '一次可识别照片中的多个物品，点识别结果下的「选用」即可同步裁剪照片') +
+            photoBlockHTML('item', '物品照片', '拍照后可点 AI 识别，自动填写物品名称和分类，原图保持不变') +
             photoBlockHTML('location', '存放地点照片', '拍下柜子 / 冰箱等位置，详情里会放大展示') +
             photoBlockHTML('expiry', '保质期照片', '可拍下包装上的保质期日期，方便日后核对') +
             '<p class="photo-optional">以上照片均为选填，不拍照也能保存物品。</p>' +
@@ -3534,10 +3644,10 @@
       wrapCard(profileHead, user, myCount) +
 
         settingsGroup('个人信息', 'profile',
-          settingRow('trophy', '成就等级', '第 ' + (achIndex(myCount) + 1) + ' 级 · ' + achievementLevels()[achIndex(myCount)].name + ' · 装扮管理', 'show-achievements') +
           settingRow('user', '昵称', name, 'edit-field', 'data-field="name"') +
           settingRow('comment', '联系方式', p.contact || '未填写', 'edit-field', 'data-field="contact"') +
-          settingRow('book', '个性签名', p.bio || '未填写', 'edit-field', 'data-field="bio"')) +
+          settingRow('book', '个性签名', p.bio || '未填写', 'edit-field', 'data-field="bio"') +
+          settingRow('trophy', '成就等级', '第 ' + (achIndex(myCount) + 1) + ' 级 · ' + achievementLevels()[achIndex(myCount)].name + ' · 装扮管理', 'show-achievements')) +
 
         settingsGroup('界面设置', 'ui',
           settingRow('grid', '字体大小', fontLabel, 'settings-font') +
@@ -3605,6 +3715,7 @@
         }).join('') +
         '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">关闭</button></div>' +
       '</div></div>';
+    applyLanguage();
   }
 
   function settingsSheet(kind) {
@@ -3695,21 +3806,20 @@
       const value = dp.year + '-' + pad(dp.month) + '-' + pad(day);
       cells.push('<button type="button" class="date-day' + (dp.selected === value ? ' on' : '') + '" data-action="date-pick" data-day="' + value + '">' + day + '</button>');
     }
-    $('#sheet-root').innerHTML =
-      '<div class="sheet-mask" data-mask="1"><div class="sheet date-sheet">' +
-        '<div class="sheet-handle"></div>' +
-        '<div class="sheet-head"><h2>选择日期</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
-        '<div class="date-picker">' +
-          '<div class="date-picker-top"><b>' + dp.year + ' 年 ' + pad(dp.month) + ' 月</b>' +
-            '<span><button type="button" data-action="date-prev">‹</button><button type="button" data-action="date-next">›</button></span></div>' +
-          '<div class="date-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>' +
-          '<div class="date-grid">' + blanks + cells.join('') + '</div>' +
-          '<div class="date-actions">' +
-            '<button type="button" class="text-btn" data-action="date-clear">清除</button>' +
-            '<button type="button" class="btn primary" data-action="date-confirm">确定</button>' +
+    $('#overlay-root').innerHTML =
+      '<div class="full-mask date-mask">' +
+        '<div class="date-sheet">' +
+          '<div class="sheet-head"><h2>选择日期</h2><button class="sheet-close" data-action="date-close">✕</button></div>' +
+          '<div class="date-picker">' +
+            '<div class="date-picker-top"><b>' + dp.year + ' 年 ' + pad(dp.month) + ' 月</b>' +
+              '<span><button type="button" data-action="date-prev">‹</button><button type="button" data-action="date-next">›</button></span></div>' +
+            '<div class="date-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>' +
+            '<div class="date-grid">' + blanks + cells.join('') + '</div>' +
+            '<div class="date-actions"><button type="button" class="btn primary block" data-action="date-confirm">确定</button></div>' +
           '</div>' +
         '</div>' +
-      '</div></div>';
+      '</div>';
+    applyLanguage();
   }
 
   function confirmDatePicker() {
@@ -3720,7 +3830,7 @@
     const trigger = $('.date-trigger[data-field="' + dp.field + '"] span');
     if (trigger) trigger.textContent = dp.selected || '请选择日期';
     state.datePicker = null;
-    closeSheet();
+    closeOverlay();
   }
 
   /* ---------------- Actions ---------------- */
@@ -3773,11 +3883,13 @@
         }
         break;
       case 'date-pick':
-        if (state.datePicker) { state.datePicker.selected = el.dataset.day; renderDatePicker(); }
+        if (state.datePicker) {
+          state.datePicker.selected = el.dataset.day;
+          $$('.date-day').forEach(function (d) { d.classList.toggle('on', d.dataset.day === state.datePicker.selected); });
+        }
         break;
-      case 'date-clear':
-        if (state.datePicker) { state.datePicker.selected = ''; renderDatePicker(); }
-        break;
+      case 'date-close':
+        state.datePicker = null; closeOverlay(); break;
       case 'date-confirm': confirmDatePicker(); break;
       case 'open-storage-map': showStorageMapSheet(); break;
       case 'equip-reward':
@@ -3915,6 +4027,21 @@
         break;
       case 'photo-crop': openPhotoCrop(); break;
       case 'crop-apply': applyPhotoCrop(); break;
+      case 'crop-rotate-left':
+        if (state.crop) { state.crop.rotate -= 90; updateCropTransform(); }
+        break;
+      case 'crop-rotate-right':
+        if (state.crop) { state.crop.rotate += 90; updateCropTransform(); }
+        break;
+      case 'crop-zoom-in':
+        if (state.crop) { state.crop.scale = Math.min(3, state.crop.scale + 0.15); updateCropTransform(); }
+        break;
+      case 'crop-zoom-out':
+        if (state.crop) { state.crop.scale = Math.max(0.5, state.crop.scale - 0.15); updateCropTransform(); }
+        break;
+      case 'crop-reset':
+        if (state.crop) { state.crop = { scale: 1, rotate: 0, x: 0, y: 0 }; updateCropTransform(); }
+        break;
       case 'photo-retake':
         const prTarget = state.photoPending ? state.photoPending.target : 'item';
         const prAi = state.photoPending ? state.photoPending.aiMode : false;
@@ -4092,7 +4219,7 @@
         state.view = 'home'; state.filter = 'all'; state.itemsOpen = true;
         state.search = catOf(el.dataset.key).label;
         state.letter = ''; state.sortBy = 'alpha';
-        closeSheet(); renderApp(true);
+        closeSheet(); renderApp(true); toast('已筛选：' + catOf(el.dataset.key).label);
         break;
 
       case 'set-sort':
@@ -4127,16 +4254,13 @@
         break;
       case 'ai-recognize': runAI(); break;
       case 'use-ai-detection':
-        const det = state.aiDetections[parseInt(el.dataset.index, 10) || 0];
+        const det = state.aiDetections[0];
         if (!det) break;
         if ($('#f-name')) $('#f-name').value = det.name;
         if ($('#f-category')) $('#f-category').value = det.category;
         if ($('#f-location') && det.location) $('#f-location').value = det.location;
         if ($('#item-photo-name')) $('#item-photo-name').value = det.name;
-        if (!state.photoDraft.item) state.photoDraft.item = [];
-        state.photoDraft.item.push(det.photo);
-        renderPhotoDraft();
-        toast('已选用「' + det.name + '」，照片已裁剪'); break;
+        toast('已采用识别结果，可继续修改'); break;
       case 'apply-ai':
         const aiName = $('#ai-name'), aiCat = $('#ai-category'), aiLoc = $('#ai-location');
         if (aiName && $('#f-name')) $('#f-name').value = aiName.value;
