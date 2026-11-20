@@ -2,8 +2,22 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.12';
+  const APP_VERSION = '1.13';
   const CHANGELOG = [
+    { version: '1.13', date: '2026-11-20', title: '多物品识别 / 高对比界面 / 教程升级', sections: [
+      { label: '全新功能', icon: 'sparkle', items: [
+        'AI 识别支持从一张照片中检测多个物品区域，并分别裁剪出单品照片供逐项选用',
+        '物品列表改为左侧配图 + 分类位置小字 + 右侧状态建议，无实拍图时按物品自动匹配配图',
+        '录入页数量支持件、盒、瓶等单位及自定义单位，日期选择器跟随主题色',
+        '消息通知新增提醒时间设置，可设置到期与临期提醒的具体时间'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '首页「我的收纳」加粗放大，主题主色与辅助色全面加深，界面对比更明显',
+        '物品详情放大存放位置照片，过期与低库存状态更醒目',
+        '录入页文字加粗放大，关闭按钮移到左上、保存按钮移到右上',
+        '新手教程改为按 App 真实页面结构逐步演示重点操作'
+      ] }
+    ] },
     { version: '1.12', date: '2026-11-20', title: '可读性 / 拍照 / 首页结构大升级', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '修复从功能中心进入到期提醒 / 使用指南后返回首页的问题，现在正确回到功能中心',
@@ -157,14 +171,58 @@
     ] }
   ];
 
-  const DEFAULT_ITEM_IMAGE = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160">' +
-    '<rect width="240" height="160" fill="#eef3ef"/>' +
-    '<path d="M70 58h100l-9 74H79L70 58Z" fill="#cfe0d3" stroke="#8fae9c" stroke-width="4" stroke-linejoin="round"/>' +
-    '<path d="M88 58v-9a32 32 0 0 1 64 0v9" fill="none" stroke="#8fae9c" stroke-width="4"/>' +
-    '<rect x="96" y="88" width="48" height="18" rx="9" fill="#fffdfb" opacity=".9"/>' +
-    '<text x="120" y="101" text-anchor="middle" font-size="12" fill="#4f7a63" font-family="sans-serif">物品</text>' +
-    '</svg>');
+  const UNIT_OPTIONS = ['件', '卷', '包', '盒', '瓶', '块', '支', '罐', '袋', '个', '双', '片', '颗', '杯', '桶', '节', '粒', '自定义'];
+
+  function itemImageData(label, bg, fg) {
+    const safe = String(label || '物品').replace(/[&<>]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
+    });
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160">' +
+      '<rect width="240" height="160" fill="' + bg + '"/>' +
+      '<circle cx="198" cy="26" r="48" fill="#ffffff" opacity=".32"/>' +
+      '<rect x="44" y="32" width="152" height="96" rx="24" fill="#fffdf9" opacity=".94"/>' +
+      '<text x="120" y="90" text-anchor="middle" font-size="30" font-weight="700" fill="' + fg + '" font-family="PingFang SC, Microsoft YaHei, sans-serif">' + safe + '</text>' +
+      '</svg>';
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  const ITEM_IMAGE_RULES = [
+    { keys: ['牛奶', '酸奶', '奶酪', 'milk'], label: '牛奶', bg: '#d9eaf2', fg: '#326a8a' },
+    { keys: ['鸡蛋', '蛋', 'egg'], label: '鸡蛋', bg: '#f6e7c9', fg: '#8a5c22' },
+    { keys: ['水果', '苹果', '香蕉', '橙子'], label: '水果', bg: '#e5f0d8', fg: '#557a36' },
+    { keys: ['药', '维生素', '胶囊', '药片'], label: '药品', bg: '#f6dfe0', fg: '#a64b52' },
+    { keys: ['防晒', '护肤', '化妆', '口红', '面膜'], label: '护肤品', bg: '#eadff1', fg: '#765189' },
+    { keys: ['围巾', '衣服', '外套', '袜子', '衣物'], label: '衣物', bg: '#dce6f2', fg: '#3c628a' },
+    { keys: ['文件', '合同', '证书', '笔记', '书'], label: '资料', bg: '#e2e8e4', fg: '#4d6658' },
+    { keys: ['充电', '电池', '数据线', '耳机', '手机', '电脑'], label: '电子', bg: '#d9ebe3', fg: '#2f6c52' },
+    { keys: ['水杯', '杯', '水壶'], label: '水杯', bg: '#d8edf0', fg: '#2d6f79' },
+    { keys: ['土豆', '零食', '饼干', '薯片'], label: '零食', bg: '#f4e3cf', fg: '#8c5a2b' },
+    { keys: ['猫砂', '宠物', '猫', '狗'], label: '宠物', bg: '#e8e1d8', fg: '#745b43' },
+    { keys: ['收纳盒', '盒子', '箱子'], label: '收纳', bg: '#e3e9e2', fg: '#516b59' }
+  ];
+
+  const CATEGORY_IMAGES = {
+    food: { label: '食品', bg: '#f6e7d9', fg: '#9a5f33' },
+    medicine: { label: '药品', bg: '#f6dfe0', fg: '#a64b52' },
+    cosmetic: { label: '化妆', bg: '#eadff1', fg: '#765189' },
+    clothing: { label: '衣物', bg: '#dce6f2', fg: '#3c628a' },
+    document: { label: '文档', bg: '#e2e8e4', fg: '#4d6658' },
+    electronic: { label: '电子', bg: '#d9ebe3', fg: '#2f6c52' },
+    other: { label: '物品', bg: '#e6e6e2', fg: '#606860' }
+  };
+
+  function autoItemImage(item) {
+    const text = String((item && item.name) || '') + ' ' + String((item && item.category) || '');
+    const lower = text.toLowerCase();
+    const hit = ITEM_IMAGE_RULES.find(function (r) {
+      return r.keys.some(function (k) { return lower.indexOf(k) !== -1; });
+    });
+    if (hit) return itemImageData(hit.label, hit.bg, hit.fg);
+    const cat = CATEGORY_IMAGES[item && item.category] || CATEGORY_IMAGES.other;
+    return itemImageData(cat.label, cat.bg, cat.fg);
+  }
+
+  const DEFAULT_ITEM_IMAGE = autoItemImage({ name: '物品', category: 'other' });
 
   const CATEGORIES = [
     { key: 'food', label: '食品', color: '#d8a99b' },
@@ -351,11 +409,11 @@
   ];
 
   const THEMES = [
-    { key: 'sage', label: '鼠尾草绿', vars: { '--sage': '#7ba48d', '--sage-deep': '#4f7a63', '--sage-mist': '#e4efe7', '--cream': '#faf6ef', '--paper': '#fffcf7', '--clay': '#d59275', '--clay-mist': '#f9e9df' } },
-    { key: 'ocean', label: '海洋蓝', vars: { '--sage': '#6f9dbd', '--sage-deep': '#3f6f92', '--sage-mist': '#e5f0f7', '--cream': '#f3f8fb', '--paper': '#fbfdff', '--clay': '#7fa8c9', '--clay-mist': '#e8f1f8' } },
-    { key: 'sunset', label: '暖阳橘', vars: { '--sage': '#d5937a', '--sage-deep': '#b2684e', '--sage-mist': '#f8e8df', '--cream': '#fbf4ee', '--paper': '#fffaf5', '--clay': '#d9a24f', '--clay-mist': '#fbf0dc' } },
-    { key: 'lilac', label: '丁香紫', vars: { '--sage': '#a38cbd', '--sage-deep': '#7a619a', '--sage-mist': '#efe9f6', '--cream': '#f7f4fa', '--paper': '#fdfaff', '--clay': '#bd8fa8', '--clay-mist': '#f7eaf1' } },
-    { key: 'ink', label: '极简灰', vars: { '--sage': '#8a8f96', '--sage-deep': '#4b5563', '--sage-mist': '#eef0f3', '--cream': '#f5f6f7', '--paper': '#fdfdfe', '--clay': '#9aa0a6', '--clay-mist': '#f0f1f3' } }
+    { key: 'sage', label: '鼠尾草绿', vars: { '--sage': '#5f8f72', '--sage-deep': '#2f5c43', '--sage-mist': '#cfe3d5', '--cream': '#f6f3ed', '--paper': '#fffdf9', '--clay': '#c46c46', '--clay-mist': '#f2d7c9' } },
+    { key: 'ocean', label: '海洋蓝', vars: { '--sage': '#3f83b3', '--sage-deep': '#1d5277', '--sage-mist': '#cfe6f5', '--cream': '#eff6fa', '--paper': '#fbfeff', '--clay': '#4e86b8', '--clay-mist': '#d9e9f6' } },
+    { key: 'sunset', label: '暖阳橘', vars: { '--sage': '#c46c46', '--sage-deep': '#93452d', '--sage-mist': '#f3d9c9', '--cream': '#faf1e9', '--paper': '#fffaf5', '--clay': '#b97821', '--clay-mist': '#f5e3bf' } },
+    { key: 'lilac', label: '丁香紫', vars: { '--sage': '#8a6bb0', '--sage-deep': '#5f4286', '--sage-mist': '#e2d7f0', '--cream': '#f4f0f8', '--paper': '#fdfaff', '--clay': '#a85f84', '--clay-mist': '#f0dce8' } },
+    { key: 'ink', label: '极简灰', vars: { '--sage': '#66707b', '--sage-deep': '#2f3841', '--sage-mist': '#dde2e8', '--cream': '#f1f3f5', '--paper': '#ffffff', '--clay': '#7d6a60', '--clay-mist': '#e6e0dc' } }
   ];
 
   const AI_KEYWORDS = [
@@ -424,6 +482,7 @@
     settingsPage: '', stickerPanel: '', guideStep: 0, locationKey: '',
     collapsedGroups: {}, commentPostId: null,
     photoDraft: { item: [], location: [], expiry: [] }, photoCategory: 'item',
+    aiDetections: [], datePicker: null,
     deviceMapOpen: false, mapZoom: 1, mapPanX: 0, mapPanY: 0
   };
   let lastView = null;
@@ -448,8 +507,8 @@
       posts: DEMO_POSTS.slice(),
       messages: { c1: (DEMO_MESSAGES.c1 || []).slice(), c2: (DEMO_MESSAGES.c2 || []).slice(), c3: (DEMO_MESSAGES.c3 || []).slice() },
       devices: [], spaceKeys: DEFAULT_SPACE_KEYS.slice(), customSpaces: [], locationEnabled: true,
-      bluetoothOn: false, stickers: [], chatBgs: {}, customCategories: [], lastSeenVersion: '', mapMode: 'auto',
-      settings: { fontScale: 1.12, fontWeight: 400, theme: 'sage', notify: true, sound: true, secure: true, elderMode: false }
+      bluetoothOn: false, stickers: [], chatBgs: {}, customCategories: [], customUnits: [], lastSeenVersion: '', mapMode: 'auto',
+      settings: { fontScale: 1.12, fontWeight: 400, theme: 'sage', notify: true, notifyTime: '09:00', sound: true, secure: true, elderMode: false }
     };
   }
 
@@ -482,6 +541,7 @@
       if (typeof db.bluetoothOn !== 'boolean') db.bluetoothOn = false;
       if (!Array.isArray(db.stickers)) db.stickers = [];
       if (!Array.isArray(db.customCategories)) db.customCategories = [];
+      if (!Array.isArray(db.customUnits)) db.customUnits = [];
       if (typeof db.lastSeenVersion !== 'string') db.lastSeenVersion = '';
       if (db.mapMode !== 'auto' && db.mapMode !== 'web' && db.mapMode !== 'demo') db.mapMode = 'auto';
       if (!db.chatBgs || typeof db.chatBgs !== 'object') db.chatBgs = {};
@@ -492,6 +552,7 @@
       if (typeof s.elderMode !== 'boolean') s.elderMode = false;
       if (!THEMES.some(function (t) { return t.key === s.theme; })) s.theme = 'sage';
       if (typeof s.notify !== 'boolean') s.notify = true;
+      if (typeof s.notifyTime !== 'string' || !/^\d{2}:\d{2}$/.test(s.notifyTime)) s.notifyTime = '09:00';
       if (typeof s.sound !== 'boolean') s.sound = true;
       if (typeof s.secure !== 'boolean') s.secure = true;
       return db;
@@ -763,24 +824,42 @@
     renderTutorial();
   }
 
+  function tutorialMock(kind) {
+    const bodies = {
+      home: '<div class="mini-head">晚上好 · 我的收纳</div><div class="mini-stats"><span>13 需要关注</span><span>23 已收纳</span></div><div class="mini-card"><i></i><b>牛奶</b><em>建议补货</em></div>',
+      add: '<div class="mini-sheet"><div class="mini-sheet-head">✕ <b>添加物品</b> <span>保存</span></div><div class="mini-line">物品名称　牛奶</div><div class="mini-line">分类　食品</div><div class="mini-line focus">数量　2 盒</div><div class="mini-line">存放位置　冰箱</div></div>',
+      map: '<div class="mini-title">收纳地图</div><div class="mini-grid"><span>冰箱</span><span class="focus">柜子</span><span>药箱</span><span>书桌</span><span>衣柜</span><span>抽屉</span></div>',
+      alerts: '<div class="mini-title">到期提醒</div><div class="mini-card"><i></i><b>牛奶</b><em class="warn">已过期</em></div><div class="mini-card"><i></i><b>零食</b><em class="warn">建议补货</em></div>',
+      device: '<div class="mini-title">设备联动</div><div class="mini-card"><i></i><b>充电宝标签</b><em class="focus">一键查找</em></div><div class="mini-line">信号强 · 电量 86%</div>',
+      social: '<div class="mini-tabs"><span class="focus">社区动态</span><span>消息聊天</span></div><div class="mini-card"><i></i><b>小鹿的收纳分享</b><em>评论</em></div>',
+      profile: '<div class="mini-title">我的 · 设置</div><div class="mini-line">界面颜色　鼠尾草绿</div><div class="mini-line focus">通知时间　09:00</div><div class="mini-line">使用指南　操作步骤</div>'
+    };
+    return '<div class="tutorial-preview"><div class="mini-screen">' +
+      '<div class="mini-status">9:41 <span>信号 · 电量</span></div>' +
+      '<div class="mini-body">' + (bodies[kind] || bodies.home) + '</div>' +
+      '<div class="mini-nav"><span>首页</span><span>功能</span><span class="plus">＋</span><span>联动</span><span>我的</span></div>' +
+      '</div></div>';
+  }
+
   function renderTutorial() {
     const steps = [
-      { icon: 'home', page: '首页', title: '认识「首页」',
+      { icon: 'home', mock: 'home', page: '首页', title: '认识「首页」',
         text: '打开 App 默认进入首页，这里是你的收纳总览，每天看一眼就心里有数。',
         ops: [
           '① 顶部问候语下方是统计卡：已收纳件数、临期提醒数量。',
           '② 中间「我的物品」内可直接搜索、筛选和展开每件物品。',
           '③ 物品卡片收起时只显示名称，点一下展开查看照片与详细信息。'
         ] },
-      { icon: 'plus', page: '底部「＋」', title: '随手记录一件物品',
+      { icon: 'plus', mock: 'add', page: '底部「＋」', title: '随手记录一件物品',
         text: '底部正中间的圆形「＋」是记录入口，拍照或从相册选图都可以。',
         ops: [
-          '① 点底部中间的「＋」打开添加页。',
-          '② 点「拍照」自动识物，或点「相册选择」挑一张照片。',
-          '③ 填写名称、分类、数量、保质期和存放位置。',
-          '④ 点「保存」，物品自动归入收纳地图。'
+          '① 点底部中间的「＋」打开添加页，左上角是关闭，右上角是保存。',
+          '② 拍照后点「AI 识别」，会框出照片里的多个物品并分别裁剪。',
+          '③ 点每个识别结果的「选用」，名称、分类和照片会自动填入。',
+          '④ 数量后面可选件、盒、瓶等，也能自定义单位；日期点开后按主题色选择。',
+          '⑤ 点右上角「保存」，物品自动归入收纳地图。'
         ] },
-      { icon: 'pin', page: '首页 / 功能', title: '用地图快速找到它',
+      { icon: 'pin', mock: 'map', page: '首页 / 功能', title: '用地图快速找到它',
         text: '收纳地图已移入功能中心，按存放位置分区，轻点格子即可查看放在这里的全部物品。',
         ops: [
           '① 点底部「功能」→「收纳地图」打开地图。',
@@ -788,14 +867,14 @@
           '③ 点卡片可展开详情、编辑或删除。',
           '④ 自定义的存放位置保存后会自动加入地图。'
         ] },
-      { icon: 'bell', page: '功能 → 到期提醒', title: '临期物品优先处理',
+      { icon: 'bell', mock: 'alerts', page: '功能 → 到期提醒', title: '临期物品优先处理',
         text: '颜色越深代表越接近过期，红色需要立刻处理。',
         ops: [
           '① 首页顶部统计卡直接显示临期物品数量。',
           '② 点「功能 → 到期提醒」查看所有临期物品列表。',
           '③ 点列表里的物品可直接修改保质期或删除。'
         ] },
-      { icon: 'signal', page: '底部「联动」', title: '定位标签一键查找',
+      { icon: 'signal', mock: 'device', page: '底部「联动」', title: '定位标签一键查找',
         text: '给重要物品绑定蓝牙标签，找东西不用再翻箱倒柜。',
         ops: [
           '① 点底部「联动」进入设备页。',
@@ -803,19 +882,19 @@
           '③ 给物品绑定标签，并开启离位提醒。',
           '④ 点「一键查找」，地图标出位置并播放提示音。'
         ] },
-      { icon: 'users', page: '功能 → 社区 / 聊天', title: '和朋友一起整理',
+      { icon: 'users', mock: 'social', page: '功能 → 社区 / 聊天', title: '和朋友一起整理',
         text: '在社区看大家的收纳灵感，加好友后还能私聊交流。',
         ops: [
           '① 点「功能 → 社区动态」浏览动态，点动态下方的「评论」进入评论区。',
           '② 点「消息聊天 → 加好友」，用编号 ID 搜索或从推荐里一键添加。',
           '③ 点好友进入聊天，可发文字、表情和贴纸，还能更换聊天背景。'
         ] },
-      { icon: 'user', page: '底部「我的」', title: '个性化你的 App',
+      { icon: 'user', mock: 'profile', page: '底部「我的」', title: '个性化你的 App',
         text: '在「我的」里管理个人资料、外观和账号，设置分组可点击折叠。',
         ops: [
           '① 点头像或昵称修改个人信息与个性签名。',
           '② 「界面设置」可调字体大小、粗细和主题色；点分组标题可折叠 / 展开。',
-          '③ 「功能设置」里可开关通知、提示音等。',
+          '③ 「功能设置」里可开关消息通知，并点「通知时间」设置到期提醒的具体时间。',
           '④ 到「功能 → 成就等级」佩戴头像框 / 名片 / 徽章；「版本与更新」可查历史。'
         ] }
     ];
@@ -826,7 +905,7 @@
     }).join('');
     $('#overlay-root').innerHTML =
       '<div class="full-mask tutorial-mask tutorial-has-ops">' +
-        '<div class="tutorial-art">' + ICON[s.icon] + '</div>' +
+        tutorialMock(s.mock) +
         '<div class="tutorial-body"><span class="tutorial-step">第 ' + (i + 1) + ' / ' + steps.length + ' 步 · ' + escapeHTML(s.page) + '</span>' +
           '<h2>' + escapeHTML(s.title) + '</h2><p>' + escapeHTML(s.text) + '</p>' +
           '<ul class="tutorial-ops">' + s.ops.map(function (o) { return '<li>' + escapeHTML(o) + '</li>'; }).join('') + '</ul>' +
@@ -923,18 +1002,84 @@
     closeOverlay();
   }
 
-  function recognizePhoto(name, callback) {
+  function guessItemFromText(name) {
     const text = String(name || '').toLowerCase();
-    const hit = AI_KEYWORDS.find(function (k) {
+    return AI_KEYWORDS.find(function (k) {
       return k.keys.some(function (key) { return text.indexOf(key) !== -1; });
-    });
-    setTimeout(function () {
-      if (hit) {
-        callback({ name: hit.name, category: hit.category, location: hit.location, confidence: 0.92, from: '文件名' });
-        return;
+    }) || null;
+  }
+
+  function cropImageRegions(src, callback) {
+    const img = new Image();
+    img.onload = function () {
+      const max = 480;
+      let w = img.width, h = img.height;
+      const scale = Math.min(1, max / Math.max(w, h));
+      w = Math.round(w * scale); h = Math.round(h * scale);
+      const base = document.createElement('canvas');
+      base.width = w; base.height = h;
+      const bctx = base.getContext('2d');
+      bctx.drawImage(img, 0, 0, w, h);
+      const cols = 3, rows = 3;
+      const cw = w / cols, ch = h / rows;
+      const cells = [];
+      let pixels;
+      try { pixels = bctx.getImageData(0, 0, w, h).data; } catch (e) { pixels = null; }
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          let score = 0;
+          if (pixels) {
+            let sum = 0, sum2 = 0, n = 0;
+            for (let y = Math.floor(r * ch); y < Math.min(h, (r + 1) * ch); y += 6) {
+              for (let x = Math.floor(c * cw); x < Math.min(w, (c + 1) * cw); x += 6) {
+                const i = (y * w + x) * 4;
+                const lum = (pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114);
+                sum += lum; sum2 += lum * lum; n++;
+              }
+            }
+            score = n ? Math.max(0, sum2 / n - Math.pow(sum / n, 2)) : 0;
+          }
+          cells.push({ x: c * cw, y: r * ch, w: cw, h: ch, score: score });
+        }
       }
-      callback({ name: '', category: 'other', location: '', confidence: 0, from: '本地特征' });
-    }, 850);
+      let picks = cells.filter(function (cell) { return cell.score > 120; })
+        .sort(function (a, b) { return b.score - a.score; }).slice(0, 5);
+      if (!picks.length) picks = cells.slice().sort(function (a, b) { return b.score - a.score; }).slice(0, 3);
+      picks.sort(function (a, b) { return (a.y - b.y) || (a.x - b.x); });
+      const crops = picks.map(function (cell) {
+        const padX = cell.w * 0.12, padY = cell.h * 0.12;
+        const sx = Math.max(0, Math.floor(cell.x - padX));
+        const sy = Math.max(0, Math.floor(cell.y - padY));
+        const sw = Math.min(w - sx, Math.ceil(cell.w + padX * 2));
+        const sh = Math.min(h - sy, Math.ceil(cell.h + padY * 2));
+        const out = document.createElement('canvas');
+        out.width = Math.round(cell.w * 1.4); out.height = Math.round(cell.h * 1.4);
+        out.getContext('2d').drawImage(base, sx, sy, sw, sh, 0, 0, out.width, out.height);
+        return out.toDataURL('image/jpeg', 0.72);
+      });
+      callback(crops);
+    };
+    img.onerror = function () { callback([]); };
+    img.src = src;
+  }
+
+  function recognizePhoto(name, src, callback) {
+    if (!src) { callback([]); return; }
+    cropImageRegions(src, function (crops) {
+      const hit = guessItemFromText(name);
+      const list = crops.map(function (photo, i) {
+        const useHit = i === 0 && hit;
+        return {
+          name: useHit ? hit.name : '识别物品 ' + (i + 1),
+          category: useHit ? hit.category : 'other',
+          location: useHit ? hit.location : '',
+          confidence: useHit ? 0.92 : Math.max(0.62, 0.78 - i * 0.04),
+          from: useHit ? '照片与名称' : '照片区域',
+          photo: photo
+        };
+      });
+      setTimeout(function () { callback(list); }, 260);
+    });
   }
 
   function runAI() {
@@ -942,23 +1087,25 @@
     if (!box) { toast('请先添加物品照片', 'warn'); return; }
     const nameField = $('#item-photo-name');
     const query = ($('#f-name') && $('#f-name').value.trim()) || (nameField && nameField.value) || '';
-    box.innerHTML = '<div class="ai-loading">' + ICON.sparkle + ' AI 正在识别照片…</div>';
-    recognizePhoto(query, function (res) {
+    const photo = (state.photoDraft.item && state.photoDraft.item[0]) ||
+      (($('#item-photo') && $('#item-photo').value) || '');
+    if (!photo) { toast('请先添加一张照片', 'warn'); return; }
+    box.innerHTML = '<div class="ai-loading">' + ICON.sparkle + ' AI 正在分析照片中的多个物品…</div>';
+    recognizePhoto(query, photo, function (list) {
       if (!box.isConnected) return;
-      if (!res.name && !res.confidence) {
-        box.innerHTML = '<div class="ai-empty">' + ICON.sparkle + ' 暂未识别到明确物品，请手动填写名称与分类<br><small>可在文件名中包含「牛奶 / 药品 / 充电线」等关键词以提高识别率</small></div>';
+      if (!list.length) {
+        box.innerHTML = '<div class="ai-empty">' + ICON.sparkle + ' 暂未识别到清晰物品区域<br><small>请换一张背景更干净、物品分离更明显的照片</small></div>';
         return;
       }
-      const nameInput = $('#f-name'), catInput = $('#f-category'), locInput = $('#f-location');
-      if (res.name && nameInput && !nameInput.value.trim()) nameInput.value = res.name;
-      if (res.category && catInput) catInput.value = res.category;
-      if (res.location && locInput && !locInput.value.trim()) locInput.value = res.location;
-      box.innerHTML = '<div class="ai-hit">' + ICON.sparkle + '<div><b>识别结果：' + escapeHTML(res.name || '物品') + '</b>' +
-        '<span>来自' + res.from + ' · 可信度 ' + Math.round(res.confidence * 100) + '% · 已自动填到下方，可直接修改</span></div>' +
-        '<button type="button" class="ai-apply" data-action="apply-ai">重新识别</button></div>' +
-        '<input type="hidden" id="ai-name" value="' + escapeHTML(res.name) + '">' +
-        '<input type="hidden" id="ai-category" value="' + escapeHTML(res.category) + '">' +
-        '<input type="hidden" id="ai-location" value="' + escapeHTML(res.location) + '">';
+      state.aiDetections = list;
+      box.innerHTML = '<div class="ai-detect-head">' + ICON.sparkle + '<b>已识别 ' + list.length + ' 个物品区域</b><span>点「选用」把该物品填入表单，照片会同步裁剪</span></div>' +
+        '<div class="ai-detect-list">' + list.map(function (d, i) {
+          return '<button type="button" class="ai-detect-card" data-action="use-ai-detection" data-index="' + i + '">' +
+            '<img src="' + d.photo + '" alt="识别物品' + (i + 1) + '">' +
+            '<span><b>' + escapeHTML(d.name) + '</b><small>' + escapeHTML(catOf(d.category).label) + ' · ' + Math.round(d.confidence * 100) + '%</small></span>' +
+            '<i>选用 ›</i></button>';
+        }).join('') + '</div>' +
+        '<button type="button" class="ai-again" data-action="ai-recognize">重新识别</button>';
     });
   }
 
@@ -1510,50 +1657,66 @@
 
   function itemPhotoOf(item) {
     const p = item.photos || {};
-    return (p.location && p.location[0]) || (p.item && p.item[0]) || item.photo || DEFAULT_ITEM_IMAGE;
+    return (p.item && p.item[0]) || item.photo || autoItemImage(item);
+  }
+
+  function itemLocationPhotoOf(item) {
+    const p = item.photos || {};
+    return (p.location && p.location[0]) || '';
+  }
+
+  function statusForItem(item) {
+    const exp = expiryInfo(item);
+    const qty = parseInt(item.quantity, 10) || 1;
+    if (exp.key === 'expired') return { text: '已过期', cls: 'expired' };
+    if (exp.key === 'danger' || exp.key === 'warn') return { text: '即将过期', cls: 'warning' };
+    if (qty <= 1) return { text: '建议补货', cls: 'restock' };
+    return { text: '库存充足', cls: 'ok' };
   }
 
   function itemCard(item) {
     const cat = catOf(item.category);
     const exp = expiryInfo(item);
-    const urgent = exp.key === 'expired' || exp.key === 'danger';
+    const status = statusForItem(item);
+    const unit = item.unit || '件';
     const alphaBadge = state.sortBy === 'alpha'
       ? '<span class="card-letter">' + pinyinInitial(item.name) + '</span>' : '';
+    const locationPhoto = itemLocationPhotoOf(item);
     return '' +
       '<article class="item-card" data-card="' + item.id + '">' +
-        '<img class="item-photo" src="' + itemPhotoOf(item) + '" alt="物品照片">' +
-        '<div class="card-main">' +
-          '<div style="flex:1;min-width:0">' +
+        '<div class="item-row">' +
+          '<img class="item-photo" src="' + itemPhotoOf(item) + '" alt="' + escapeHTML(item.name) + '">' +
+          '<div class="item-text">' +
             '<div class="item-top">' +
               (state.search ? '<button class="card-cancel" data-action="cancel-search">取消</button>' : alphaBadge) +
               '<h3 class="item-title">' + escapeHTML(item.name) + '</h3>' +
-              '<div class="item-actions">' +
-                '<button class="icon-btn" data-action="find-item" data-id="' + item.id + '" title="一键查找">' + ICON.pin + '</button>' +
-                '<button class="icon-btn" data-action="edit-item" data-id="' + item.id + '">' + ICON.edit + '</button>' +
-                '<button class="icon-btn" data-action="delete-item" data-id="' + item.id + '">' + ICON.trash + '</button>' +
-              '</div>' +
+              '<span class="item-flag ' + status.cls + '">' + status.text + '</span>' +
             '</div>' +
-            '<div class="item-meta">' +
-              '<span class="meta-pill"><i class="cat-dot" style="background:' + cat.color + '"></i>' + escapeHTML(cat.label) + '</span>' +
-              '<span class="meta-pill">' + ICON.calendar + escapeHTML(formatDate(item.storedAt)) + ' 收纳</span>' +
-              '<span class="meta-pill">' + ICON.pin + escapeHTML(item.location || '未填写') + '</span>' +
+            '<p class="item-subline"><i class="cat-dot" style="background:' + cat.color + '"></i>' +
+              escapeHTML(cat.label) + ' · ' + escapeHTML(item.location || '未设置位置') + '</p>' +
+            '<div class="item-actions">' +
+              '<button class="icon-btn" data-action="find-item" data-id="' + item.id + '" title="一键查找">' + ICON.pin + '</button>' +
+              '<button class="icon-btn" data-action="edit-item" data-id="' + item.id + '">' + ICON.edit + '</button>' +
+              '<button class="icon-btn" data-action="delete-item" data-id="' + item.id + '">' + ICON.trash + '</button>' +
             '</div>' +
           '</div>' +
-          ringHTML(item) +
-        '</div>' +
-        '<div class="card-more"><div class="more-grid">' +
-          '<div class="more-cell"><dt>收纳日期</dt><dd>' + formatDate(item.storedAt) + '</dd></div>' +
-          '<div class="more-cell"><dt>数量</dt><dd>' + escapeHTML(item.quantity || 1) + '</dd></div>' +
-          '<div class="more-cell"><dt>到期日期</dt><dd>' + (item.expiryDate ? formatDate(item.expiryDate) : '无保质期') + '</dd></div>' +
-          '<div class="more-cell"><dt>所属分类</dt><dd>' + escapeHTML(cat.label) + '</dd></div>' +
-        '</div>' +
-        photoGalleryHTML(item) +
-        (item.notes ? '<p class="item-note">' + escapeHTML(item.notes) + '</p>' : '') +
-        (state.search ? '<button class="card-cancel-foot" data-action="cancel-search">取消搜索</button>' : '') +
         '</div>' +
         '<div class="item-foot">' +
-          '<span class="expiry ' + exp.key + '">' + (urgent ? ICON.alert : ICON.clock) + escapeHTML(exp.label) + '</span>' +
-          '<span class="expand-hint">轻点卡片展开详情</span>' +
+          '<span class="expiry ' + exp.key + '">' + (exp.key === 'expired' || exp.key === 'danger' ? ICON.alert : ICON.clock) + escapeHTML(exp.label) + '</span>' +
+          '<span class="expand-hint">点击查看详情 ›</span>' +
+        '</div>' +
+        '<div class="card-more">' +
+          '<div class="more-grid">' +
+            '<div class="more-cell"><dt>数量</dt><dd>' + escapeHTML(item.quantity || 1) + ' ' + escapeHTML(unit) + '</dd></div>' +
+            '<div class="more-cell"><dt>收纳日期</dt><dd>' + formatDate(item.storedAt) + '</dd></div>' +
+            '<div class="more-cell"><dt>到期日期</dt><dd>' + (item.expiryDate ? formatDate(item.expiryDate) : '无保质期') + '</dd></div>' +
+            '<div class="more-cell"><dt>所属分类</dt><dd>' + escapeHTML(cat.label) + '</dd></div>' +
+          '</div>' +
+          (locationPhoto ? '<div class="detail-location"><b>存放位置照片</b><img src="' + locationPhoto + '" alt="存放位置照片"></div>' : '') +
+          ringHTML(item) +
+          photoGalleryHTML(item) +
+          (item.notes ? '<p class="item-note">' + escapeHTML(item.notes) + '</p>' : '') +
+          (state.search ? '<button class="card-cancel-foot" data-action="cancel-search">取消搜索</button>' : '') +
         '</div>' +
       '</article>';
   }
@@ -3058,6 +3221,20 @@
     }).join('');
   }
 
+  function unitOptionsHTML(selected) {
+    const custom = (db.customUnits || []).filter(function (u) { return UNIT_OPTIONS.indexOf(u) === -1; });
+    const all = UNIT_OPTIONS.slice(0, -1).concat(custom, ['自定义']);
+    return all.map(function (u) {
+      return '<option value="' + escapeHTML(u) + '"' + (selected === u ? ' selected' : '') + '>' + escapeHTML(u) + '</option>';
+    }).join('');
+  }
+
+  function dateTriggerHTML(id, value, label, required) {
+    return '<input type="hidden" id="' + id + '" value="' + escapeHTML(value || '') + '">' +
+      '<button type="button" class="date-trigger" data-action="pick-date" data-field="' + id + '">' +
+        '<span>' + escapeHTML(value || '请选择日期') + '</span><i>' + ICON.calendar + '</i></button>';
+  }
+
   function openItemSheet(itemId) {
     const item = itemId ? getUserItems().find(function (i) { return i.id === itemId; }) : null;
     const isEdit = !!item;
@@ -3071,16 +3248,21 @@
     };
     if (!state.photoDraft.item.length && data.photo) state.photoDraft.item.push(data.photo);
 
+    state.aiDetections = [];
+    const currentUnit = data.unit || '件';
     $('#sheet-root').innerHTML =
       '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
         '<div class="sheet-handle"></div>' +
-        '<div class="sheet-head"><h2>' + (isEdit ? '编辑物品' : '添加物品') + '</h2>' +
-          '<button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<div class="sheet-head sheet-head-form">' +
+          '<button class="sheet-close" data-action="close-sheet" aria-label="关闭">✕</button>' +
+          '<h2>' + (isEdit ? '编辑物品' : '添加物品') + '</h2>' +
+          '<button type="submit" form="item-form" class="sheet-save">' + (isEdit ? '保存' : '保存') + '</button>' +
+        '</div>' +
         '<p class="required-hint"><b>*</b> 为必填项，未标注的为选填项</p>' +
         '<form id="item-form">' +
           '<div class="photo-section">' +
-            photoBlockHTML('item', '物品照片', '点上方按钮直接进入拍照界面，拍照页内可切相册并一次选多张；AI 会识别并预填下方信息') +
-            photoBlockHTML('location', '物品存放地点照片', '拍下柜子 / 冰箱等位置，首页物品卡片会优先展示这张照片') +
+            photoBlockHTML('item', '物品照片', '一次可识别照片中的多个物品，点识别结果下的「选用」即可同步裁剪照片') +
+            photoBlockHTML('location', '存放地点照片', '拍下柜子 / 冰箱等位置，详情里会放大展示') +
             photoBlockHTML('expiry', '保质期照片', '可拍下包装上的保质期日期，方便日后核对') +
             '<p class="photo-optional">以上照片均为选填，不拍照也能保存物品。</p>' +
             '<input type="hidden" id="item-photo-name" value="">' +
@@ -3097,23 +3279,27 @@
                 '<input id="f-category-custom" maxlength="12" placeholder="输入自定义分类名" value="' + escapeHTML(customCategoryLabel(data.category)) + '">' +
               '</div>' +
             '</div>' +
-            '<div class="field"><label>数量</label><input id="f-quantity" type="number" min="1" step="1" value="' + escapeHTML(data.quantity || 1) + '"></div>' +
+            '<div class="field"><label>数量 *</label>' +
+              '<div class="qty-control">' +
+                '<button type="button" data-action="qty-minus">−</button>' +
+                '<input id="f-quantity" type="number" min="1" step="1" value="' + escapeHTML(data.quantity || 1) + '">' +
+                '<button type="button" data-action="qty-plus">＋</button>' +
+                '<select id="f-unit">' + unitOptionsHTML(currentUnit) + '</select>' +
+              '</div>' +
+              '<input id="f-unit-custom" class="unit-custom" maxlength="6" placeholder="输入自定义单位" value="' + (UNIT_OPTIONS.indexOf(currentUnit) === -1 && currentUnit !== '自定义' ? escapeHTML(currentUnit) : '') + '" style="display:' + ((currentUnit === '自定义' || UNIT_OPTIONS.indexOf(currentUnit) === -1) ? 'block' : 'none') + '">' +
+            '</div>' +
           '</div>' +
-          '<div class="field"><label>存放位置 · 选择或自定义（选填）</label>' +
+          '<div class="field"><label>存放位置</label>' +
             '<input id="f-location" maxlength="80" placeholder="例如：冰箱第二层（自定义会自动加入地图）" value="' + escapeHTML(data.location) + '">' +
             '<div class="hint">选择下方位置，或直接输入自定义位置</div>' +
             '<div class="loc-chips" id="loc-chips">' + locationChipsHTML(data.location) + '</div>' +
           '</div>' +
           '<div class="form-row">' +
-            '<div class="field"><label>收纳日期 *</label><input id="f-stored" type="date" value="' + escapeHTML(data.storedAt) + '"><div class="hint">什么时候放进去的</div></div>' +
-            '<div class="field"><label>保质期至</label><input id="f-expiry" type="date" value="' + escapeHTML(data.expiryDate) + '"><div class="hint">选填，会显示提醒</div></div>' +
+            '<div class="field"><label>收纳日期 *</label>' + dateTriggerHTML('f-stored', data.storedAt, '收纳日期', true) + '<div class="hint">什么时候放进去的</div></div>' +
+            '<div class="field"><label>保质期至</label>' + dateTriggerHTML('f-expiry', data.expiryDate, '保质期', false) + '<div class="hint">选填，会显示提醒</div></div>' +
           '</div>' +
           '<div class="field"><label>备注</label><textarea id="f-notes" rows="2" maxlength="300" placeholder="补充说明（选填）">' + escapeHTML(data.notes) + '</textarea></div>' +
           '<div class="form-error" id="item-error"></div>' +
-          '<div class="sheet-actions">' +
-            '<button type="button" class="btn ghost" data-action="close-sheet">取消</button>' +
-            '<button type="submit" class="btn primary">' + (isEdit ? '保存修改' : '确认收纳') + '</button>' +
-          '</div>' +
         '</form>' +
       '</div></div>';
     renderPhotoDraft();
@@ -3217,6 +3403,7 @@
           '<div class="set-row" data-action="toggle-setting" data-key="notify"><span class="set-ico">' + ICON.bell + '</span>' +
             '<span class="set-label"><b>消息通知</b><small>接收提醒与聊天消息</small></span>' +
             '<span class="switch ' + (s.notify ? 'on' : '') + '"><i></i></span></div>' +
+          settingRow('clock', '通知时间', s.notifyTime + ' · 到期与临期提醒', 'settings-notify-time') +
           '<div class="set-row" data-action="toggle-setting" data-key="sound"><span class="set-ico">' + ICON.bell + '</span>' +
             '<span class="set-label"><b>提示音</b><small>查找标签时播放声音</small></span>' +
             '<span class="switch ' + (s.sound ? 'on' : '') + '"><i></i></span></div>' +
@@ -3287,6 +3474,13 @@
         [[300, '细体'], [400, '标准'], [600, '半粗'], [700, '加粗']].map(function (o) {
           return '<button class="opt-row ' + (s.fontWeight === o[0] ? 'on' : '') + '" data-action="set-weight" data-value="' + o[0] + '"><b>' + o[1] + '</b><span>' + (s.fontWeight === o[0] ? '✓' : '') + '</span></button>';
         }).join('');
+    } else if (kind === 'notifyTime') {
+      title = '通知时间';
+      body = '<p class="sheet-tip">设置到期提醒、临期提醒等消息的默认提醒时间</p>' +
+        '<div class="notify-times">' + ['08:00', '09:00', '12:00', '18:00', '21:00'].map(function (t) {
+          return '<button class="opt-row ' + (s.notifyTime === t ? 'on' : '') + '" data-action="set-notify-time" data-value="' + t + '"><b>' + t + '</b><span>' + (s.notifyTime === t ? '✓' : '') + '</span></button>';
+        }).join('') + '</div>' +
+        '<div class="field notify-custom"><label>自定义时间</label><input id="notify-time-custom" type="time" value="' + escapeHTML(s.notifyTime) + '"><button type="button" class="btn primary block" data-action="save-notify-time">保存自定义时间</button></div>';
     } else {
       title = '界面颜色';
       body = '<p class="sheet-tip">选择你喜欢的主题色，立即生效</p>' +
@@ -3320,6 +3514,59 @@
       '</div></div>';
   }
 
+  function openDatePicker(field) {
+    const input = $('#' + field);
+    if (!input) return;
+    const value = input.value || '';
+    const d = value ? new Date(value + 'T00:00:00') : new Date();
+    state.datePicker = {
+      field: field,
+      year: d.getFullYear(),
+      month: d.getMonth() + 1,
+      selected: value
+    };
+    renderDatePicker();
+  }
+
+  function renderDatePicker() {
+    const dp = state.datePicker;
+    if (!dp) return;
+    const days = new Date(dp.year, dp.month, 0).getDate();
+    const first = (new Date(dp.year, dp.month - 1, 1).getDay() + 6) % 7;
+    const blanks = Array(first).join('<i></i>');
+    const cells = [];
+    for (let day = 1; day <= days; day++) {
+      const value = dp.year + '-' + pad(dp.month) + '-' + pad(day);
+      cells.push('<button type="button" class="date-day' + (dp.selected === value ? ' on' : '') + '" data-action="date-pick" data-day="' + value + '">' + day + '</button>');
+    }
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet date-sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>选择日期</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<div class="date-picker">' +
+          '<div class="date-picker-top"><b>' + dp.year + ' 年 ' + pad(dp.month) + ' 月</b>' +
+            '<span><button type="button" data-action="date-prev">‹</button><button type="button" data-action="date-next">›</button></span></div>' +
+          '<div class="date-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>' +
+          '<div class="date-grid">' + blanks + cells.join('') + '</div>' +
+          '<div class="date-actions">' +
+            '<button type="button" class="text-btn" data-action="date-clear">清除</button>' +
+            '<button type="button" class="btn primary" data-action="date-confirm">确定</button>' +
+          '</div>' +
+        '</div>' +
+      '</div></div>';
+  }
+
+  function confirmDatePicker() {
+    const dp = state.datePicker;
+    if (!dp) return;
+    const input = $('#' + dp.field);
+    if (input) input.value = dp.selected || '';
+    const trigger = $('.date-trigger[data-field="' + dp.field + '"] span');
+    if (trigger) trigger.textContent = dp.selected || '请选择日期';
+    state.datePicker = null;
+    closeSheet();
+  }
+
   /* ---------------- Actions ---------------- */
 
   function handleAction(action, el) {
@@ -3346,6 +3593,36 @@
         if (el.dataset.tab === 'map') { state.view = 'home'; state.itemsOpen = true; }
         vibrate(10); renderApp(true); break;
       case 'clear-hub-search': state.hubSearch = ''; renderApp(); break;
+      case 'qty-minus':
+      case 'qty-plus':
+        const qtyInput = $('#f-quantity');
+        if (qtyInput) {
+          const next = (parseInt(qtyInput.value, 10) || 1) + (action === 'qty-plus' ? 1 : -1);
+          qtyInput.value = String(Math.max(1, next));
+        }
+        break;
+      case 'pick-date': openDatePicker(el.dataset.field); break;
+      case 'date-prev':
+        if (state.datePicker) {
+          state.datePicker.month--;
+          if (state.datePicker.month < 1) { state.datePicker.month = 12; state.datePicker.year--; }
+          renderDatePicker();
+        }
+        break;
+      case 'date-next':
+        if (state.datePicker) {
+          state.datePicker.month++;
+          if (state.datePicker.month > 12) { state.datePicker.month = 1; state.datePicker.year++; }
+          renderDatePicker();
+        }
+        break;
+      case 'date-pick':
+        if (state.datePicker) { state.datePicker.selected = el.dataset.day; renderDatePicker(); }
+        break;
+      case 'date-clear':
+        if (state.datePicker) { state.datePicker.selected = ''; renderDatePicker(); }
+        break;
+      case 'date-confirm': confirmDatePicker(); break;
       case 'open-storage-map': showStorageMapSheet(); break;
       case 'equip-reward':
         (function () {
@@ -3675,6 +3952,17 @@
         $$('#loc-chips .loc-chip').forEach(function (c) { c.classList.toggle('on', c.dataset.value === locVal); });
         break;
       case 'ai-recognize': runAI(); break;
+      case 'use-ai-detection':
+        const det = state.aiDetections[parseInt(el.dataset.index, 10) || 0];
+        if (!det) break;
+        if ($('#f-name')) $('#f-name').value = det.name;
+        if ($('#f-category')) $('#f-category').value = det.category;
+        if ($('#f-location') && det.location) $('#f-location').value = det.location;
+        if ($('#item-photo-name')) $('#item-photo-name').value = det.name;
+        if (!state.photoDraft.item) state.photoDraft.item = [];
+        state.photoDraft.item.push(det.photo);
+        renderPhotoDraft();
+        toast('已选用「' + det.name + '」，照片已裁剪'); break;
       case 'apply-ai':
         const aiName = $('#ai-name'), aiCat = $('#ai-category'), aiLoc = $('#ai-location');
         if (aiName && $('#f-name')) $('#f-name').value = aiName.value;
@@ -3720,6 +4008,15 @@
       case 'settings-font': settingsSheet('font'); break;
       case 'settings-weight': settingsSheet('weight'); break;
       case 'settings-theme': settingsSheet('theme'); break;
+      case 'settings-notify-time': settingsSheet('notifyTime'); break;
+      case 'set-notify-time':
+        db.settings.notifyTime = el.dataset.value; saveDB(); settingsSheet('notifyTime'); toast('提醒时间已设置'); break;
+      case 'save-notify-time':
+        const timeInput = $('#notify-time-custom');
+        if (timeInput && timeInput.value) {
+          db.settings.notifyTime = timeInput.value; saveDB(); settingsSheet('notifyTime'); toast('提醒时间已保存');
+        }
+        break;
       case 'set-font': db.settings.fontScale = parseFloat(el.dataset.value); saveDB(); settingsSheet('font'); renderApp(); break;
       case 'set-weight': db.settings.fontWeight = parseInt(el.dataset.value, 10); saveDB(); settingsSheet('weight'); renderApp(); break;
       case 'set-theme': db.settings.theme = el.dataset.value; saveDB(); settingsSheet('theme'); applySettings(); toast('主题已切换'); break;
@@ -3876,6 +4173,10 @@
       const wrap = $('#custom-cat-wrap');
       if (wrap) wrap.style.display = (e.target.value === 'other' || isCustomCategory(e.target.value)) ? 'block' : 'none';
     }
+    if (e.target.id === 'f-unit') {
+      const wrap = $('#f-unit-custom');
+      if (wrap) wrap.style.display = e.target.value === '自定义' ? 'block' : 'none';
+    }
     if (e.target.id === 'sp-building' || e.target.id === 'sp-floor') {
       const building = $('#sp-building');
       const floor = $('#sp-floor');
@@ -3966,9 +4267,17 @@
       if ((categoryKey === 'other' || isCustomCategory(categoryKey)) && customCatInput && customCatInput.value.trim()) {
         categoryKey = ensureCustomCategory(customCatInput.value.trim());
       }
+      let unit = $('#f-unit') ? $('#f-unit').value : '件';
+      if (unit === '自定义') {
+        const customUnit = $('#f-unit-custom') && $('#f-unit-custom').value.trim();
+        if (!customUnit) { errorEl.textContent = '请填写自定义单位'; return; }
+        unit = customUnit;
+        if (db.customUnits.indexOf(unit) === -1) db.customUnits.push(unit);
+      }
       const payload = {
         name: name, category: categoryKey,
         quantity: Math.max(1, parseInt($('#f-quantity').value, 10) || 1),
+        unit: unit,
         location: location, storedAt: storedAt,
         expiryDate: expiryDate, notes: $('#f-notes').value.trim(),
         photos: {
