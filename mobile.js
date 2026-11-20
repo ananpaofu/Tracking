@@ -2,8 +2,22 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.10';
+  const APP_VERSION = '1.11';
   const CHANGELOG = [
+    { version: '1.11', date: '2026-11-20', title: '字体粗细 / 教程 / 设置与评论优化', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复字体粗细「半粗」与「加粗」看起来一样的问题，细体 / 标准 / 半粗 / 加粗四档明显区分',
+        '修复社区动态点「评论」跳到群聊的问题，改为进入该动态的评论区并可发表评论'
+      ] },
+      { label: '全新功能', icon: 'sparkle', items: [
+        '新手教程按 App 真实页面重做，共 7 步，每一步都列出具体操作',
+        '「我的」页面个人信息 / 界面设置 / 功能设置支持点击标题折叠与展开'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '退出登录增加二次确认弹窗，防止误点退出',
+        '动态评论按钮显示评论数量'
+      ] }
+    ] },
     { version: '1.10', date: '2026-11-20', title: '地图定位与加好友入口优化', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '修复高德地图打开后看不到自己位置的问题：新增醒目的蓝色「你在这里」定位点并自动居中放大'
@@ -379,7 +393,7 @@
     itemsOpen: true, hubSearch: '', sortBy: 'expiry', letter: '',
     mapExpanded: false, devicesOpen: false, searchExpanded: false,
     settingsPage: '', stickerPanel: '', guideStep: 0, locationKey: '',
-    mapZoom: 1, mapPanX: 0, mapPanY: 0
+    collapsedGroups: {}, commentPostId: null, mapZoom: 1, mapPanX: 0, mapPanY: 0
   };
   let lastView = null;
   let activeStream = null;
@@ -412,6 +426,7 @@
       });
       if (!Array.isArray(db.items)) db.items = [];
       if (!Array.isArray(db.posts)) db.posts = DEMO_POSTS.slice();
+      db.posts.forEach(function (p) { if (!Array.isArray(p.comments)) p.comments = []; });
       if (!db.messages || typeof db.messages !== 'object') {
         db.messages = { c1: (DEMO_MESSAGES.c1 || []).slice(), c2: (DEMO_MESSAGES.c2 || []).slice(), c3: (DEMO_MESSAGES.c3 || []).slice() };
       }
@@ -607,9 +622,11 @@
     Object.keys(theme.vars).forEach(function (k) { screen.style.setProperty(k, theme.vars[k]); });
     screen.style.setProperty('--app-font-scale', String(s.fontScale));
     screen.style.setProperty('--app-font-weight', String(s.fontWeight));
-    screen.classList.remove('fw-bold', 'fw-light');
-    if (s.fontWeight >= 600) screen.classList.add('fw-bold');
-    if (s.fontWeight <= 300) screen.classList.add('fw-light');
+    screen.classList.remove('fw-thin', 'fw-normal', 'fw-medium', 'fw-bold');
+    if (s.fontWeight === 300) screen.classList.add('fw-thin');
+    else if (s.fontWeight === 600) screen.classList.add('fw-medium');
+    else if (s.fontWeight >= 700) screen.classList.add('fw-bold');
+    else screen.classList.add('fw-normal');
   }
 
   function makeFriendId() {
@@ -698,11 +715,59 @@
 
   function renderTutorial() {
     const steps = [
-      { icon: 'home', title: '欢迎来到收纳小管家', text: '首页会显示你的物品、到期提醒和收纳地图。每天打开这里，就能对家里的东西一目了然。' },
-      { icon: 'plus', title: '随手记录一件物品', text: '点击底部中间的「+」按钮，可以拍照识物、填写名称、分类和存放位置，保存后自动归入收纳地图。' },
-      { icon: 'pin', title: '用地图快速找到它', text: '收纳地图按柜子、冰箱等位置分类。轻点格子即可查看放在这里的全部物品，自定义位置也会自动加入地图。' },
-      { icon: 'signal', title: '定位标签联动', text: '在功能中心打开「设备联动」，搜索并连接蓝牙标签，给物品贴上标签后就能一键查找、离位提醒。' },
-      { icon: 'users', title: '和朋友一起整理', text: '社区里可以添加好友（用编号 ID 搜索）、加入群聊，发文字、表情和贴纸，还能更换聊天背景。' }
+      { icon: 'home', page: '首页', title: '认识「首页」',
+        text: '打开 App 默认进入首页，这里是你的收纳总览，每天看一眼就心里有数。',
+        ops: [
+          '① 顶部问候语下方是统计卡：已收纳件数、临期提醒数量。',
+          '② 中部「我的收纳地图」按冰箱、柜子等位置分区展示物品。',
+          '③ 下方是物品列表，颜色标签对应保质期紧急程度（绿 → 红）。'
+        ] },
+      { icon: 'plus', page: '底部「＋」', title: '随手记录一件物品',
+        text: '底部正中间的圆形「＋」是记录入口，拍照或从相册选图都可以。',
+        ops: [
+          '① 点底部中间的「＋」打开添加页。',
+          '② 点「拍照」自动识物，或点「相册选择」挑一张照片。',
+          '③ 填写名称、分类、数量、保质期和存放位置。',
+          '④ 点「保存」，物品自动归入收纳地图。'
+        ] },
+      { icon: 'pin', page: '首页 / 功能', title: '用地图快速找到它',
+        text: '收纳地图按存放位置分区，轻点格子即可查看放在这里的全部物品。',
+        ops: [
+          '① 在首页「我的收纳地图」点冰箱 / 柜子等格子。',
+          '② 查看该格子的物品卡片，点卡片可展开详情、编辑或删除。',
+          '③ 也可到「功能 → 收纳地图」打开完整地图。',
+          '④ 自定义的存放位置保存后会自动加入地图。'
+        ] },
+      { icon: 'bell', page: '功能 → 到期提醒', title: '临期物品优先处理',
+        text: '颜色越深代表越接近过期，红色需要立刻处理。',
+        ops: [
+          '① 首页顶部统计卡直接显示临期物品数量。',
+          '② 点「功能 → 到期提醒」查看所有临期物品列表。',
+          '③ 点列表里的物品可直接修改保质期或删除。'
+        ] },
+      { icon: 'signal', page: '底部「联动」', title: '定位标签一键查找',
+        text: '给重要物品绑定蓝牙标签，找东西不用再翻箱倒柜。',
+        ops: [
+          '① 点底部「联动」进入设备页。',
+          '② 打开手机蓝牙，搜索并连接你的定位标签。',
+          '③ 给物品绑定标签，并开启离位提醒。',
+          '④ 点「一键查找」，地图标出位置并播放提示音。'
+        ] },
+      { icon: 'users', page: '功能 → 社区 / 聊天', title: '和朋友一起整理',
+        text: '在社区看大家的收纳灵感，加好友后还能私聊交流。',
+        ops: [
+          '① 点「功能 → 社区动态」浏览动态，点动态下方的「评论」进入评论区。',
+          '② 点「消息聊天 → 加好友」，用编号 ID 搜索或从推荐里一键添加。',
+          '③ 点好友进入聊天，可发文字、表情和贴纸，还能更换聊天背景。'
+        ] },
+      { icon: 'user', page: '底部「我的」', title: '个性化你的 App',
+        text: '在「我的」里管理个人资料、外观和账号，设置分组可点击折叠。',
+        ops: [
+          '① 点头像或昵称修改个人信息与个性签名。',
+          '② 「界面设置」可调字体大小、粗细和主题色；点分组标题可折叠 / 展开。',
+          '③ 「功能设置」里可开关通知、提示音等。',
+          '④ 到「成就等级」佩戴头像框 / 名片 / 徽章；「版本与更新」可查历史。'
+        ] }
     ];
     const i = Math.min(state.guideStep, steps.length - 1);
     const s = steps[i];
@@ -710,10 +775,12 @@
       return '<i class="' + (n === i ? 'on' : '') + '"></i>';
     }).join('');
     $('#overlay-root').innerHTML =
-      '<div class="full-mask tutorial-mask">' +
+      '<div class="full-mask tutorial-mask tutorial-has-ops">' +
         '<div class="tutorial-art">' + ICON[s.icon] + '</div>' +
-        '<div class="tutorial-body"><span class="tutorial-step">第 ' + (i + 1) + ' / ' + steps.length + ' 步</span>' +
-          '<h2>' + s.title + '</h2><p>' + s.text + '</p></div>' +
+        '<div class="tutorial-body"><span class="tutorial-step">第 ' + (i + 1) + ' / ' + steps.length + ' 步 · ' + escapeHTML(s.page) + '</span>' +
+          '<h2>' + escapeHTML(s.title) + '</h2><p>' + escapeHTML(s.text) + '</p>' +
+          '<ul class="tutorial-ops">' + s.ops.map(function (o) { return '<li>' + escapeHTML(o) + '</li>'; }).join('') + '</ul>' +
+        '</div>' +
         '<div class="tutorial-dots">' + dots + '</div>' +
         '<div class="tutorial-actions">' +
           '<button class="btn ghost" data-action="tutorial-skip">跳过</button>' +
@@ -1615,6 +1682,52 @@
       '</div>';
   }
 
+  function openComments(postId) {
+    const post = db.posts.find(function (p) { return p.id === postId; });
+    if (!post) return;
+    if (!Array.isArray(post.comments)) post.comments = [];
+    state.commentPostId = postId;
+    closeSheet();
+    $('#overlay-root').innerHTML =
+      '<div class="full-mask comment-mask">' +
+        '<div class="full-head"><button class="back" data-action="close-comments">' + ICON.back + '</button>' +
+          '<h2>动态评论</h2><span class="comment-count">' + post.comments.length + ' 条</span></div>' +
+        '<div class="comment-body" id="comment-body"></div>' +
+        '<form class="chat-input" id="comment-form">' +
+          '<input id="comment-text" placeholder="写下你的评论..." autocomplete="off" maxlength="200">' +
+          '<button type="submit">' + ICON.send + '</button>' +
+        '</form>' +
+      '</div>';
+    renderComments();
+  }
+
+  function renderComments() {
+    const body = $('#comment-body');
+    if (!body) return;
+    const post = db.posts.find(function (p) { return p.id === state.commentPostId; });
+    if (!post) return;
+    const comments = Array.isArray(post.comments) ? post.comments : [];
+    const countEl = $('.comment-count');
+    if (countEl) countEl.textContent = comments.length + ' 条';
+    const postBlock =
+      '<div class="comment-post">' +
+        '<div class="post-head"><div class="post-avatar ' + (post.tone || '') + '">' + escapeHTML(post.avatar) + '</div>' +
+          '<div><div class="post-name">' + escapeHTML(post.name) + '</div>' +
+          '<div class="post-time">' + escapeHTML(post.time) + '</div></div></div>' +
+        '<p class="post-text">' + escapeHTML(post.text) + '</p>' +
+      '</div>';
+    const list = comments.length
+      ? '<div class="comment-list">' + comments.map(function (c) {
+          return '<div class="comment-item">' +
+            '<div class="comment-avatar">' + escapeHTML(c.avatar) + '</div>' +
+            '<div class="comment-content"><b>' + escapeHTML(c.name) + '</b>' +
+              '<p>' + escapeHTML(c.text) + '</p><time>' + escapeHTML(c.time) + '</time></div>' +
+          '</div>';
+        }).join('') + '</div>'
+      : '<div class="comment-empty">还没有评论，来说第一句吧～</div>';
+    body.innerHTML = postBlock + '<div class="comment-divider">全部评论</div>' + list;
+  }
+
   function feedHTML() {
     const posts = db.posts.slice().reverse();
     if (!posts.length) {
@@ -1629,7 +1742,7 @@
         (p.photo ? '<img class="post-img" src="' + p.photo + '" alt="动态图片">' : '') +
         '<div class="post-actions">' +
           '<button data-action="like" data-id="' + p.id + '" class="' + (p.liked ? 'liked' : '') + '">' + ICON.heart + (p.likes || 0) + '</button>' +
-          '<button data-action="comment-post" data-id="' + p.id + '">' + ICON.comment + ' 评论</button>' +
+          '<button data-action="comment-post" data-id="' + p.id + '">' + ICON.comment + ' 评论' + ((p.comments && p.comments.length) ? ' ' + p.comments.length : '') + '</button>' +
         '</div>' +
       '</article>';
     }).join('');
@@ -2845,6 +2958,14 @@
       '<span class="set-arrow">›</span></button>';
   }
 
+  function settingsGroup(title, key, rows) {
+    const collapsed = !!(state.collapsedGroups && state.collapsedGroups[key]);
+    return '<div class="set-group' + (collapsed ? ' collapsed' : '') + '">' +
+      '<button class="set-group-title" data-action="toggle-group" data-key="' + key + '">' +
+        '<span>' + title + '</span><span class="group-chevron">' + ICON.back + '</span></button>' +
+      '<div class="set-group-body">' + rows + '</div></div>';
+  }
+
   function profileHTML() {
     const user = currentUser();
     const p = user.profile || {};
@@ -2855,7 +2976,7 @@
       ? '<img src="' + p.avatar + '" alt="头像">'
       : escapeHTML(name.charAt(0).toUpperCase());
     const fontLabel = s.fontScale <= 0.8 ? '小' : (s.fontScale <= 1 ? '标准' : (s.fontScale <= 1.2 ? '大' : '超大'));
-    const weightLabel = s.fontWeight >= 600 ? '加粗' : (s.fontWeight <= 300 ? '细体' : '标准');
+    const weightLabel = s.fontWeight === 300 ? '细体' : (s.fontWeight === 600 ? '半粗' : (s.fontWeight >= 700 ? '加粗' : '标准'));
     const myCount = getUserItems().length;
 
     const profileHead =
@@ -2866,20 +2987,18 @@
     return '<div class="page settings-page">' +
       wrapCard(profileHead, user, myCount) +
 
-        '<div class="set-group"><div class="set-group-title">个人信息</div>' +
+        settingsGroup('个人信息', 'profile',
           settingRow('trophy', '成就等级', '第 ' + (achIndex(myCount) + 1) + ' 级 · ' + achievementLevels()[achIndex(myCount)].name + ' · 装扮管理', 'show-achievements') +
           settingRow('user', '昵称', name, 'edit-field', 'data-field="name"') +
           settingRow('comment', '联系方式', p.contact || '未填写', 'edit-field', 'data-field="contact"') +
-          settingRow('book', '个性签名', p.bio || '未填写', 'edit-field', 'data-field="bio"') +
-        '</div>' +
+          settingRow('book', '个性签名', p.bio || '未填写', 'edit-field', 'data-field="bio"')) +
 
-        '<div class="set-group"><div class="set-group-title">界面设置</div>' +
+        settingsGroup('界面设置', 'ui',
           settingRow('grid', '字体大小', fontLabel, 'settings-font') +
           settingRow('edit', '字体粗细', weightLabel, 'settings-weight') +
-          settingRow('sparkle', '界面颜色', theme.label, 'settings-theme') +
-        '</div>' +
+          settingRow('sparkle', '界面颜色', theme.label, 'settings-theme')) +
 
-        '<div class="set-group"><div class="set-group-title">功能设置</div>' +
+        settingsGroup('功能设置', 'feature',
           '<div class="set-row" data-action="toggle-setting" data-key="notify"><span class="set-ico">' + ICON.bell + '</span>' +
             '<span class="set-label"><b>消息通知</b><small>接收提醒与聊天消息</small></span>' +
             '<span class="switch ' + (s.notify ? 'on' : '') + '"><i></i></span></div>' +
@@ -2890,8 +3009,7 @@
             '<span class="set-label"><b>账号安全</b><small>登录验证与密码保护</small></span>' +
             '<span class="switch ' + (s.secure ? 'on' : '') + '"><i></i></span></div>' +
           settingRow('shield', '修改密码', '更新登录密码', 'change-password') +
-          settingRow('book', '使用指南', '操作步骤与颜色说明', 'open-guide') +
-        '</div>' +
+          settingRow('book', '使用指南', '操作步骤与颜色说明', 'open-guide')) +
 
         '<button class="set-row" data-action="show-changelog" style="width:100%;background:var(--paper);border-radius:14px;margin-bottom:14px">' +
           '<span class="set-ico">' + ICON.book + '</span>' +
@@ -3123,12 +3241,8 @@
         const post = db.posts.find(function (p) { return p.id === el.dataset.id; });
         if (post) { post.liked = !post.liked; post.likes = (post.likes || 0) + (post.liked ? 1 : -1); saveDB(); renderApp(); }
         break;
-      case 'comment-post':
-        state.communityTab = 'chat';
-        state.chatId = 'c1';
-        renderApp();
-        openChat('c1');
-        break;
+      case 'comment-post': openComments(el.dataset.id); break;
+      case 'close-comments': closeOverlay(); state.commentPostId = null; break;
       case 'open-chat': openChat(el.dataset.id); break;
       case 'new-post': openPostEditor(); break;
       case 'submit-post':
@@ -3375,6 +3489,11 @@
           saveDB(); closeSheet(); toast('已保存'); renderApp(true);
         }
         break;
+      case 'toggle-group':
+        const groupKey = el.dataset.key;
+        state.collapsedGroups[groupKey] = !state.collapsedGroups[groupKey];
+        renderApp();
+        break;
       case 'settings-font': settingsSheet('font'); break;
       case 'settings-weight': settingsSheet('weight'); break;
       case 'settings-theme': settingsSheet('theme'); break;
@@ -3479,6 +3598,17 @@
 
       case 'sample': loadSampleData(); break;
       case 'logout':
+        $('#sheet-root').innerHTML =
+          '<div class="sheet-mask" data-mask="1"><div class="sheet" style="max-height:52%">' +
+            '<div class="sheet-handle"></div><div class="sheet-head"><h2>确认退出登录</h2></div>' +
+            '<p class="confirm-text">退出后需要重新输入账号和密码才能进入，确定要退出吗？</p>' +
+            '<div class="sheet-actions">' +
+              '<button class="btn ghost" data-action="close-sheet">取消</button>' +
+              '<button class="btn danger" data-action="confirm-logout">确认退出</button>' +
+            '</div>' +
+          '</div></div>';
+        break;
+      case 'confirm-logout':
         closeOverlay(); closeSheet();
         db.session = null; saveDB();
         state.view = 'home'; state.search = ''; state.filter = 'all';
@@ -3656,6 +3786,24 @@
       db.messages[state.chatId].push({ from: 'mine', text: text, time: nowTime() });
       input.value = '';
       saveDB(); renderChatBody(); renderApp(); autoReply(state.chatId);
+    }
+
+    if (form.id === 'comment-form') {
+      e.preventDefault();
+      const input = $('#comment-text');
+      const text = input.value.trim();
+      if (!text) return;
+      const post = db.posts.find(function (p) { return p.id === state.commentPostId; });
+      if (!post) return;
+      if (!Array.isArray(post.comments)) post.comments = [];
+      const user = currentUser();
+      const name = (user.profile && user.profile.name) || user.username;
+      post.comments.push({
+        name: name, avatar: (name.charAt(0) || '我').toUpperCase(),
+        text: text, time: nowTime()
+      });
+      input.value = '';
+      saveDB(); renderComments(); renderApp(); toast('评论已发布');
     }
   });
 
