@@ -2,8 +2,24 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.13';
+  const APP_VERSION = '1.14';
   const CHANGELOG = [
+    { version: '1.14', date: '2026-11-20', title: '搜索常驻 / 排版优化 / 系统相机 / 语言切换', sections: [
+      { label: '全新功能', icon: 'sparkle', items: [
+        '我的物品折叠后搜索栏保持显示，可随时搜索',
+        '通知时间改为任意时间设置，不再限定固定档位',
+        '新增语言设置，支持跟随系统、简体中文、繁體中文和英文',
+        '拍照直接进入系统相机，拍完可直接使用、居中裁剪、重拍或退出'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '首页「我的收纳」与「功能中心」标题进一步加粗，添加物品与到期优先统一绿色',
+        '录入页数量单位选择器加宽、箭头改为主题绿，选中文字清晰可见',
+        '为感冒药、收纳盒等常见物品补充内置矢量产品图，无实拍图时也能直观识别',
+        '字体改为常规 / 标准（半粗）/ 加粗三档，超大字号下文字不再溢出方框',
+        '联动页改为高德地图风格配色，关闭按钮与聊天页按钮对齐',
+        '使用指南与新手教程同步为 7 步，教程改为居中步骤卡片样式'
+      ] }
+    ] },
     { version: '1.13', date: '2026-11-20', title: '多物品识别 / 高对比界面 / 教程升级', sections: [
       { label: '全新功能', icon: 'sparkle', items: [
         'AI 识别支持从一张照片中检测多个物品区域，并分别裁剪出单品照片供逐项选用',
@@ -173,42 +189,55 @@
 
   const UNIT_OPTIONS = ['件', '卷', '包', '盒', '瓶', '块', '支', '罐', '袋', '个', '双', '片', '颗', '杯', '桶', '节', '粒', '自定义'];
 
-  function itemImageData(label, bg, fg) {
+  function itemImageData(label, bg, fg, shape) {
     const safe = String(label || '物品').replace(/[&<>]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
     });
+    const art = {
+      carton: '<path d="M82 42h58l18 16v62H82Z" fill="#fff" stroke="' + fg + '" stroke-width="3"/><path d="M140 42v16h18" fill="none" stroke="' + fg + '" stroke-width="3"/><rect x="92" y="74" width="46" height="18" rx="5" fill="' + fg + '" opacity=".16"/>',
+      bottle: '<rect x="103" y="34" width="34" height="16" rx="5" fill="' + fg + '"/><path d="M96 50h48l8 66H88Z" fill="#fff" stroke="' + fg + '" stroke-width="3"/><rect x="98" y="76" width="44" height="16" rx="4" fill="' + fg + '" opacity=".18"/>',
+      box: '<path d="M72 62h96v66H72Z" fill="#fff" stroke="' + fg + '" stroke-width="3"/><path d="M72 62l18-18h96l-18 18Z" fill="#f2ede5" stroke="' + fg + '" stroke-width="3"/><path d="M168 62l18-18v66l-18 18Z" fill="#e7dfd4" stroke="' + fg + '" stroke-width="3"/><rect x="102" y="88" width="36" height="14" rx="5" fill="' + fg + '" opacity=".18"/>',
+      bag: '<path d="M84 58h72l10 70H74Z" fill="#fff" stroke="' + fg + '" stroke-width="3"/><path d="M100 58V44h40v14" fill="none" stroke="' + fg + '" stroke-width="3"/><circle cx="120" cy="92" r="16" fill="' + fg + '" opacity=".18"/>',
+      device: '<rect x="80" y="48" width="80" height="64" rx="14" fill="#fff" stroke="' + fg + '" stroke-width="3"/><circle cx="120" cy="80" r="17" fill="' + fg + '" opacity=".2"/><path d="M104 112h32" stroke="' + fg + '" stroke-width="4" stroke-linecap="round"/>',
+      fruit: '<circle cx="104" cy="82" r="26" fill="#fff" stroke="' + fg + '" stroke-width="3"/><circle cx="138" cy="82" r="26" fill="#fff" stroke="' + fg + '" stroke-width="3"/><path d="M120 52c2-10 8-14 16-16" fill="none" stroke="' + fg + '" stroke-width="3" stroke-linecap="round"/>',
+      cup: '<path d="M92 52h56l-8 74h-40Z" fill="#fff" stroke="' + fg + '" stroke-width="3"/><path d="M148 68h10a12 12 0 0 1 0 24h-12" fill="none" stroke="' + fg + '" stroke-width="3"/><path d="M100 78h40" stroke="' + fg + '" stroke-width="4" opacity=".25"/>',
+      cloth: '<path d="M96 52l24 10 24-10 18 22-16 12v40H94V86L78 74Z" fill="#fff" stroke="' + fg + '" stroke-width="3"/><path d="M110 62v62M130 62v62" stroke="' + fg + '" stroke-width="2" opacity=".25"/>',
+      doc: '<path d="M88 42h48l18 18v62H88Z" fill="#fff" stroke="' + fg + '" stroke-width="3"/><path d="M136 42v18h18" fill="none" stroke="' + fg + '" stroke-width="3"/><path d="M100 78h42M100 90h42M100 102h28" stroke="' + fg + '" stroke-width="3" opacity=".35"/>'
+    };
+    const artHTML = art[shape || 'box'] || art.box;
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160">' +
       '<rect width="240" height="160" fill="' + bg + '"/>' +
       '<circle cx="198" cy="26" r="48" fill="#ffffff" opacity=".32"/>' +
-      '<rect x="44" y="32" width="152" height="96" rx="24" fill="#fffdf9" opacity=".94"/>' +
-      '<text x="120" y="90" text-anchor="middle" font-size="30" font-weight="700" fill="' + fg + '" font-family="PingFang SC, Microsoft YaHei, sans-serif">' + safe + '</text>' +
+      '<rect x="44" y="24" width="152" height="112" rx="24" fill="#fffdf9" opacity=".92"/>' +
+      artHTML +
+      '<text x="120" y="145" text-anchor="middle" font-size="16" font-weight="700" fill="' + fg + '" font-family="PingFang SC, Microsoft YaHei, sans-serif">' + safe + '</text>' +
       '</svg>';
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   }
 
   const ITEM_IMAGE_RULES = [
-    { keys: ['牛奶', '酸奶', '奶酪', 'milk'], label: '牛奶', bg: '#d9eaf2', fg: '#326a8a' },
-    { keys: ['鸡蛋', '蛋', 'egg'], label: '鸡蛋', bg: '#f6e7c9', fg: '#8a5c22' },
-    { keys: ['水果', '苹果', '香蕉', '橙子'], label: '水果', bg: '#e5f0d8', fg: '#557a36' },
-    { keys: ['药', '维生素', '胶囊', '药片'], label: '药品', bg: '#f6dfe0', fg: '#a64b52' },
-    { keys: ['防晒', '护肤', '化妆', '口红', '面膜'], label: '护肤品', bg: '#eadff1', fg: '#765189' },
-    { keys: ['围巾', '衣服', '外套', '袜子', '衣物'], label: '衣物', bg: '#dce6f2', fg: '#3c628a' },
-    { keys: ['文件', '合同', '证书', '笔记', '书'], label: '资料', bg: '#e2e8e4', fg: '#4d6658' },
-    { keys: ['充电', '电池', '数据线', '耳机', '手机', '电脑'], label: '电子', bg: '#d9ebe3', fg: '#2f6c52' },
-    { keys: ['水杯', '杯', '水壶'], label: '水杯', bg: '#d8edf0', fg: '#2d6f79' },
-    { keys: ['土豆', '零食', '饼干', '薯片'], label: '零食', bg: '#f4e3cf', fg: '#8c5a2b' },
-    { keys: ['猫砂', '宠物', '猫', '狗'], label: '宠物', bg: '#e8e1d8', fg: '#745b43' },
-    { keys: ['收纳盒', '盒子', '箱子'], label: '收纳', bg: '#e3e9e2', fg: '#516b59' }
+    { keys: ['牛奶', '酸奶', '奶酪', 'milk'], label: '牛奶', bg: '#d9eaf2', fg: '#326a8a', shape: 'carton' },
+    { keys: ['鸡蛋', '蛋', 'egg'], label: '鸡蛋', bg: '#f6e7c9', fg: '#8a5c22', shape: 'fruit' },
+    { keys: ['水果', '苹果', '香蕉', '橙子'], label: '水果', bg: '#e5f0d8', fg: '#557a36', shape: 'fruit' },
+    { keys: ['感冒药', '药', '维生素', '胶囊', '药片'], label: '药品', bg: '#f6dfe0', fg: '#a64b52', shape: 'bottle' },
+    { keys: ['防晒', '护肤', '化妆', '口红', '面膜'], label: '护肤品', bg: '#eadff1', fg: '#765189', shape: 'bottle' },
+    { keys: ['围巾', '衣服', '外套', '袜子', '衣物'], label: '衣物', bg: '#dce6f2', fg: '#3c628a', shape: 'cloth' },
+    { keys: ['文件', '合同', '证书', '笔记', '书'], label: '资料', bg: '#e2e8e4', fg: '#4d6658', shape: 'doc' },
+    { keys: ['充电', '电池', '数据线', '耳机', '手机', '电脑'], label: '电子', bg: '#d9ebe3', fg: '#2f6c52', shape: 'device' },
+    { keys: ['水杯', '杯', '水壶'], label: '水杯', bg: '#d8edf0', fg: '#2d6f79', shape: 'cup' },
+    { keys: ['土豆', '零食', '饼干', '薯片'], label: '零食', bg: '#f4e3cf', fg: '#8c5a2b', shape: 'bag' },
+    { keys: ['猫砂', '宠物', '猫', '狗'], label: '宠物', bg: '#e8e1d8', fg: '#745b43', shape: 'bag' },
+    { keys: ['收纳盒', '盒子', '箱子'], label: '收纳', bg: '#e3e9e2', fg: '#516b59', shape: 'box' }
   ];
 
   const CATEGORY_IMAGES = {
-    food: { label: '食品', bg: '#f6e7d9', fg: '#9a5f33' },
-    medicine: { label: '药品', bg: '#f6dfe0', fg: '#a64b52' },
-    cosmetic: { label: '化妆', bg: '#eadff1', fg: '#765189' },
-    clothing: { label: '衣物', bg: '#dce6f2', fg: '#3c628a' },
-    document: { label: '文档', bg: '#e2e8e4', fg: '#4d6658' },
-    electronic: { label: '电子', bg: '#d9ebe3', fg: '#2f6c52' },
-    other: { label: '物品', bg: '#e6e6e2', fg: '#606860' }
+    food: { label: '食品', bg: '#f6e7d9', fg: '#9a5f33', shape: 'carton' },
+    medicine: { label: '药品', bg: '#f6dfe0', fg: '#a64b52', shape: 'bottle' },
+    cosmetic: { label: '化妆', bg: '#eadff1', fg: '#765189', shape: 'bottle' },
+    clothing: { label: '衣物', bg: '#dce6f2', fg: '#3c628a', shape: 'cloth' },
+    document: { label: '文档', bg: '#e2e8e4', fg: '#4d6658', shape: 'doc' },
+    electronic: { label: '电子', bg: '#d9ebe3', fg: '#2f6c52', shape: 'device' },
+    other: { label: '物品', bg: '#e6e6e2', fg: '#606860', shape: 'box' }
   };
 
   function autoItemImage(item) {
@@ -217,9 +246,9 @@
     const hit = ITEM_IMAGE_RULES.find(function (r) {
       return r.keys.some(function (k) { return lower.indexOf(k) !== -1; });
     });
-    if (hit) return itemImageData(hit.label, hit.bg, hit.fg);
+    if (hit) return itemImageData(hit.label, hit.bg, hit.fg, hit.shape);
     const cat = CATEGORY_IMAGES[item && item.category] || CATEGORY_IMAGES.other;
-    return itemImageData(cat.label, cat.bg, cat.fg);
+    return itemImageData(cat.label, cat.bg, cat.fg, cat.shape);
   }
 
   const DEFAULT_ITEM_IMAGE = autoItemImage({ name: '物品', category: 'other' });
@@ -482,7 +511,7 @@
     settingsPage: '', stickerPanel: '', guideStep: 0, locationKey: '',
     collapsedGroups: {}, commentPostId: null,
     photoDraft: { item: [], location: [], expiry: [] }, photoCategory: 'item',
-    aiDetections: [], datePicker: null,
+    aiDetections: [], datePicker: null, photoPending: null,
     deviceMapOpen: false, mapZoom: 1, mapPanX: 0, mapPanY: 0
   };
   let lastView = null;
@@ -508,7 +537,7 @@
       messages: { c1: (DEMO_MESSAGES.c1 || []).slice(), c2: (DEMO_MESSAGES.c2 || []).slice(), c3: (DEMO_MESSAGES.c3 || []).slice() },
       devices: [], spaceKeys: DEFAULT_SPACE_KEYS.slice(), customSpaces: [], locationEnabled: true,
       bluetoothOn: false, stickers: [], chatBgs: {}, customCategories: [], customUnits: [], lastSeenVersion: '', mapMode: 'auto',
-      settings: { fontScale: 1.12, fontWeight: 400, theme: 'sage', notify: true, notifyTime: '09:00', sound: true, secure: true, elderMode: false }
+      settings: { fontScale: 1.12, fontWeight: 600, theme: 'sage', language: 'system', notify: true, notifyTime: '09:00', sound: true, secure: true, elderMode: false }
     };
   }
 
@@ -547,8 +576,10 @@
       if (!db.chatBgs || typeof db.chatBgs !== 'object') db.chatBgs = {};
       if (!db.settings || typeof db.settings !== 'object') db.settings = {};
       const s = db.settings;
-      if (!s.fontScale || s.fontScale < 1.12 || s.fontScale > 1.9) s.fontScale = 1.12;
-      if (s.fontWeight !== 300 && s.fontWeight !== 400 && s.fontWeight !== 600 && s.fontWeight !== 700) s.fontWeight = 400;
+      if (!s.fontScale || s.fontScale < 1.12 || s.fontScale > 1.7) s.fontScale = 1.12;
+      if (s.fontWeight === 300) s.fontWeight = 400;
+      if (s.fontWeight !== 400 && s.fontWeight !== 600 && s.fontWeight !== 700) s.fontWeight = 600;
+      if (!s.language) s.language = 'system';
       if (typeof s.elderMode !== 'boolean') s.elderMode = false;
       if (!THEMES.some(function (t) { return t.key === s.theme; })) s.theme = 'sage';
       if (typeof s.notify !== 'boolean') s.notify = true;
@@ -722,15 +753,73 @@
     const s = db.settings;
     const theme = THEMES.find(function (t) { return t.key === s.theme; }) || THEMES[0];
     Object.keys(theme.vars).forEach(function (k) { screen.style.setProperty(k, theme.vars[k]); });
-    screen.style.setProperty('--app-font-scale', String(s.elderMode ? 1.55 : s.fontScale));
+    screen.style.setProperty('--app-font-scale', String(s.elderMode ? 1.35 : s.fontScale));
     screen.style.setProperty('--app-font-weight', String(s.elderMode ? 700 : s.fontWeight));
     screen.classList.toggle('elder-mode', !!s.elderMode);
+    screen.classList.remove('font-large', 'font-extra');
+    if (s.elderMode || s.fontScale >= 1.6) screen.classList.add('font-extra');
+    else if (s.fontScale >= 1.35) screen.classList.add('font-large');
     const weight = s.elderMode ? 700 : s.fontWeight;
     screen.classList.remove('fw-thin', 'fw-normal', 'fw-medium', 'fw-bold');
     if (weight === 300) screen.classList.add('fw-thin');
     else if (weight === 600) screen.classList.add('fw-medium');
     else if (weight >= 700) screen.classList.add('fw-bold');
     else screen.classList.add('fw-normal');
+  }
+
+  const I18N = {
+    'zh-Hant': {
+      '首页': '首頁', '功能': '功能', '联动': '連動', '我的': '我的', '我的收纳': '我的收納', '功能中心': '功能中心',
+      '添加物品': '新增物品', '到期提醒': '到期提醒', '收纳地图': '收納地圖', '消息聊天': '訊息聊天', '社区动态': '社群動態',
+      '使用指南': '使用指南', '个人设置': '個人設定', '消息通知': '訊息通知', '通知时间': '通知時間', '界面颜色': '介面顏色',
+      '字体大小': '字體大小', '字体粗细': '字體粗細', '语言': '語言', '保存': '儲存', '取消': '取消', '关闭': '關閉',
+      '下一步': '下一步', '上一步': '上一步', '跳过': '略過', '开始使用': '開始使用', '物品名称': '物品名稱',
+      '分类': '分類', '数量': '數量', '存放位置': '存放位置', '收纳日期': '收納日期', '保质期至': '保存期限至',
+      '备注': '備註', '搜索我的物品': '搜尋我的物品', '我的物品': '我的物品', '收起': '收起', '展开': '展開',
+      '到期优先': '到期優先', '最近收纳': '最近收納', '全部': '全部', '无保质期': '無保存期限'
+    },
+    en: {
+      '首页': 'Home', '功能': 'Features', '联动': 'Devices', '我的': 'Me', '我的收纳': 'My Storage', '功能中心': 'Features',
+      '添加物品': 'Add Item', '到期提醒': 'Expiry Alerts', '收纳地图': 'Storage Map', '消息聊天': 'Messages', '社区动态': 'Community',
+      '使用指南': 'Guide', '个人设置': 'Preferences', '消息通知': 'Notifications', '通知时间': 'Reminder Time', '界面颜色': 'Theme Color',
+      '字体大小': 'Font Size', '字体粗细': 'Font Weight', '语言': 'Language', '保存': 'Save', '取消': 'Cancel', '关闭': 'Close',
+      '下一步': 'Next', '上一步': 'Back', '跳过': 'Skip', '开始使用': 'Get Started', '物品名称': 'Item Name',
+      '分类': 'Category', '数量': 'Quantity', '存放位置': 'Location', '收纳日期': 'Stored Date', '保质期至': 'Expiry Date',
+      '备注': 'Notes', '搜索我的物品': 'Search my items', '我的物品': 'My Items', '收起': 'Collapse', '展开': 'Expand',
+      '到期优先': 'Expiry First', '最近收纳': 'Recently Added', '全部': 'All', '无保质期': 'No Expiry'
+    }
+  };
+
+  function currentLanguage() {
+    const choice = (db.settings && db.settings.language) || 'system';
+    if (choice !== 'system') return choice;
+    const nav = (navigator.language || '').toLowerCase();
+    if (nav.indexOf('zh-tw') === 0 || nav.indexOf('zh-hk') === 0 || nav.indexOf('zh-hant') === 0) return 'zh-Hant';
+    if (nav.indexOf('zh') === 0) return 'zh-CN';
+    return 'en';
+  }
+
+  function translateUI(root) {
+    if (!root) return;
+    const lang = currentLanguage();
+    if (lang === 'zh-CN') return;
+    const dict = I18N[lang] || {};
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function (node) {
+      const key = node.nodeValue.trim();
+      if (dict[key]) node.nodeValue = node.nodeValue.replace(key, dict[key]);
+    });
+  }
+
+  function applyLanguage() {
+    const lang = currentLanguage();
+    document.documentElement.lang = lang === 'zh-Hant' ? 'zh-Hant' : (lang === 'en' ? 'en' : 'zh-CN');
+    if (lang === 'zh-CN') return;
+    translateUI($('.device-screen'));
+    translateUI($('#overlay-root'));
+    translateUI($('#sheet-root'));
   }
 
   function makeFriendId() {
@@ -848,7 +937,7 @@
         ops: [
           '① 顶部问候语下方是统计卡：已收纳件数、临期提醒数量。',
           '② 中间「我的物品」内可直接搜索、筛选和展开每件物品。',
-          '③ 物品卡片收起时只显示名称，点一下展开查看照片与详细信息。'
+          '③ 我的物品收起时搜索栏仍可使用，物品卡片点一下展开查看照片与详细信息。'
         ] },
       { icon: 'plus', mock: 'add', page: '底部「＋」', title: '随手记录一件物品',
         text: '底部正中间的圆形「＋」是记录入口，拍照或从相册选图都可以。',
@@ -904,18 +993,24 @@
       return '<i class="' + (n === i ? 'on' : '') + '"></i>';
     }).join('');
     $('#overlay-root').innerHTML =
-      '<div class="full-mask tutorial-mask tutorial-has-ops">' +
-        tutorialMock(s.mock) +
-        '<div class="tutorial-body"><span class="tutorial-step">第 ' + (i + 1) + ' / ' + steps.length + ' 步 · ' + escapeHTML(s.page) + '</span>' +
-          '<h2>' + escapeHTML(s.title) + '</h2><p>' + escapeHTML(s.text) + '</p>' +
+      '<div class="full-mask tutorial-mask tutorial-card-mask">' +
+        '<div class="tutorial-card">' +
+          '<button class="tutorial-skip" data-action="tutorial-skip">跳过</button>' +
+          '<div class="tutorial-card-top"><span>' + (i + 1) + ' / ' + steps.length + '</span></div>' +
+          '<span class="tutorial-page">' + escapeHTML(s.page) + '</span>' +
+          '<h2>' + escapeHTML(s.title) + '</h2>' +
+          '<p>' + escapeHTML(s.text) + '</p>' +
           '<ul class="tutorial-ops">' + s.ops.map(function (o) { return '<li>' + escapeHTML(o) + '</li>'; }).join('') + '</ul>' +
-        '</div>' +
-        '<div class="tutorial-dots">' + dots + '</div>' +
-        '<div class="tutorial-actions">' +
-          '<button class="btn ghost" data-action="tutorial-skip">跳过</button>' +
-          '<button class="btn primary" data-action="tutorial-next">' + (i === steps.length - 1 ? '开始使用' : '下一步') + '</button>' +
+          '<div class="tutorial-card-foot">' +
+            '<div class="tutorial-dots">' + dots + '</div>' +
+            '<div class="tutorial-actions">' +
+              (i > 0 ? '<button class="btn ghost" data-action="tutorial-prev">上一步</button>' : '') +
+              '<button class="btn primary" data-action="tutorial-next">' + (i === steps.length - 1 ? '开始使用' : '下一步') + '</button>' +
+            '</div>' +
+          '</div>' +
         '</div>' +
       '</div>';
+    applyLanguage();
   }
 
   function finishTutorial() {
@@ -1182,6 +1277,7 @@
     $('#bottom-nav').classList.remove('hidden');
     $('#bottom-nav').innerHTML = navHTML();
     scroller.innerHTML = viewHTML();
+    applyLanguage();
     scroller.scrollTop = prevScroll;
     lastView = state.view;
     if (changed) animateNumbers();
@@ -1491,24 +1587,24 @@
             '<h2>我的物品 <em class="count-pill">' + items.length + ' 件</em></h2>' +
             '<button class="items-panel-head text-btn" data-action="toggle-items">' + (state.itemsOpen ? '收起 ‹' : '展开 ›') + '</button>' +
           '</div>' +
-          (state.itemsOpen ?
-            '<div class="panel items-panel">' +
-              '<div class="search-feature">' +
-                '<div class="sf-title">' + ICON.search + '<span>搜索我的物品</span></div>' +
-                '<div class="search-bar home-search">' +
-                  '<input id="search-input" placeholder="名称 / 位置 / 备注 / 分类" value="' + escapeHTML(state.search) + '">' +
-                  (state.search ? '<button class="search-cancel" data-action="cancel-search">取消</button>' : '') +
-                '</div>' +
-                (hist.length ? '<div class="search-history">' +
-                  '<div class="sh-row">' + histShown.map(function (h) {
-                    return '<button class="sh-chip" data-action="use-history" data-value="' + escapeHTML(h) + '">' + escapeHTML(h) + '</button>';
-                  }).join('') + '</div>' +
-                  '<div class="sh-tools">' +
-                    (hist.length > 5 ? '<button data-action="toggle-history">' + (state.searchExpanded ? '收起' : '展开') + '</button>' : '') +
-                    '<button data-action="clear-history" title="清空搜索历史">' + ICON.trash + '</button>' +
-                  '</div>' +
-                '</div>' : '') +
+          '<div class="panel items-panel">' +
+            '<div class="search-feature">' +
+              '<div class="sf-title">' + ICON.search + '<span>搜索我的物品</span></div>' +
+              '<div class="search-bar home-search">' +
+                '<input id="search-input" placeholder="名称 / 位置 / 备注 / 分类" value="' + escapeHTML(state.search) + '">' +
+                (state.search ? '<button class="search-cancel" data-action="cancel-search">取消</button>' : '') +
               '</div>' +
+              (hist.length ? '<div class="search-history">' +
+                '<div class="sh-row">' + histShown.map(function (h) {
+                  return '<button class="sh-chip" data-action="use-history" data-value="' + escapeHTML(h) + '">' + escapeHTML(h) + '</button>';
+                }).join('') + '</div>' +
+                '<div class="sh-tools">' +
+                  (hist.length > 5 ? '<button data-action="toggle-history">' + (state.searchExpanded ? '收起' : '展开') + '</button>' : '') +
+                  '<button data-action="clear-history" title="清空搜索历史">' + ICON.trash + '</button>' +
+                '</div>' +
+              '</div>' : '') +
+            '</div>' +
+            (state.itemsOpen ?
               '<div class="chips">' +
                 chip('all', '全部') + chip('attention', '临期提醒') + chip('expired', '已过期') + chip('none', '无保质期') +
               '</div>' +
@@ -1517,8 +1613,8 @@
               '</div>' +
               alphabetBar() +
               searchResultNoticeHTML() +
-              '<div id="list-area">' + listHTML() + '</div>' +
-            '</div>' : '') +
+              '<div id="list-area">' + listHTML() + '</div>' : '') +
+          '</div>' +
         '</div>' +
       '</div>';
   }
@@ -1825,10 +1921,13 @@
         '<button class="icon-btn" data-action="back">' + ICON.back + '</button>' +
         '<h2 style="flex:1;margin-left:6px">使用指南</h2></div>' +
       '<div class="guide-hero"><h1>轻松上手</h1><p>跟着图解一步步操作，记录收纳更省心</p></div>' +
-      step('1', '添加物品', '① 点底部中间的「＋」→ ② 拍照或填写名称、分类、数量、位置 → ③ 点「保存」，物品自动归入收纳地图。', 'add') +
-      step('2', '用地图找东西', '① 点底部「功能」→「收纳地图」 → ② 点冰箱 / 柜子等格子查看该位置的全部物品 → ③ 点卡片展开详情、编辑或删除。', 'map') +
-      step('3', '一键查找物品', '① 点底部「联动」→ ② 给物品绑定蓝牙标签 → ③ 点「一键查找」，地图会响铃并显示物品位置。', 'find') +
-      step('4', '加好友与装扮', '① 功能中心进入社区 → ② 用编号 ID 搜索添加好友 → ③ 升级成就解锁头像框 / 名片 / 徽章，在成就等级里佩戴，好友可见。', 'social') +
+      step('1', '认识首页', '① 首页顶部看已收纳、到期提醒和分类数量 → ② 「我的物品」里搜索栏始终显示 → ③ 点展开查看物品卡片、状态提醒和位置照片。', 'home') +
+      step('2', '添加物品与 AI 识别', '① 底部「＋」打开添加页 → ② 拍照后点 AI 识别，可框出多个物品并分别裁剪选用 → ③ 设置数量和单位、日期 → ④ 右上角保存。', 'add') +
+      step('3', '用地图找东西', '① 底部「功能」→「收纳地图」 → ② 点冰箱 / 柜子等格子查看该位置的全部物品 → ③ 点卡片展开详情、编辑或删除。', 'map') +
+      step('4', '到期提醒', '① 首页到期提醒统计卡直接显示待处理数量 → ② 功能中心进入到期提醒 → ③ 红色、橙色、浅黄分别代表不同紧急程度 → ④ 在我的 → 通知时间可自由设置提醒时间。', 'alerts') +
+      step('5', '一键查找物品', '① 底部「联动」→ ② 给物品绑定蓝牙标签 → ③ 点「一键查找」，地图会响铃并显示物品位置。', 'find') +
+      step('6', '个性化设置与语言', '① 底部「我的」→ ② 界面设置可调整字体大小、字重和主题色 → ③ 语言可选跟随系统、简体中文、繁體中文和英文。', 'settings') +
+      step('7', '加好友与装扮', '① 功能中心进入社区 → ② 用编号 ID 搜索添加好友 → ③ 升级成就解锁头像框 / 名片 / 徽章，在成就等级里佩戴，好友可见。', 'social') +
       '<h3 class="card-title">颜色说明</h3>' +
       '<div class="legend">' +
         '<span class="expiry fresh">绿色 · 新鲜</span><span class="expiry soon">浅黄 · 30 天内</span>' +
@@ -2785,7 +2884,7 @@
             '<div class="metric"><div class="metric-label">信号强度</div><div class="signal-bars">' + bars + '</div></div>' +
           '</div>' +
           '<div class="device-actions">' +
-            '<button class="btn soft" data-action="find-device" data-id="' + d.id + '">一键查找</button>' +
+            '<button class="btn soft" data-action="find-device" data-id="' + d.id + '">播放声音</button>' +
             '<button class="btn ghost" data-action="edit-device" data-id="' + d.id + '">自定义标签</button>' +
             '<button class="btn ghost" data-action="bind-device" data-id="' + d.id + '">绑定物品</button>' +
             '<button class="btn ghost" data-action="toggle-away" data-id="' + d.id + '">' + (d.awayAlert ? '离位提醒 开' : '离位提醒 关') + '</button>' +
@@ -3133,24 +3232,69 @@
     setTimeout(startCamera, 80);
   }
 
-  function nativeCamera(target) {
+  function nativeCamera(target, aiMode) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
     input.setAttribute('capture', 'environment');
     input.onchange = function (e) {
-      const files = Array.prototype.slice.call(e.target.files || []);
-      if (!files.length) return;
+      const file = (e.target.files || [])[0];
+      if (!file) return;
       const nameField = $('#item-photo-name');
-      if (nameField && target === 'item') nameField.value = files[0].name;
-      files.forEach(function (file) {
-        const reader = new FileReader();
-        reader.onload = function (ev) { compressImage(ev.target.result, function (data) { setPhoto(target, data); }); };
-        reader.readAsDataURL(file);
-      });
-      closeOverlay();
+      if (nameField && target === 'item') nameField.value = file.name;
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        compressImage(ev.target.result, function (data) { openPhotoActions(target, data, !!aiMode); });
+      };
+      reader.readAsDataURL(file);
     };
     input.click();
+  }
+
+  function openPhotoActions(target, data, aiMode) {
+    state.photoPending = { target: target, data: data, aiMode: !!aiMode };
+    $('#overlay-root').innerHTML =
+      '<div class="full-mask photo-action-mask">' +
+        '<div class="photo-action-card">' +
+          '<div class="photo-action-head"><b>拍摄完成</b><span>可直接使用、裁剪或重新拍摄</span></div>' +
+          '<img class="photo-action-preview" src="' + data + '" alt="拍摄预览">' +
+          '<div class="photo-action-btns">' +
+            '<button class="btn primary" data-action="photo-use">使用照片</button>' +
+            '<button class="btn ghost" data-action="photo-crop">裁剪照片</button>' +
+          '</div>' +
+          '<div class="photo-action-mini">' +
+            '<button data-action="photo-retake">重新拍摄</button>' +
+            '<button data-action="photo-cancel">退出拍照</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function openPhotoCrop() {
+    const p = state.photoPending;
+    if (!p) return;
+    $('#overlay-root').innerHTML =
+      '<div class="full-mask crop-mask">' +
+        '<div class="crop-head"><button data-action="photo-cancel">取消</button><b>裁剪照片</b><button data-action="crop-apply">完成</button></div>' +
+        '<div class="crop-stage"><div class="crop-frame"><img id="photo-crop-img" src="' + p.data + '" alt="裁剪预览"></div></div>' +
+        '<div class="crop-tip">拖动不太方便？现在使用居中方形裁剪，完成后可重新拍摄</div>' +
+        '<button class="crop-retake" data-action="photo-retake">重新拍摄</button>' +
+      '</div>';
+  }
+
+  function applyPhotoCrop() {
+    const p = state.photoPending;
+    const img = $('#photo-crop-img');
+    if (!p || !img) return;
+    const size = Math.min(img.naturalWidth || 600, img.naturalHeight || 600);
+    const sx = ((img.naturalWidth || size) - size) / 2;
+    const sy = ((img.naturalHeight || size) - size) / 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = 600; canvas.height = 600;
+    canvas.getContext('2d').drawImage(img, sx, sy, size, size, 0, 0, 600, 600);
+    setPhoto(p.target, canvas.toDataURL('image/jpeg', 0.72));
+    closeOverlay();
+    state.photoPending = null;
   }
 
   function grabCameraFrame() {
@@ -3308,7 +3452,10 @@
   function photoBlockHTML(cat, label, hint) {
     return '<div class="photo-block">' +
       '<div class="photo-block-head"><b>' + label + '</b>' +
-        '<button type="button" class="text-btn" data-action="take-photo" data-target="' + cat + '">＋ 拍照 / 相册</button></div>' +
+        '<span class="photo-block-btns">' +
+          '<button type="button" class="text-btn" data-action="take-photo" data-target="' + cat + '">拍照</button>' +
+          '<button type="button" class="text-btn" data-action="pick-photo" data-target="' + cat + '">相册</button>' +
+        '</span></div>' +
       '<div class="draft-list" id="draft-' + cat + '"></div>' +
       '<p class="photo-hint">' + hint + '</p>' +
     '</div>';
@@ -3373,8 +3520,9 @@
     const avatar = p.avatar
       ? '<img src="' + p.avatar + '" alt="头像">'
       : escapeHTML(name.charAt(0).toUpperCase());
-    const fontLabel = s.fontScale <= 1.12 ? '标准' : (s.fontScale <= 1.35 ? '大' : (s.fontScale <= 1.6 ? '超大' : '特大'));
-    const weightLabel = s.fontWeight === 300 ? '细体' : (s.fontWeight === 600 ? '半粗' : (s.fontWeight >= 700 ? '加粗' : '标准'));
+    const fontLabel = s.fontScale <= 1.12 ? '标准' : (s.fontScale <= 1.35 ? '大' : '超大');
+    const weightLabel = s.fontWeight === 400 ? '常规' : (s.fontWeight === 600 ? '标准（半粗）' : '加粗');
+    const languageLabel = ({ system: '跟随系统', 'zh-CN': '简体中文', 'zh-Hant': '繁體中文', en: 'English' })[s.language] || '跟随系统';
     const myCount = getUserItems().length;
 
     const profileHead =
@@ -3394,7 +3542,8 @@
         settingsGroup('界面设置', 'ui',
           settingRow('grid', '字体大小', fontLabel, 'settings-font') +
           settingRow('edit', '字体粗细', weightLabel, 'settings-weight') +
-          settingRow('sparkle', '界面颜色', theme.label, 'settings-theme')) +
+          settingRow('sparkle', '界面颜色', theme.label, 'settings-theme') +
+          settingRow('book', '语言', languageLabel, 'settings-language')) +
 
         settingsGroup('功能设置', 'feature',
           '<div class="set-row elder-row" data-action="toggle-setting" data-key="elderMode"><span class="set-ico">' + ICON.user + '</span>' +
@@ -3465,22 +3614,28 @@
     if (kind === 'font') {
       title = '字体大小';
       body = '<p class="sheet-tip">选择适合自己的阅读字号</p>' +
-        [[1.12, '标准'], [1.35, '大'], [1.6, '超大'], [1.9, '特大']].map(function (o) {
+        [[1.12, '标准'], [1.35, '大'], [1.6, '超大']].map(function (o) {
           return '<button class="opt-row ' + (s.fontScale === o[0] ? 'on' : '') + '" data-action="set-font" data-value="' + o[0] + '"><b>' + o[1] + '</b><span>' + (s.fontScale === o[0] ? '✓' : '') + '</span></button>';
         }).join('');
     } else if (kind === 'weight') {
       title = '字体粗细';
-      body = '<p class="sheet-tip">调整界面文字的粗细</p>' +
-        [[300, '细体'], [400, '标准'], [600, '半粗'], [700, '加粗']].map(function (o) {
+      body = '<p class="sheet-tip">标准即半粗，推荐日常使用</p>' +
+        [[400, '常规'], [600, '标准（半粗）'], [700, '加粗']].map(function (o) {
           return '<button class="opt-row ' + (s.fontWeight === o[0] ? 'on' : '') + '" data-action="set-weight" data-value="' + o[0] + '"><b>' + o[1] + '</b><span>' + (s.fontWeight === o[0] ? '✓' : '') + '</span></button>';
         }).join('');
     } else if (kind === 'notifyTime') {
       title = '通知时间';
-      body = '<p class="sheet-tip">设置到期提醒、临期提醒等消息的默认提醒时间</p>' +
-        '<div class="notify-times">' + ['08:00', '09:00', '12:00', '18:00', '21:00'].map(function (t) {
-          return '<button class="opt-row ' + (s.notifyTime === t ? 'on' : '') + '" data-action="set-notify-time" data-value="' + t + '"><b>' + t + '</b><span>' + (s.notifyTime === t ? '✓' : '') + '</span></button>';
-        }).join('') + '</div>' +
-        '<div class="field notify-custom"><label>自定义时间</label><input id="notify-time-custom" type="time" value="' + escapeHTML(s.notifyTime) + '"><button type="button" class="btn primary block" data-action="save-notify-time">保存自定义时间</button></div>';
+      body = '<p class="sheet-tip">可自由设置到期提醒、临期提醒等消息的提醒时间</p>' +
+        '<div class="field notify-custom"><label>提醒时间</label>' +
+        '<input id="notify-time-custom" type="time" value="' + escapeHTML(s.notifyTime) + '">' +
+        '<div class="hint">修改后点击下面的按钮保存</div>' +
+        '<button type="button" class="btn primary block" data-action="save-notify-time">保存提醒时间</button></div>';
+    } else if (kind === 'language') {
+      title = '语言';
+      body = '<p class="sheet-tip">选择 App 显示语言</p>' +
+        [['system', '跟随系统'], ['zh-CN', '简体中文'], ['zh-Hant', '繁體中文'], ['en', 'English']].map(function (o) {
+          return '<button class="opt-row ' + (s.language === o[0] ? 'on' : '') + '" data-action="set-language" data-value="' + o[0] + '"><b>' + o[1] + '</b><span>' + (s.language === o[0] ? '✓' : '') + '</span></button>';
+        }).join('');
     } else {
       title = '界面颜色';
       body = '<p class="sheet-tip">选择你喜欢的主题色，立即生效</p>' +
@@ -3496,6 +3651,7 @@
         '<div class="sheet-head"><h2>' + title + '</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
         body +
       '</div></div>';
+    applyLanguage();
   }
 
   function openEditField(field) {
@@ -3743,12 +3899,28 @@
         if (!text) { toast('请输入分享内容', 'warn'); return; }
         publishPost(text, $('#post-photo').value);
         break;
-      case 'take-photo': openCamera(el.dataset.target); break;
-      case 'close-camera': closeOverlay(); renderPhotoDraft(); toast('可继续编辑照片'); break;
+      case 'take-photo': nativeCamera(el.dataset.target); break;
       case 'native-camera': nativeCamera(el.dataset.target); break;
+      case 'camera-ai': nativeCamera(el.dataset.target, true); break;
       case 'pick-photo': pickPhoto(el.dataset.target); break;
+      case 'close-camera': closeOverlay(); renderPhotoDraft(); break;
       case 'capture-photo': capturePhoto(el.dataset.target); break;
-      case 'camera-ai': cameraAI(el.dataset.target); break;
+      case 'photo-use':
+        if (state.photoPending) {
+          const pu = state.photoPending;
+          setPhoto(pu.target, pu.data);
+          closeOverlay();
+          state.photoPending = null;
+        }
+        break;
+      case 'photo-crop': openPhotoCrop(); break;
+      case 'crop-apply': applyPhotoCrop(); break;
+      case 'photo-retake':
+        const prTarget = state.photoPending ? state.photoPending.target : 'item';
+        const prAi = state.photoPending ? state.photoPending.aiMode : false;
+        state.photoPending = null; nativeCamera(prTarget, prAi); break;
+      case 'photo-cancel':
+        state.photoPending = null; closeOverlay(); renderPhotoDraft(); toast('已退出拍照'); break;
       case 'remove-draft':
         const dc = el.dataset.cat, di = parseInt(el.dataset.index, 10);
         if (state.photoDraft[dc] && di >= 0) state.photoDraft[dc].splice(di, 1);
@@ -3897,9 +4069,11 @@
 
       case 'tutorial-next':
         state.guideStep++;
-        if (state.guideStep >= 5) finishTutorial();
+        if (state.guideStep >= 7) finishTutorial();
         else renderTutorial();
         break;
+      case 'tutorial-prev':
+        state.guideStep = Math.max(0, state.guideStep - 1); renderTutorial(); break;
       case 'tutorial-skip': finishTutorial(); break;
       case 'close-update': closeUpdatePopup(); break;
 
@@ -4009,6 +4183,10 @@
       case 'settings-weight': settingsSheet('weight'); break;
       case 'settings-theme': settingsSheet('theme'); break;
       case 'settings-notify-time': settingsSheet('notifyTime'); break;
+      case 'settings-language': settingsSheet('language'); break;
+      case 'set-language':
+        db.settings.language = el.dataset.value; saveDB(); applySettings();
+        settingsSheet('language'); renderApp(); toast('语言已切换'); break;
       case 'set-notify-time':
         db.settings.notifyTime = el.dataset.value; saveDB(); settingsSheet('notifyTime'); toast('提醒时间已设置'); break;
       case 'save-notify-time':
