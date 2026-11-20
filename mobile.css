@@ -658,10 +658,10 @@ button { cursor: pointer; border: none; background: none; }
   --butter-mist: #fbf3e0;
   --cream: #faf6ef;
   --paper: #fffcf7;
-  --ink: #3f5148;
-  --ink-soft: #74857b;
-  --muted: #a3aea6;
-  --line: #eae3d9;
+  --ink: #26382e;
+  --ink-soft: #4f6457;
+  --muted: #6d8173;
+  --line: #dcd5c9;
   --shadow: 0 12px 32px rgba(79, 122, 99, .10);
   --shadow-sm: 0 5px 16px rgba(79, 122, 99, .07);
 }
@@ -1594,3 +1594,132 @@ html, body { overscroll-behavior-y: none; }
     .device-frame { height: 100dvh; min-height: 100dvh; }
   }
 }
+
+/* ============================================================
+   v1.12 可读性 / 老年模式 / 底部贴合 / 细节修正
+   ============================================================ */
+body { font-size: 16px; }
+
+/* 标准字号下统一提升原本偏小的文字与按钮 */
+.device-screen small { font-size: 12px; }
+.nav-item, .nav-item span, .hstat-label, .meta-pill, .expiry, .post-time, .post-tag,
+.post-actions button, .sort-btn, .alpha-bar button, .set-group-title,
+.sheet-tip, .opt-row, .count-pill, .space-opt, .chip { font-size: 12px; }
+.set-label b { font-size: 14px; }
+.item-title { font-size: 17px; }
+.btn, .chip, .sort-btn, .nav-item { min-height: 40px; }
+
+/* 半粗与加粗必须肉眼可辨：加粗额外用描边增强，避免系统字体合并两档 */
+.device-screen.fw-bold * { -webkit-text-stroke: .35px currentColor; }
+.device-screen.fw-medium * { -webkit-text-stroke: 0; }
+
+/* 聊天头部可点击头像 */
+.chat-head-avatar { width: 34px; height: 34px; border-radius: 12px; flex: none; display: grid; place-items: center; background: var(--sage-mist); color: var(--sage-deep); font-weight: 700; font-size: 14px; border: 1px solid var(--line); }
+.chat-head-tip { display: block; font-size: 10px; color: var(--muted); font-weight: 400; }
+
+/* A-Z 索引改为通讯录式竖排贴右侧 */
+.items-panel { position: relative; overflow: visible; }
+.alpha-bar {
+  position: sticky; float: right; right: 0; top: 4px; z-index: 6;
+  display: flex; flex-direction: column; gap: 1px;
+  width: 24px; margin: 0 -4px 0 6px; padding: 0;
+  border: 0; border-radius: 12px;
+  background: rgba(255,255,255,.72);
+}
+.alpha-bar button { width: 22px; height: 18px; border-radius: 5px; font-size: 10px; line-height: 18px; }
+.card-letter { display: none; }
+.alpha-head { font-size: 13px; }
+
+/* 物品卡片：未展开只显示名称，展开后显示完整录入信息 */
+.item-card:not(.expanded) .item-actions,
+.item-card:not(.expanded) .item-meta,
+.item-card:not(.expanded) .ring-wrap,
+.item-card:not(.expanded) .item-foot,
+.item-card:not(.expanded) .item-photo { display: none !important; }
+.item-card:not(.expanded) .card-main { min-height: 44px; align-items: center; }
+.item-card.expanded .item-actions { display: flex; }
+.item-card.expanded .card-more { max-height: 720px; }
+
+/* 老年模式：超大字体 + 高对比配色 + 简化次要功能 */
+.elder-mode {
+  --cream: #f4f8f5 !important;
+  --paper: #ffffff !important;
+  --sage: #246a48 !important;
+  --sage-deep: #174d33 !important;
+  --sage-mist: #d6ebdd !important;
+  --clay: #b4542f !important;
+  --clay-mist: #fae0d4 !important;
+  --ink: #16271e !important;
+  --ink-soft: #33493b !important;
+  --muted: #4f6657 !important;
+  --line: #b9c9bd !important;
+}
+.elder-mode small, .elder-mode .page small { font-size: 14px; }
+.elder-mode .set-label b, .elder-mode .item-title { font-size: 19px; }
+.elder-mode .btn { min-height: 52px; font-size: 16px; }
+.elder-mode .nav-item, .elder-mode .nav-item span { font-size: 13px; }
+.elder-mode .search-history, .elder-mode .hub-search,
+.elder-mode .device-note, .elder-mode .ambient { display: none !important; }
+.elder-mode .item-card { border: 2px solid var(--line); }
+.elder-mode .expiry { font-size: 13px; padding: 6px 12px; }
+.elder-mode .chip, .elder-mode .sort-btn { min-height: 46px; font-size: 14px; }
+
+/* 保质期日期控件跟随主题色 */
+.field input[type="date"] { color: var(--ink); background: var(--paper); border: 1px solid var(--sage); border-radius: 14px; color-scheme: light; }
+.field input[type="date"]:focus { background: #fff; border-color: var(--sage-deep); box-shadow: 0 0 0 4px var(--sage-mist); }
+.field input[type="date"]::-webkit-calendar-picker-indicator { opacity: .8; }
+
+/* 苹果手机底栏贴底：用 flex 撑满，去掉重复的安全区覆盖层 */
+@media (max-width: 480px) {
+  .device-frame { display: flex; flex-direction: column; min-height: 0; }
+  .device-screen { flex: 1 1 auto; min-height: 0; height: auto; }
+  .device-frame::after { display: none !important; }
+  .bottom-nav {
+    height: calc(54px + env(safe-area-inset-bottom, 0px));
+    min-height: calc(54px + env(safe-area-inset-bottom, 0px));
+  }
+  .page { padding-bottom: 16px; }
+}
+
+/* ---------- v1.12 多图拍照 / 分类照片 / 设备地图 ---------- */
+.photo-section { display: flex; flex-direction: column; gap: 12px; }
+.photo-block { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+.photo-block-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.photo-block-head b { font-size: 13px; color: var(--ink); }
+.photo-block-head .text-btn { color: var(--sage-deep); font-size: 12px; font-weight: 700; }
+.draft-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.draft-empty { color: var(--muted); font-size: 12px; }
+.draft-thumb { position: relative; display: block; width: 72px; height: 72px; border-radius: 12px; overflow: hidden; }
+.draft-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.draft-thumb i { position: absolute; right: 2px; top: 2px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; font-size: 11px; font-style: normal; display: grid; place-items: center; }
+.photo-hint { margin: 8px 0 0; font-size: 11px; color: var(--ink-soft); line-height: 1.5; }
+.photo-optional { margin: 0; font-size: 11px; color: var(--muted); text-align: center; }
+.camera-stage video { display: block; }
+.cam-placeholder { position: absolute; left: 0; right: 0; top: 40%; transform: translateY(-50%); text-align: center; color: #dfe9e2; font-size: 12px; }
+.cam-placeholder svg { width: 46px; height: 46px; opacity: .7; }
+.cam-side { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #eaf2ec; font-size: 11px; min-width: 74px; }
+.cam-side svg { width: 22px; height: 22px; }
+.photo-gallery { margin-top: 12px; }
+.gallery-group { margin-top: 8px; }
+.gallery-group b { font-size: 11px; color: var(--ink-soft); }
+.gallery-row { display: flex; gap: 6px; margin-top: 5px; overflow-x: auto; }
+.gallery-row img { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; flex: none; }
+
+/* 设备联动顶部高德地图方框 */
+.device-map-card { background: var(--paper); border-radius: 20px; padding: 12px; margin-bottom: 14px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+.dm-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.dm-head b { display: block; font-size: 15px; color: var(--ink); }
+.dm-head span { display: block; font-size: 11px; color: var(--ink-soft); }
+.dm-expand { font-size: 12px; color: var(--sage-deep); font-weight: 700; flex: none; }
+.dm-view { position: relative; height: 168px; border-radius: 14px; overflow: hidden; background: linear-gradient(140deg, #e7f0e9, #f6f1e6); transition: height .25s; }
+.dm-view.expanded { height: 320px; }
+.dm-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(111,147,130,.14) 1px, transparent 1px), linear-gradient(90deg, rgba(111,147,130,.14) 1px, transparent 1px); background-size: 28px 28px; }
+.dm-road { position: absolute; left: -10%; top: 58%; width: 120%; height: 14px; background: rgba(255,255,255,.85); transform: rotate(-8deg); }
+.dm-pin { position: absolute; left: 50%; top: 44%; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; }
+.dm-pin::before { content: ''; width: 18px; height: 18px; border-radius: 50%; background: #2f7dff; border: 3px solid #fff; box-shadow: 0 0 0 8px rgba(47,125,255,.22); animation: mePulse 1.6s ease-out infinite; }
+.dm-pin span { margin-top: 22px; background: #2f7dff; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 9px; white-space: nowrap; }
+.dm-label { position: absolute; left: 10px; bottom: 10px; background: rgba(255,255,255,.92); color: var(--sage-deep); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 9px; }
+.device-amap { position: absolute; inset: 0; z-index: 2; }
+.dm-actions { display: flex; gap: 8px; margin-top: 10px; }
+.dm-actions .btn { flex: 1; font-size: 12px; min-height: 42px; }
+.dm-actions .btn svg { width: 14px; height: 14px; }
