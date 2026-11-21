@@ -2,8 +2,33 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.19';
+  const APP_VERSION = '1.22';
   const CHANGELOG = [
+    { version: '1.22', date: '2026-11-21', title: '聊天菜单整合', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复退出群聊后仍残留「群聊管理」弹窗的问题',
+        '修复演示群聊点管理提示「群聊不存在」的问题',
+        '去掉聊天页右上角两个无反应的齿轮与星星按钮'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '群聊与好友聊天统一为右上角一个「⋯」菜单，参考微信聊天信息页',
+        '菜单内整合：修改备注 / 群名称、邀请进群、设置聊天背景、清空聊天记录、查看资料',
+        '设置聊天背景无需退出群聊，直接在三点菜单里打开'
+      ] }
+    ] },
+    { version: '1.21', date: '2026-11-21', title: '加好友编号搜索改进', sections: [
+      { label: '全新功能', icon: 'sparkle', items: [
+        '加好友输入编号时实时搜索：找到用户显示头像昵称一键添加；未找到也明确提示并可「按编号添加」',
+        '自动识别自己编号、已添加好友，给出清晰提示，不再点了没反应'
+      ] }
+    ] },
+    { version: '1.20', date: '2026-11-21', title: '英文小字补齐', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '补全设置页全部描述小字英文：老年模式、消息通知、通知时间、提示音、账号安全、修改密码、使用指南、版本更新',
+        '补全「安装到桌面」、设备标签「收纳箱 A 标签」「储物间」、表情/表情包等文字',
+        '继续消除英文模式里夹杂的中文小字'
+      ] }
+    ] },
     { version: '1.19', date: '2026-11-21', title: '彻底全英文 / 状态颜色修正', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '英文模式从根源修复：演示数据（群聊、消息、社区、好友、示例物品、教程、成就）全部建立中英对照，点开任意页面都是完整英文',
@@ -1048,7 +1073,29 @@
       '例如': 'e.g.', '药': 'Medicine', '位置': 'Location', '名称': 'Name',
       '名称 / 位置 / 备注 / 分类': 'Name / Location / Notes / Category',
       '天到期': ' days left', '还有': 'Expires in ', '还有 1 天到期': '1 day to expiry',
-      '搜索我的物品': 'Search my items', '搜索': 'Search'
+      '搜索我的物品': 'Search my items', '搜索': 'Search',
+      '超大字体 · 高对比 · 简化功能': 'Extra-large font · High contrast · Simplified',
+      '接收提醒与聊天消息': 'Receive alerts and chat messages',
+      '到期与临期提醒': 'Due and expiring reminders',
+      '查找标签时播放声音': 'Play sound when finding a tag',
+      '登录验证与密码保护': 'Login verification and password protection',
+      '更新登录密码': 'Update your login password',
+      '操作步骤与颜色说明': 'Steps and color guide',
+      '查看历史更新内容': 'View update history',
+      '安装到桌面': 'Install to Home Screen',
+      '已收纳': 'Stored', '件物品': ' items', '注册于': 'Joined',
+      '收纳箱 A 标签': 'Storage Box A Tag', '收纳箱': 'Storage Box', '标签': 'Tag',
+      '储物间': 'Storage Room', '表情': 'Emoji', '表情包': 'Stickers',
+      '收纳区域': 'Storage Area', '例如：储物间': 'e.g. Storage Room',
+      '这是你自己的编号，不能添加': 'This is your own ID, cannot add',
+      '该好友已在你的列表中': 'This friend is already in your list',
+      '本地未找到该编号用户，仍可按编号添加为联系人': 'No local user found with this ID, you can still add it as a contact',
+      '按编号添加': 'Add by ID', '联系人': 'Contact',
+      '聊天设置': 'Chat Settings', '修改群名称': 'Edit Group Name', '群成员管理': 'Manage Members',
+      '设置聊天背景': 'Set Chat Background', '清空聊天记录': 'Clear Chat History',
+      '演示群聊': 'Demo group', '仅本地保存聊天记录': 'Chat history saved locally only',
+      '这是演示群聊，仅本地保存聊天记录': 'This is a demo group, chat history saved locally only',
+      '确定清空该聊天记录？': 'Clear this chat history?', '聊天记录已清空': 'Chat history cleared'
     },
     'zh-Hant': {
       '我的收纳': '我的收納', '我的物品': '我的物品', '功能中心': '功能中心', '首页': '首頁', '功能': '功能', '联动': '連動', '我的': '我的',
@@ -1166,7 +1213,26 @@
       '默认顺序': '預設順序', '到期优先': '到期優先', 'A-Z 字母': 'A-Z 字母', '最近收纳': '最近收納',
       '到期预警': '到期預警', '选填': '選填', '识别': '辨識', 'AI 识别': 'AI 辨識', '原图保持不变': '原圖保持不變',
       '一键添加': '一鍵新增', '用 ID 搜索，或从推荐里一键添加': '用 ID 搜尋，或從推薦裡一鍵新增',
-      '例如': '例如', '药': '藥', '位置': '位置', '名称': '名稱', '搜索': '搜尋', '天到期': ' 天到期', '还有': '還有'
+      '例如': '例如', '药': '藥', '位置': '位置', '名称': '名稱', '搜索': '搜尋', '天到期': ' 天到期', '还有': '還有',
+      '超大字体 · 高对比 · 简化功能': '超大字體 · 高對比 · 簡化功能',
+      '接收提醒与聊天消息': '接收提醒與聊天訊息',
+      '到期与临期提醒': '到期與即期提醒',
+      '查找标签时播放声音': '尋找標籤時播放聲音',
+      '登录验证与密码保护': '登入驗證與密碼保護',
+      '更新登录密码': '更新登入密碼',
+      '操作步骤与颜色说明': '操作步驟與顏色說明',
+      '查看历史更新内容': '查看歷史更新內容',
+      '安装到桌面': '安裝到桌面', '件物品': ' 件物品',
+      '收纳箱 A 标签': '收納箱 A 標籤', '收纳箱': '收納箱', '标签': '標籤',
+      '储物间': '收納室', '表情': '表情', '表情包': '貼圖', '收纳区域': '收納區域',
+      '这是你自己的编号，不能添加': '這是你的編號，無法新增',
+      '该好友已在你的列表中': '此好友已在你的清單中',
+      '本地未找到该编号用户，仍可按编号添加为联系人': '本機找不到此編號用戶，仍可依編號新增為聯絡人',
+      '按编号添加': '依編號新增', '联系人': '聯絡人',
+      '聊天设置': '聊天設定', '修改群名称': '修改群組名稱', '群成员管理': '管理群成員',
+      '设置聊天背景': '設定聊天背景', '清空聊天记录': '清空聊天記錄',
+      '这是演示群聊，仅本地保存聊天记录': '這是示範群組，僅本機儲存聊天記錄',
+      '确定清空该聊天记录？': '確定清空此聊天記錄？', '聊天记录已清空': '聊天記錄已清空'
     }
   };
 
@@ -2555,20 +2621,12 @@
       ? '<button class="chat-head-avatar" data-action="friend-profile" data-id="' + escapeHTML(friendUid) + '" title="查看好友主页">' + escapeHTML(chat.avatar || '友') + '</button>'
       : '<span class="chat-head-avatar">' + escapeHTML(chat.avatar || '群') + '</span>';
     const isGroup = /^g_/.test(id) || (!friendUid && chat.kind !== 'friend');
-    const groupTool = isGroup
-      ? '<button class="chat-tool" data-action="group-manage" data-id="' + escapeHTML(id) + '" title="群聊管理">⚙</button>'
-      : '';
-    const friendMenuTool = friendUid
-      ? '<button class="chat-tool" data-action="chat-friend-menu" data-id="' + escapeHTML(friendUid) + '" title="更多">⋯</button>'
-      : '';
     $('#overlay-root').innerHTML =
       '<div class="full-mask">' +
         '<div class="full-head"><button class="back" data-action="close-chat">' + ICON.back + '</button>' +
           headAvatar +
           '<h2>' + escapeHTML(chat.name) + (friendUid ? '<small class="chat-head-tip">点头像看资料</small>' : '') + '</h2>' +
-          groupTool +
-          friendMenuTool +
-          '<button class="chat-tool" data-action="chat-bg" title="更换背景">' + ICON.sparkle + '</button></div>' +
+          '<button class="chat-tool chat-menu-btn" data-action="chat-menu" data-id="' + escapeHTML(id) + '" title="' + translateText('聊天设置') + '">⋯</button></div>' +
         '<div class="chat-body" id="chat-body" style="' + chatBgStyle() + '"></div>' +
         '<div class="emoji-panel" id="emoji-panel"></div>' +
         '<form class="chat-input" id="chat-form">' +
@@ -2678,9 +2736,10 @@
         '<div class="sheet-handle"></div>' +
         '<div class="sheet-head"><h2>好友与群聊</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
         '<p class="sheet-tip">你的编号 ID：<b>' + (user.friendId || '—') + '</b>，把 ID 告诉朋友即可添加</p>' +
-        '<div class="add-friend-row"><input id="friend-id-input" placeholder="输入对方编号 ID" maxlength="6">' +
+        '<div class="add-friend-row"><input id="friend-id-input" placeholder="输入对方编号 ID" maxlength="6" inputmode="numeric">' +
           '<button class="btn primary" data-action="add-friend">添加好友</button></div>' +
         '<div class="info-card" id="friend-error" style="min-height:0;padding:6px 12px;color:#c98d86;font-size:11px"></div>' +
+        '<div id="friend-search-result" class="friend-search-result"></div>' +
         (function () {
           const recommended = FRIEND_DIRECTORY.filter(function (p) {
             return !friends.some(function (f) { return f.friendId === p.friendId; });
@@ -2720,6 +2779,42 @@
         }).join('') : '<p class="sheet-tip">还没有群聊，点右上角创建</p>') +
         '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">关闭</button></div>' +
       '</div></div>';
+    const idInput = $('#friend-id-input');
+    if (idInput) {
+      idInput.addEventListener('input', function () { renderFriendSearchResult(idInput.value); });
+    }
+  }
+
+  function renderFriendSearchResult(value) {
+    const box = $('#friend-search-result');
+    if (!box) return;
+    const id = String(value || '').trim();
+    if (id.length < 2) { box.innerHTML = ''; return; }
+    const user = currentUser();
+    const already = user && (user.friends || []).some(function (f) { return f.friendId === id; });
+    const self = user && id === user.friendId;
+    if (self) {
+      box.innerHTML = '<div class="fsr-row warn">' + translateText('这是你自己的编号，不能添加') + '</div>';
+      return;
+    }
+    if (already) {
+      box.innerHTML = '<div class="fsr-row ok">✓ ' + translateText('该好友已在你的列表中') + '</div>';
+      return;
+    }
+    const target = findPersonByFriendId(id);
+    if (target) {
+      box.innerHTML = '<div class="fsr-row found">' +
+        '<span class="chat-avatar">' + escapeHTML(personName(target).charAt(0)) + '</span>' +
+        '<span class="set-label"><b>' + escapeHTML(translateText(personName(target)) || personName(target)) + '</b>' +
+          '<small>ID ' + escapeHTML(id) + ' · ' + escapeHTML(translateText(personBio(target)) || personBio(target)) + '</small></span>' +
+        '<button class="btn primary sm" data-action="add-friend-by-id" data-id="' + escapeHTML(id) + '">' + translateText('添加') + '</button>' +
+      '</div>';
+    } else {
+      box.innerHTML = '<div class="fsr-row notfound">' +
+        '<span>' + translateText('本地未找到该编号用户，仍可按编号添加为联系人') + '</span>' +
+        '<button class="btn soft sm" data-action="add-friend-by-id" data-id="' + escapeHTML(id) + '">' + translateText('按编号添加') + '</button>' +
+      '</div>';
+    }
   }
 
   function openRenameFriendSheet(userId) {
@@ -2740,22 +2835,66 @@
       '</div></div>';
   }
 
-  function openChatFriendMenu(userId) {
-    const friend = getUserFriends().find(function (f) { return f.userId === userId; });
-    const name = friend ? (friend.remark || friend.name) : '好友';
+  function openChatMenu(chatId) {
+    const chat = chatById(chatId);
+    if (!chat) return;
+    const friendUid = chatFriendUserId(chatId);
+    const isGroup = /^g_/.test(chatId) || (!friendUid && chat.kind !== 'friend');
+    const friend = friendUid ? getUserFriends().find(function (f) { return f.userId === friendUid; }) : null;
+    const friendName = friend ? (friend.remark || friend.name) : '';
+    const group = isGroup ? findGroup(chatId) : null;
+
+    let rows = '';
+    if (isGroup) {
+      const canManage = !!group;
+      rows +=
+        (canManage
+          ? '<button class="set-row" data-action="open-group-rename" data-id="' + escapeHTML(chatId) + '">' +
+              '<span class="set-label"><b>' + escapeHTML(translateText('修改群名称')) + '</b></span><span class="set-arrow">›</span></button>' +
+            '<button class="set-row" data-action="invite-friends-open" data-id="' + escapeHTML(chatId) + '">' +
+              '<span class="set-label"><b>' + escapeHTML(translateText('邀请好友进群')) + '</b></span><span class="set-arrow">›</span></button>' +
+            '<button class="set-row" data-action="group-manage" data-id="' + escapeHTML(chatId) + '">' +
+              '<span class="set-label"><b>' + escapeHTML(translateText('群成员管理')) + '</b></span><span class="set-arrow">›</span></button>'
+          : '<p class="sheet-tip">' + escapeHTML(translateText('这是演示群聊，仅本地保存聊天记录')) + '</p>');
+    } else if (friendUid) {
+      rows +=
+        '<button class="set-row" data-action="rename-friend-open" data-id="' + escapeHTML(friendUid) + '">' +
+          '<span class="set-label"><b>' + escapeHTML(translateText('修改备注与分组')) + '</b>' +
+            (friendName ? '<small>' + escapeHTML(friendName) + '</small>' : '') + '</span><span class="set-arrow">›</span></button>' +
+        '<button class="set-row" data-action="friend-profile" data-id="' + escapeHTML(friendUid) + '">' +
+          '<span class="set-label"><b>' + escapeHTML(translateText('查看好友资料')) + '</b></span><span class="set-arrow">›</span></button>';
+    }
+    rows +=
+      '<button class="set-row" data-action="chat-bg">' +
+        '<span class="set-label"><b>' + escapeHTML(translateText('设置聊天背景')) + '</b></span><span class="set-arrow">›</span></button>' +
+      '<button class="set-row danger-row" data-action="clear-chat-messages" data-id="' + escapeHTML(chatId) + '">' +
+        '<span class="set-label"><b>' + escapeHTML(translateText('清空聊天记录')) + '</b></span><span class="set-arrow">›</span></button>';
+
     $('#sheet-root').innerHTML =
       '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
         '<div class="sheet-handle"></div>' +
-        '<div class="sheet-head"><h2>' + escapeHTML(translateText('好友设置')) + '</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
-        '<p class="sheet-tip">' + escapeHTML(name) + '</p>' +
-        '<button class="set-row" data-action="rename-friend-open" data-id="' + escapeHTML(userId) + '">' +
-          '<span class="set-label"><b>' + escapeHTML(translateText('修改备注与分组')) + '</b></span><span class="set-arrow">›</span></button>' +
-        '<button class="set-row" data-action="friend-profile" data-id="' + escapeHTML(userId) + '">' +
-          '<span class="set-label"><b>' + escapeHTML(translateText('查看好友资料')) + '</b></span><span class="set-arrow">›</span></button>' +
-        '<button class="set-row danger-row" data-action="remove-friend-from-chat" data-id="' + escapeHTML(userId) + '">' +
-          '<span class="set-label"><b>' + escapeHTML(translateText('删除好友')) + '</b></span><span class="set-arrow">›</span></button>' +
+        '<div class="sheet-head"><h2>' + escapeHTML(translateText('聊天设置')) + '</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<p class="sheet-tip">' + escapeHTML(chat.name) + '</p>' +
+        rows +
         '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">' + escapeHTML(translateText('关闭')) + '</button></div>' +
       '</div></div>';
+  }
+
+  function openGroupRenameSheet(groupId) {
+    const g = findGroup(groupId);
+    if (!g) return;
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>' + translateText('修改群名称') + '</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<div class="field"><label>' + translateText('群聊名称') + '</label><input id="group-rename-input" maxlength="20" value="' + escapeHTML(g.name) + '" placeholder="' + translateText('输入新的群名称') + '"></div>' +
+        '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">' + translateText('取消') + '</button>' +
+          '<button class="btn primary" data-action="save-group-rename" data-id="' + escapeHTML(groupId) + '">' + translateText('保存') + '</button></div>' +
+      '</div></div>';
+  }
+
+  function openChatFriendMenu(userId) {
+    openChatMenu('u_' + userId);
   }
 
   function joinGroupById() {
@@ -2814,9 +2953,17 @@
     g.name = name;
     g.avatar = name.charAt(0) || '群';
     saveDB();
+    if (state.chatId === groupId) renderChatHead(groupId);
     renderApp(true);
-    openGroupManageSheet(groupId);
-    toast('群聊名称已修改');
+    openChatMenu(groupId);
+    toast(translateText('群聊名称已修改'));
+  }
+
+  function renderChatHead(chatId) {
+    const chat = chatById(chatId);
+    const head = $('#overlay-root .full-head h2');
+    if (!chat || !head) return;
+    head.childNodes[0].nodeValue = chat.name;
   }
 
   function openInviteFriendsSheet(groupId) {
@@ -2958,7 +3105,10 @@
         name: '好友 ' + id, signature: '通过编号添加的好友', contact: '', avatar: ''
       });
     }
-    saveDB(); toast(translateText('已添加好友') + ' ' + id); openFriendsSheet(); renderApp();
+    saveDB();
+    const label = target ? (personName(target) || id) : (translateText('联系人') + ' ' + id);
+    toast(translateText('已添加好友') + ' ' + label);
+    openFriendsSheet(); renderApp();
     return true;
   }
 
@@ -4631,7 +4781,7 @@
         toast(db.locationEnabled ? '定位已开启' : '定位已关闭'); break;
       case 'close-sheet': closeSheet(); break;
       case 'close-overlay': closeOverlay(); break;
-      case 'close-chat': closeOverlay(); state.chatId = null; break;
+      case 'close-chat': closeSheet(); closeOverlay(); state.chatId = null; break;
       case 'back':
         if (state.view === 'community' || state.view === 'chat') state.view = 'hub';
         else if (state.view === 'location') state.view = 'home';
@@ -5007,7 +5157,19 @@
       case 'show-changelog': showChangelog(); break;
       case 'show-achievements': showAchievements(); break;
       case 'open-friends': openFriendsSheet(); break;
+      case 'chat-menu': openChatMenu(el.dataset.id); break;
       case 'chat-friend-menu': openChatFriendMenu(el.dataset.id); break;
+      case 'open-group-rename': openGroupRenameSheet(el.dataset.id); break;
+      case 'clear-chat-messages':
+        (function () {
+          if (!window.confirm(translateText('确定清空该聊天记录？'))) return;
+          db.messages[el.dataset.id] = [];
+          saveDB();
+          closeSheet();
+          if ($('#chat-body')) $('#chat-body').innerHTML = '';
+          toast(translateText('聊天记录已清空'));
+        })();
+        break;
       case 'remove-friend-from-chat':
         removeFriend(el.dataset.id);
         closeOverlay();

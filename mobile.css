@@ -2201,6 +2201,23 @@ body { font-size: 16px; }
 .set-check { color: var(--sage-deep); font-weight: 800; font-size: 16px; }
 .chat-filter-tip { margin-top: 4px; }
 
+/* v1.21 加好友实时搜索结果 */
+.friend-search-result { margin: 6px 0 4px; }
+.fsr-row {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 12px; background: var(--sage-mist); font-size: 12px; color: var(--ink);
+}
+.fsr-row .set-label { flex: 1; min-width: 0; }
+.fsr-row .btn.sm { padding: 6px 12px; font-size: 12px; white-space: nowrap; }
+.fsr-row.found { background: #e8f2ea; border: 1px solid var(--sage); }
+.fsr-row.ok { background: #e8f2ea; color: var(--sage-deep); }
+.fsr-row.warn { background: #fdecec; color: #b5562e; }
+.fsr-row.notfound { flex-wrap: wrap; background: #faf4e8; border: 1px dashed #d8c49a; color: #7a6647; }
+.fsr-row.notfound span { flex: 1; min-width: 120px; }
+
+/* v1.22 聊天统一三点菜单按钮 */
+.chat-menu-btn { font-size: 26px; font-weight: 800; line-height: 1; letter-spacing: 1px; }
+
 /* v1.17 添加绑定设备：图标选择器 */
 .dev-icon-picker { display: flex; gap: 8px; flex-wrap: wrap; }
 .dev-icon-opt {
