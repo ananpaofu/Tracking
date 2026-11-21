@@ -2218,6 +2218,26 @@ body { font-size: 16px; }
 /* v1.22 聊天统一三点菜单按钮 */
 .chat-menu-btn { font-size: 26px; font-weight: 800; line-height: 1; letter-spacing: 1px; }
 
+/* v1.23 好友申请系统 + 消息时间在上 */
+.friend-request-entry, .friend-request-banner {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  background: var(--sage-mist); border-radius: 12px; padding: 10px 14px;
+  margin-bottom: 10px; color: var(--ink);
+}
+.friend-request-banner { margin-top: -4px; margin-bottom: 12px; }
+.friend-request-banner span { flex: 1; display: flex; flex-direction: column; }
+.friend-request-banner small { opacity: .7; font-size: 11px; }
+.friend-request-entry .set-arrow { margin-left: auto; }
+.fr-badge { background: #d6453a; color: #fff; border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700; }
+.fr-row { display: flex; align-items: center; gap: 8px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+.fr-row .set-label { flex: 1; min-width: 0; }
+.fr-pending { color: #b5562e; font-size: 11px; white-space: nowrap; }
+.btn.sm { padding: 6px 12px; font-size: 12px; }
+.demo-switch { display: flex; align-items: center; gap: 4px; background: var(--paper) !important; }
+.msg-wrap { display: flex; flex-direction: column; }
+.msg-wrap.mine { align-items: flex-end; }
+.msg-time-inline { font-size: 10px; color: var(--muted); margin: 0 8px 4px; opacity: .8; }
+
 /* v1.17 添加绑定设备：图标选择器 */
 .dev-icon-picker { display: flex; gap: 8px; flex-wrap: wrap; }
 .dev-icon-opt {
