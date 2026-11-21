@@ -2,8 +2,14 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.31';
+  const APP_VERSION = '1.32';
   const CHANGELOG = [
+    { version: '1.32', date: '2026-11-22', title: '主题统一与到期配色', sections: [
+      { label: '界面优化', icon: 'sparkle', items: [
+        '图标、底部加号、消息气泡与首页渐变跟随主题色，黑白主题更彻底',
+        '已过期改为深红、即将过期改为橙色、建议补货改为浅杏，状态明显区分'
+      ] }
+    ] },
     { version: '1.31', date: '2026-11-22', title: '连接诊断与黑白主题', sections: [
       { label: '全新功能', icon: 'sparkle', items: [
         '新增「黑白」主题配色'
@@ -937,6 +943,22 @@
     const s = db.settings;
     const theme = THEMES.find(function (t) { return t.key === s.theme; }) || THEMES[0];
     Object.keys(theme.vars).forEach(function (k) { screen.style.setProperty(k, theme.vars[k]); });
+    // 由主题主色派生渐变色，供按钮/图标/加号使用，保证换主题后整体统一
+    (function () {
+      const base = theme.vars['--sage-deep'] || theme.vars['--sage'] || '#6f9382';
+      const hex = /^#([0-9a-f]{6})$/i.exec(base);
+      if (!hex) return;
+      const num = parseInt(hex[1], 16);
+      const mix = function (target, ratio) {
+        const r = Math.round(((num >> 16) & 255) * (1 - ratio) + ((target >> 16) & 255) * ratio);
+        const g = Math.round(((num >> 8) & 255) * (1 - ratio) + ((target >> 8) & 255) * ratio);
+        const b = Math.round((num & 255) * (1 - ratio) + (target & 255) * ratio);
+        return '#' + [r, g, b].map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('');
+      };
+      screen.style.setProperty('--sage-lite', mix(0xffffff, 0.32));
+      screen.style.setProperty('--sage-dark', mix(0x000000, 0.12));
+      screen.style.setProperty('--sage-shadow', 'rgba(' + ((num >> 16) & 255) + ',' + ((num >> 8) & 255) + ',' + (num & 255) + ',.32)');
+    })();
     if (s.elderMode) {
       screen.style.setProperty('--sage', '#ffffff');
       screen.style.setProperty('--sage-deep', '#111111');
