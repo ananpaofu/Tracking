@@ -2,8 +2,14 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '2.1';
+  const APP_VERSION = '2.2';
   const CHANGELOG = [
+    { version: '2.2', date: '2026-11-21', title: '云端连接修复', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        'Firebase SDK 改为本地加载，不再受国外 CDN 影响',
+        '好友页显示云端连接状态，方便排查连接问题'
+      ] }
+    ] },
     { version: '2.1', date: '2026-11-21', title: '真人聊天修复', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '修复好友聊天误触发演示机器人自动回复的问题',
@@ -2903,7 +2909,9 @@
       '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
         '<div class="sheet-handle"></div>' +
         '<div class="sheet-head"><h2>好友与群聊</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
-        '<p class="sheet-tip">' + translateText('你的编号 ID') + '：<b>' + ((cloudEnabled() ? window.Cloud.myFriendId() : user.friendId) || '—') + '</b>，' + translateText('把 ID 告诉朋友即可添加') + '</p>' +
+        (cloud
+          ? '<p class="sheet-tip">' + translateText('你的编号 ID') + '：<b>' + (window.Cloud.myFriendId() || '—') + '</b>，' + translateText('把 ID 告诉朋友即可添加') + '</p>'
+          : '<p class="sheet-tip" style="color:#b5562e">' + translateText('云端未连接，当前为本地演示模式。请检查网络后重开应用。') + '</p>') +
         '<button class="friend-request-entry" data-action="open-friend-requests">' + translateText('好友申请') +
           ((cloud ? cloudState.requests.length : ((user && user.friendRequests || []).length)) ? ' <span class="fr-badge">' + (cloud ? cloudState.requests.length : user.friendRequests.length) + '</span>' : '') +
           '<span class="set-arrow">›</span></button>' +

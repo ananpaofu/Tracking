@@ -1,11 +1,14 @@
 /* 收纳小管家 · Service Worker（缓存优先，支持离线打开） */
-const CACHE = 'organizer-v2.1';
+const CACHE = 'organizer-v2.2';
 const ASSETS = [
   './',
   './index.html',
   './mobile.css',
   './mobile.js',
   './cloud.js',
+  './firebase-app-compat.js',
+  './firebase-auth-compat.js',
+  './firebase-firestore-compat.js',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png'
