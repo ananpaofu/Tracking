@@ -182,11 +182,16 @@
 
     removeFriend: function (friendUid) {
       if (!enabled) return Promise.resolve();
-      const batch = db.batch();
-      batch.delete(db.collection('friends').doc(uid).collection('contacts').doc(friendUid));
-      batch.delete(db.collection('friends').doc(friendUid).collection('contacts').doc(uid));
-      batch.delete(db.collection('friendRequests').doc(pairKey(uid, friendUid)));
-      return batch.commit();
+      const key = pairKey(uid, friendUid);
+      // 先清空两人聊天记录，再删好友关系与申请，保证删除好友后聊天记录同步消失
+      return db.collection('chats').doc(key).collection('messages').get().then(function (snap) {
+        const batch = db.batch();
+        snap.forEach(function (d) { batch.delete(d.ref); });
+        batch.delete(db.collection('friends').doc(uid).collection('contacts').doc(friendUid));
+        batch.delete(db.collection('friends').doc(friendUid).collection('contacts').doc(uid));
+        batch.delete(db.collection('friendRequests').doc(key));
+        return batch.commit();
+      });
     },
 
     chatKeyWith: function (friendUid) { return pairKey(uid, friendUid); },

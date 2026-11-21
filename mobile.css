@@ -2216,7 +2216,13 @@ body { font-size: 16px; }
 .fsr-row.notfound span { flex: 1; min-width: 120px; }
 
 /* v1.22 聊天统一三点菜单按钮 */
-.chat-menu-btn { font-size: 26px; font-weight: 800; line-height: 1; letter-spacing: 1px; }
+.chat-menu-btn {
+  font-size: 26px; font-weight: 800; line-height: 1; letter-spacing: 1px;
+  flex: none !important; position: relative; z-index: 3;
+  width: 36px !important; height: 36px !important; min-width: 36px !important;
+  pointer-events: auto !important; background: rgba(255,255,255,.72) !important;
+}
+.full-head h2 { flex: 1 1 auto !important; min-width: 0; }
 
 /* v1.23 好友申请系统 + 消息时间在上 */
 .friend-request-entry, .friend-request-banner {

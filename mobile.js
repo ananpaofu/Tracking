@@ -2,8 +2,20 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '2.2';
+  const APP_VERSION = '2.4';
   const CHANGELOG = [
+    { version: '2.4', date: '2026-11-21', title: '好友与聊天完善', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '删除好友时同步清空双方聊天记录与好友申请',
+        '删除好友后可重新发送申请再次添加',
+        '修复聊天三点菜单无法点击的问题'
+      ] }
+    ] },
+    { version: '2.3', date: '2026-11-21', title: '交互修复', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复聊天右上角三点菜单点不开的问题，备注与背景设置可直接进入'
+      ] }
+    ] },
     { version: '2.2', date: '2026-11-21', title: '云端连接修复', sections: [
       { label: '问题修复', icon: 'bug', items: [
         'Firebase SDK 改为本地加载，不再受国外 CDN 影响',
@@ -2784,7 +2796,7 @@
         '<div class="full-head"><button class="back" data-action="close-chat">' + ICON.back + '</button>' +
           headAvatar +
           '<h2>' + escapeHTML(chat.name) + (friendUid ? '<small class="chat-head-tip">点头像看资料</small>' : '') + '</h2>' +
-          '<button class="chat-tool chat-menu-btn" data-action="chat-menu" data-id="' + escapeHTML(id) + '" title="' + translateText('聊天设置') + '">⋯</button></div>' +
+          '<button type="button" id="chat-menu-btn" class="chat-tool chat-menu-btn" data-action="chat-menu" data-id="' + escapeHTML(id) + '" title="' + translateText('聊天设置') + '">⋯</button></div>' +
         '<div class="chat-body" id="chat-body" style="' + chatBgStyle() + '"></div>' +
         '<div class="emoji-panel" id="emoji-panel"></div>' +
         '<form class="chat-input" id="chat-form">' +
@@ -2794,6 +2806,13 @@
           '<button type="submit">' + ICON.send + '</button>' +
         '</form>' +
       '</div>';
+    const menuBtn = document.getElementById('chat-menu-btn');
+    if (menuBtn) {
+      menuBtn.addEventListener('click', function (ev) {
+        ev.preventDefault(); ev.stopPropagation();
+        openChatMenu(id);
+      });
+    }
     renderChatBody();
   }
 
@@ -3447,8 +3466,9 @@
       if (!window.confirm(translateText('确定删除好友？') + (label ? ' ' + label : ''))) return;
       window.Cloud.removeFriend(cf.uid).then(function () {
         delete db.cloudFriendMeta[cf.uid];
+        delete db.messages['u_' + userId];
         saveDB();
-        if (state.chatId === 'u_' + userId) state.chatId = null;
+        if (state.chatId === 'u_' + userId) { window.Cloud.stopWatchingMessages(cf.uid); state.chatId = null; }
         toast(translateText('已删除好友') + (label ? ' ' + label : ''));
         closeSheet(); openFriendsSheet(); renderApp();
       }).catch(function () { toast(translateText('删除失败'), 'warn'); });
