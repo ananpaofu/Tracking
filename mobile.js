@@ -1419,6 +1419,9 @@
   function cloudEnabled() {
     return typeof window.Cloud !== 'undefined' && window.Cloud.isEnabled();
   }
+  function cloudAvailable() {
+    return typeof window.Cloud !== 'undefined';
+  }
   function cloudTime(ts) {
     if (!ts) return nowTime();
     const d = new Date(ts);
@@ -3362,6 +3365,13 @@
     if (!user) return false;
     const myCloudId = cloudEnabled() ? window.Cloud.myFriendId() : user.friendId;
     if (id === myCloudId) { if (err) err.textContent = translateText('不能添加自己为好友'); return false; }
+
+    if (cloudAvailable() && !cloudEnabled()) {
+      const msg = translateText('云端未连接，无法添加真人好友。请检查网络后重开应用');
+      if (err) err.textContent = msg;
+      toast(msg, 'warn');
+      return false;
+    }
 
     if (cloudEnabled()) {
       const sentIds = cloudState.sent.filter(function (r) { return r.status === 'pending'; })

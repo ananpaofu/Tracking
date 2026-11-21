@@ -5,13 +5,13 @@
   'use strict';
 
   const CFG = {
-    apiKey: 'AIzaSyApUn5ctaAs2m7lp1R7RBfryuj_tXk0FE',
+    apiKey: 'AIzaSyApnU5ctaAs2m7l9p1R7RBfryuj_tXk0fE',
     authDomain: 'tracker-chat-ce8d2.firebaseapp.com',
     projectId: 'tracker-chat-ce8d2',
     storageBucket: 'tracker-chat-ce8d2.firebasestorage.app',
     messagingSenderId: '712860064703',
     appId: '1:712860064703:web:3a04793e001f59a4719f0a',
-    measurementId: 'G-DNMBZLJ392'
+    measurementId: 'G-DNMZBLJ39Z'
   };
 
   let app = null, auth = null, db = null, uid = null, profile = null;
