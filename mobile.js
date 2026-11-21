@@ -2,8 +2,29 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.15';
+  const APP_VERSION = '1.16';
   const CHANGELOG = [
+    { version: '1.16', date: '2026-11-21', title: '自由裁剪 / 好友群聊 / 黑白老年模式', sections: [
+      { label: '全新功能', icon: 'sparkle', items: [
+        '裁剪照片改为自由拖动边框、四角调整范围，不放大整图，自由度更高',
+        '好友页新增分组筛选、A-Z 排序、好友备注与分组管理',
+        '群聊支持邀请多位好友进群、群改名、搜群号加群与群成员管理',
+        '添加物品分类扩充，并支持自定义分类',
+        '语言设置翻译覆盖全部文字、提示语与输入占位符'
+      ] },
+      { label: '问题修复', icon: 'bug', items: [
+        '添加物品固定头改为整块实体，滚动不再透出文字，必填提示行同步固定清晰',
+        '成功提示改为屏幕下方横条，显示时间更长',
+        '日期月份翻页不再跳动，选择后停留在录入页',
+        '物品自动配图改为单色底 + 图案，去掉白框与绿框双层',
+        '加好友页去除重复按钮，设备联动布局与字体统一、绑定设备置顶'
+      ] },
+      { label: '体验优化', icon: 'heart', items: [
+        '首页顶部统计区压缩，我的物品占据主要屏幕',
+        '老年模式改为黑白配色、白底黑字，小字不再加粗',
+        '地图统一高德蓝绿配色，设备页右上角新增添加物品'
+      ] }
+    ] },
     { version: '1.15', date: '2026-11-21', title: '真实裁剪 / 高清拍照 / 全国定位', sections: [
       { label: '全新功能', icon: 'sparkle', items: [
         '裁剪照片改为用户手动拖动、旋转、缩放，不再是固定居中裁剪',
@@ -206,9 +227,6 @@
   const UNIT_OPTIONS = ['件', '卷', '包', '盒', '瓶', '块', '支', '罐', '袋', '个', '双', '片', '颗', '杯', '桶', '节', '粒', '自定义'];
 
   function itemImageData(label, bg, fg, shape) {
-    const safe = String(label || '物品').replace(/[&<>]/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
-    });
     const art = {
       carton: '<path d="M82 42h58l18 16v62H82Z" fill="#fff" stroke="' + fg + '" stroke-width="3"/><path d="M140 42v16h18" fill="none" stroke="' + fg + '" stroke-width="3"/><rect x="92" y="74" width="46" height="18" rx="5" fill="' + fg + '" opacity=".16"/>',
       bottle: '<rect x="103" y="34" width="34" height="16" rx="5" fill="' + fg + '"/><path d="M96 50h48l8 66H88Z" fill="#fff" stroke="' + fg + '" stroke-width="3"/><rect x="98" y="76" width="44" height="16" rx="4" fill="' + fg + '" opacity=".18"/>',
@@ -220,13 +238,10 @@
       cloth: '<path d="M96 52l24 10 24-10 18 22-16 12v40H94V86L78 74Z" fill="#fff" stroke="' + fg + '" stroke-width="3"/><path d="M110 62v62M130 62v62" stroke="' + fg + '" stroke-width="2" opacity=".25"/>',
       doc: '<path d="M88 42h48l18 18v62H88Z" fill="#fff" stroke="' + fg + '" stroke-width="3"/><path d="M136 42v18h18" fill="none" stroke="' + fg + '" stroke-width="3"/><path d="M100 78h42M100 90h42M100 102h28" stroke="' + fg + '" stroke-width="3" opacity=".35"/>'
     };
-    const artHTML = art[shape || 'box'] || art.box;
+    const artHTML = (art[shape || 'box'] || art.box).replace(/fill="#fff"/g, 'fill="' + fg + '" fill-opacity=".18"');
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160">' +
       '<rect width="240" height="160" fill="' + bg + '"/>' +
-      '<circle cx="198" cy="26" r="48" fill="#ffffff" opacity=".32"/>' +
-      '<rect x="44" y="24" width="152" height="112" rx="24" fill="#fffdf9" opacity=".92"/>' +
       artHTML +
-      '<text x="120" y="145" text-anchor="middle" font-size="16" font-weight="700" fill="' + fg + '" font-family="PingFang SC, Microsoft YaHei, sans-serif">' + safe + '</text>' +
       '</svg>';
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   }
@@ -253,6 +268,12 @@
     clothing: { label: '衣物', bg: '#dce6f2', fg: '#3c628a', shape: 'cloth' },
     document: { label: '文档', bg: '#e2e8e4', fg: '#4d6658', shape: 'doc' },
     electronic: { label: '电子', bg: '#d9ebe3', fg: '#2f6c52', shape: 'device' },
+    stationery: { label: '文具', bg: '#ece3d3', fg: '#7a6647', shape: 'doc' },
+    keys: { label: '钥匙', bg: '#e6e2d9', fg: '#6f6859', shape: 'device' },
+    cleaning: { label: '清洁', bg: '#dcecee', fg: '#3e757e', shape: 'bottle' },
+    sports: { label: '运动', bg: '#e3edd9', fg: '#587642', shape: 'bag' },
+    baby: { label: '母婴', bg: '#f0dfe5', fg: '#97536a', shape: 'bag' },
+    tools: { label: '工具', bg: '#e3e6e9', fg: '#596169', shape: 'box' },
     other: { label: '物品', bg: '#e6e6e2', fg: '#606860', shape: 'box' }
   };
 
@@ -274,8 +295,14 @@
     { key: 'medicine', label: '药品', color: '#c98d86' },
     { key: 'cosmetic', label: '化妆品', color: '#bda0bb' },
     { key: 'clothing', label: '衣物', color: '#9db2c9' },
-    { key: 'document', label: '文档', color: '#a8b1ab' },
+    { key: 'document', label: '文档证件', color: '#a8b1ab' },
     { key: 'electronic', label: '电子产品', color: '#8fae9c' },
+    { key: 'stationery', label: '文具书籍', color: '#b7a68d' },
+    { key: 'keys', label: '钥匙锁具', color: '#a9a293' },
+    { key: 'cleaning', label: '清洁用品', color: '#9ec0c5' },
+    { key: 'sports', label: '运动用品', color: '#a4b98d' },
+    { key: 'baby', label: '母婴用品', color: '#d3b0b8' },
+    { key: 'tools', label: '工具五金', color: '#a8adb3' },
     { key: 'other', label: '其他', color: '#bdb6ac' }
   ];
 
@@ -528,7 +555,8 @@
     collapsedGroups: {}, commentPostId: null,
     photoDraft: { item: [], location: [], expiry: [] }, photoCategory: 'item',
     aiDetections: [], datePicker: null, photoPending: null, crop: null,
-    deviceMapOpen: false, mapZoom: 1, mapPanX: 0, mapPanY: 0
+    deviceMapOpen: false, mapZoom: 1, mapPanX: 0, mapPanY: 0,
+    friendGroup: '全部', friendSort: 'default', inviteGroupId: '', inviteSelected: []
   };
   let lastView = null;
   let activeStream = null;
@@ -729,13 +757,13 @@
   function toast(message, type) {
     const el = document.createElement('div');
     el.className = 'toast ' + (type || '');
-    el.textContent = message;
+    el.textContent = translateText(message);
     $('#toast-root').appendChild(el);
     requestAnimationFrame(function () { el.classList.add('show'); });
     setTimeout(function () {
       el.classList.remove('show');
       setTimeout(function () { el.remove(); }, 300);
-    }, 2400);
+    }, 5200);
   }
 
   function closeSheet() {
@@ -769,13 +797,22 @@
     const s = db.settings;
     const theme = THEMES.find(function (t) { return t.key === s.theme; }) || THEMES[0];
     Object.keys(theme.vars).forEach(function (k) { screen.style.setProperty(k, theme.vars[k]); });
+    if (s.elderMode) {
+      screen.style.setProperty('--sage', '#ffffff');
+      screen.style.setProperty('--sage-deep', '#111111');
+      screen.style.setProperty('--sage-mist', '#f1f1f1');
+      screen.style.setProperty('--cream', '#ffffff');
+      screen.style.setProperty('--paper', '#ffffff');
+      screen.style.setProperty('--clay', '#222222');
+      screen.style.setProperty('--clay-mist', '#ffffff');
+    }
     screen.style.setProperty('--app-font-scale', String(s.elderMode ? 1.35 : s.fontScale));
-    screen.style.setProperty('--app-font-weight', String(s.elderMode ? 700 : s.fontWeight));
+    screen.style.setProperty('--app-font-weight', String(s.elderMode ? 400 : s.fontWeight));
     screen.classList.toggle('elder-mode', !!s.elderMode);
     screen.classList.remove('font-large', 'font-extra');
     if (s.elderMode || s.fontScale >= 1.6) screen.classList.add('font-extra');
     else if (s.fontScale >= 1.35) screen.classList.add('font-large');
-    const weight = s.elderMode ? 700 : s.fontWeight;
+    const weight = s.elderMode ? 400 : s.fontWeight;
     screen.classList.remove('fw-thin', 'fw-normal', 'fw-medium', 'fw-bold');
     if (weight === 300) screen.classList.add('fw-thin');
     else if (weight === 600) screen.classList.add('fw-medium');
@@ -832,7 +869,55 @@
       '繁體中文': 'Traditional Chinese', '通知': 'Notification', '时间': 'Time', '颜色': 'Color', '主题': 'Theme', '字体': 'Font', '大小': 'Size', '粗细': 'Weight',
       '晚': 'Evening', '晚上好': 'Good Evening', '早上好': 'Good Morning', '下午好': 'Good Afternoon', '件': 'pcs', '提示': 'Tip', '说明': 'Info',
       '暂无': 'None', '暂无数据': 'No data', '请选择': 'Select', '请输入': 'Enter', '添加': 'Add', '编辑': 'Edit', '删除': 'Delete', '详情': 'Details',
-      '物品': 'Item', '收纳': 'Storage', '注册于': 'Joined', '版本': 'Version', '更新内容': 'What’s New', '当前版本': 'Current'
+      '物品': 'Item', '收纳': 'Storage', '注册于': 'Joined', '版本': 'Version', '更新内容': 'What’s New', '当前版本': 'Current',
+      '收纳成功': 'Stored successfully', '又一件物品找到家了': 'Another item found its home', '已保存修改': 'Changes saved',
+      '已收纳': 'Stored', '已保存': 'Saved', '已添加': 'Added', '已删除': 'Deleted', '已移除': 'Removed', '已更新': 'Updated',
+      '保存成功': 'Saved successfully', '添加成功': 'Added successfully', '删除成功': 'Deleted successfully', '修改成功': 'Updated successfully',
+      '请先登录': 'Please sign in first', '登录成功': 'Signed in', '注册成功': 'Registered', '退出登录': 'Sign out', '确认退出登录': 'Confirm sign out',
+      '请输入': 'Please enter', '请输入物品名称': 'Please enter item name', '请输入数量': 'Please enter quantity', '请输入分类名称': 'Please enter category name',
+      '请输入好友编号': 'Please enter friend ID', '请输入群聊编号': 'Please enter group ID', '请输入群聊名称': 'Please enter group name',
+      '请输入自定义分类名称': 'Please enter a custom category name', '请输入自定义单位': 'Please enter a custom unit',
+      '为必填项': 'are required', '未标注的为选填项': 'unmarked fields are optional',
+      '照片已添加': 'Photo added', '照片已更换': 'Photo replaced', '照片已上传': 'Photo uploaded', '头像已更新': 'Avatar updated',
+      '已复制': 'Copied', '复制失败': 'Copy failed', '操作成功': 'Done', '操作失败': 'Operation failed',
+      '拍摄完成': 'Photo captured', '可直接使用、裁剪或重新拍摄': 'Use, crop or retake as you like',
+      '裁剪照片': 'Crop Photo', '重置裁剪框': 'Reset crop box', '拖动边框调整范围': 'Drag edges to adjust',
+      '完成': 'Done', '取消': 'Cancel', '确定': 'OK', '返回': 'Back', '关闭': 'Close', '提示': 'Tip',
+      '好友与群聊': 'Friends & Groups', '你的编号': 'Your ID', '把 ID 告诉朋友即可添加': 'Share your ID to add friends',
+      '输入对方编号 ID': 'Enter friend ID', '添加好友': 'Add Friend', '发现好友': 'Discover Friends', '我的好友': 'My Friends',
+      'A-Z 排序': 'A-Z Sort', '按 A-Z 排序': 'Sort by A-Z', '好友备注': 'Friend Remark', '分组': 'Group',
+      '未分组': 'Ungrouped', '同学': 'Classmate', '邻居': 'Neighbor', '家人': 'Family', '同事': 'Colleague',
+      '点「+」添加': 'Tap + to add', '还没有好友': 'No friends yet', '可在上方发现好友添加': 'Discover friends above',
+      '我的群聊': 'My Groups', '创建群聊': 'Create Group', '群聊管理': 'Group Settings', '群聊名称': 'Group Name',
+      '群成员': 'Members', '邀请好友进群': 'Invite Friends', '可多选好友，选择后点邀请进群': 'Select friends, then tap Invite',
+      '确认邀请': 'Confirm Invite', '邀请进群': 'Invite', '移出群聊': 'Remove from group', '群聊已创建': 'Group created',
+      '群聊名称已修改': 'Group name updated', '已邀请': 'Invited', '位好友进群': 'friends joined', '所选好友已在群内': 'Already in group',
+      '通过群号加入': 'Joined via group ID', '你已在该群聊中': 'Already in this group', '暂无其他成员': 'No other members',
+      '输入群聊编号加群': 'Enter group ID to join', '加群': 'Join Group', '群简介': 'Group Description',
+      '群名称': 'Group Name', '备注名称': 'Remark Name', '好友分组': 'Friend Group', '备注已保存': 'Remark saved',
+      '还没有群聊': 'No groups yet', '点右上角创建': 'Tap top-right to create',
+      '设备联动': 'Devices', '设备': 'Device', '添加设备': 'Add Device', '我的实时位置': 'My Live Location',
+      '用高德地图打开': 'Open in Amap', '地图方案': 'Map Plan', '下拉展开地图': 'Expand map', '收起地图': 'Collapse map',
+      '你在这里': 'You are here', '联动能力': 'Features', '设备联动说明': 'About Device Linking',
+      '还没有定位标签': 'No tracking tags yet', '开启蓝牙搜索': 'Enable Bluetooth to search',
+      '尚未绑定物品': 'No item bound', '绑定：': 'Bound: ', '已连接': 'Connected', '未连接': 'Disconnected',
+      '蓝牙连接已开启': 'Bluetooth on', '蓝牙连接未开启': 'Bluetooth off', '开启': 'Turn on', '关闭蓝牙': 'Turn off',
+      '搜索设备': 'Search Devices', '连接设备': 'Connect Device', '播放声音': 'Play Sound', '离位提醒': 'Away Alert',
+      '离位提醒 开': 'Away Alert On', '离位提醒 关': 'Away Alert Off', '低电量提醒': 'Low Battery Alert',
+      '自动记录收纳': 'Auto Record', '一键查找': 'Quick Find', '自定义标签': 'Custom Tag', '绑定物品': 'Bind Item',
+      '当前为交互演示': 'Interactive demo', '标签状态在 App 内模拟': 'Tag status simulated in app',
+      '请开启定位权限': 'Please enable location permission', '定位失败': 'Location failed', '正在定位': 'Locating…',
+      '通知时间已设置': 'Reminder time set', '语言已切换': 'Language changed', '字体大小已调整': 'Font size adjusted',
+      '字体粗细已调整': 'Font weight adjusted', '主题已切换': 'Theme changed', '设置已保存': 'Settings saved',
+      '密码已修改': 'Password changed', '当前版本已是最新': 'You are up to date', '版本': 'Version',
+      '添加物品': 'Add Item', '编辑物品': 'Edit Item', '物品照片': 'Item Photo', '以上照片均为选填': 'All photos are optional',
+      '不拍照也能保存物品': 'You can save without photos', '点击查看详情': 'Tap to view details',
+      '件': 'pcs', '盒': 'box', '瓶': 'bottle', '包': 'pack', '袋': 'bag', '个': 'pcs', '卷': 'roll',
+      '临期提醒': 'Expiring Soon', '已过期': 'Expired', '无保质期': 'No Expiry', '到期优先': 'Expiry First',
+      '最近收纳': 'Recently Added', 'A-Z 字母': 'A-Z Letters', '排列顺序': 'Sort by', '搜索历史': 'Search History',
+      '清空': 'Clear', '展开': 'Expand', '收起': 'Collapse', '收起键盘': 'Hide keyboard',
+      '没有找到相关物品': 'No items found', '还没有物品': 'No items yet', '添加第一件物品': 'Add your first item',
+      '今天': 'Today', '昨天': 'Yesterday'
     },
     'zh-Hant': {
       '我的收纳': '我的收納', '我的物品': '我的物品', '功能中心': '功能中心', '首页': '首頁', '功能': '功能', '联动': '連動', '我的': '我的',
@@ -857,7 +942,51 @@
       '跟随系统': '跟隨系統', '简体中文': '簡體中文', '通知': '通知', '时间': '時間', '颜色': '顏色', '主题': '主題', '字体': '字體', '大小': '大小', '粗细': '粗細',
       '晚上好': '晚上好', '早上好': '早安', '下午好': '午安', '件': '件', '提示': '提示', '说明': '說明', '暂无': '暫無', '暂无数据': '暫無資料',
       '请选择': '請選擇', '请输入': '請輸入', '添加': '新增', '编辑': '編輯', '删除': '刪除', '详情': '詳情', '物品': '物品', '收纳': '收納',
-      '注册于': '註冊於', '版本': '版本', '更新内容': '更新內容', '当前版本': '目前版本'
+      '注册于': '註冊於', '版本': '版本', '更新内容': '更新內容', '当前版本': '目前版本',
+      '收纳成功': '收納成功', '又一件物品找到家了': '又一件物品找到家了', '已保存修改': '已儲存修改',
+      '已收纳': '已收納', '已保存': '已儲存', '已添加': '已新增', '已删除': '已刪除', '已移除': '已移除', '已更新': '已更新',
+      '保存成功': '儲存成功', '添加成功': '新增成功', '删除成功': '刪除成功', '修改成功': '修改成功',
+      '请先登录': '請先登入', '登录成功': '登入成功', '注册成功': '註冊成功', '退出登录': '登出', '确认退出登录': '確認登出',
+      '请输入物品名称': '請輸入物品名稱', '请输入数量': '請輸入數量', '请输入分类名称': '請輸入分類名稱',
+      '请输入好友编号': '請輸入好友編號', '请输入群聊编号': '請輸入群組編號', '请输入群聊名称': '請輸入群組名稱',
+      '请输入自定义分类名称': '請輸入自訂分類名稱', '请输入自定义单位': '請輸入自訂單位',
+      '为必填项': '為必填項', '未标注的为选填项': '未標註的為選填項',
+      '照片已添加': '照片已新增', '照片已更换': '照片已更換', '头像已更新': '頭像已更新',
+      '已复制': '已複製', '复制失败': '複製失敗', '操作成功': '操作成功', '操作失败': '操作失敗',
+      '拍摄完成': '拍攝完成', '可直接使用、裁剪或重新拍摄': '可直接使用、裁剪或重新拍攝',
+      '重置裁剪框': '重設裁剪框', '拖动边框调整范围': '拖動邊框調整範圍',
+      '好友与群聊': '好友與群組', '你的编号': '你的編號', '把 ID 告诉朋友即可添加': '告知朋友 ID 即可新增',
+      '输入对方编号 ID': '輸入對方編號 ID', '添加好友': '新增好友', '发现好友': '發現好友', '我的好友': '我的好友',
+      'A-Z 排序': 'A-Z 排序', '按 A-Z 排序': '按 A-Z 排序', '好友备注': '好友備註', '分组': '分組',
+      '未分组': '未分組', '同学': '同學', '邻居': '鄰居', '家人': '家人', '同事': '同事',
+      '点「+」添加': '點「+」新增', '还没有好友': '還沒有好友', '可在上方发现好友添加': '可在上方發現好友新增',
+      '我的群聊': '我的群組', '创建群聊': '建立群組', '群聊管理': '群組管理', '群聊名称': '群組名稱',
+      '群成员': '群成員', '邀请好友进群': '邀請好友進群', '可多选好友，选择后点邀请进群': '可多選好友，選擇後點邀請進群',
+      '确认邀请': '確認邀請', '邀请进群': '邀請進群', '移出群聊': '移出群組', '群聊已创建': '群組已建立',
+      '群聊名称已修改': '群組名稱已修改', '已邀请': '已邀請', '位好友进群': '位好友進群', '所选好友已在群内': '所選好友已在群內',
+      '通过群号加入': '透過群號加入', '你已在该群聊中': '你已在該群組中', '暂无其他成员': '暫無其他成員',
+      '输入群聊编号加群': '輸入群組編號加群', '加群': '加群', '群简介': '群組簡介',
+      '群名称': '群組名稱', '备注名称': '備註名稱', '好友分组': '好友分組', '备注已保存': '備註已儲存',
+      '还没有群聊': '還沒有群組', '点右上角创建': '點右上角建立',
+      '设备联动': '設備連動', '设备': '設備', '添加设备': '新增設備', '我的实时位置': '我的即時位置',
+      '用高德地图打开': '用高德地圖開啟', '地图方案': '地圖方案', '下拉展开地图': '下拉展開地圖', '收起地图': '收起地圖',
+      '你在这里': '你在這裡', '联动能力': '連動功能', '设备联动说明': '設備連動說明',
+      '还没有定位标签': '還沒有定位標籤', '开启蓝牙搜索': '開啟藍牙搜尋',
+      '尚未绑定物品': '尚未綁定物品', '绑定：': '綁定：', '已连接': '已連線', '未连接': '未連線',
+      '蓝牙连接已开启': '藍牙已開啟', '蓝牙连接未开启': '藍牙未開啟', '开启': '開啟',
+      '搜索设备': '搜尋設備', '连接设备': '連線設備', '播放声音': '播放聲音', '离位提醒': '離位提醒',
+      '离位提醒 开': '離位提醒 開', '离位提醒 关': '離位提醒 關', '低电量提醒': '低電量提醒',
+      '自动记录收纳': '自動記錄收納', '一键查找': '一鍵尋找', '自定义标签': '自訂標籤', '绑定物品': '綁定物品',
+      '请开启定位权限': '請開啟定位權限', '定位失败': '定位失敗', '正在定位': '定位中…',
+      '通知时间已设置': '通知時間已設定', '语言已切换': '語言已切換', '字体大小已调整': '字體大小已調整',
+      '字体粗细已调整': '字體粗細已調整', '主题已切换': '主題已切換', '设置已保存': '設定已儲存',
+      '密码已修改': '密碼已修改', '当前版本已是最新': '目前版本已是最新',
+      '编辑物品': '編輯物品', '以上照片均为选填': '以上照片均為選填',
+      '不拍照也能保存物品': '不拍照也能儲存物品', '点卡片展开可编辑': '點卡片展開可編輯',
+      '盒': '盒', '瓶': '瓶', '包': '包', '袋': '袋', '个': '個', '卷': '捲',
+      '排列顺序': '排列順序', '搜索历史': '搜尋歷史', '清空': '清空', '收起键盘': '收起鍵盤',
+      '没有找到相关物品': '沒有找到相關物品', '还没有物品': '還沒有物品', '添加第一件物品': '新增第一件物品',
+      '今天': '今天', '昨天': '昨天'
     }
   };
 
@@ -870,25 +999,33 @@
     return 'en';
   }
 
-  function translateUI(root) {
-    if (!root) return;
+  function translateText(text) {
     const lang = currentLanguage();
-    if (lang === 'zh-CN') return;
+    if (lang === 'zh-CN') return String(text == null ? '' : text);
     const dict = I18N[lang] || {};
     const words = I18N_WORDS[lang] || {};
-    const keys = Object.keys(words).sort(function (a, b) { return b.length - a.length; });
+    const raw = String(text == null ? '' : text);
+    const key = raw.trim();
+    if (dict[key]) return raw.replace(key, dict[key]);
+    if (words[key]) return words[key];
+    let out = raw;
+    Object.keys(words).sort(function (a, b) { return b.length - a.length; }).forEach(function (k) {
+      if (out.indexOf(k) !== -1) out = out.split(k).join(words[k]);
+    });
+    return out;
+  }
+
+  function translateUI(root) {
+    if (!root) return;
+    if (currentLanguage() === 'zh-CN') return;
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(function (node) {
-      const text = node.nodeValue;
-      const key = text.trim();
-      if (dict[key]) { node.nodeValue = text.replace(key, dict[key]); return; }
-      let out = text;
-      keys.forEach(function (k) {
-        if (out.indexOf(k) !== -1) out = out.split(k).join(words[k]);
+    nodes.forEach(function (node) { node.nodeValue = translateText(node.nodeValue); });
+    $$('[placeholder], [title], [aria-label]', root).forEach(function (el) {
+      ['placeholder', 'title', 'aria-label'].forEach(function (attr) {
+        if (el.hasAttribute(attr)) el.setAttribute(attr, translateText(el.getAttribute(attr)));
       });
-      node.nodeValue = out;
     });
   }
 
@@ -1598,29 +1735,7 @@
 
   function celebrate(message) {
     vibrate([12, 40, 18]);
-    const root = $('#overlay-root');
-    if (!root) return;
-    const wrap = document.createElement('div');
-    wrap.className = 'celebrate';
-    const palette = ['#7ba48d', '#d59275', '#e8cd93', '#a8c3b1', '#f0d9c8'];
-    for (let i = 0; i < 14; i++) {
-      const s = document.createElement('i');
-      s.className = 'spark';
-      const angle = (Math.PI * 2 * i) / 14 + Math.random() * 0.3;
-      const dist = 70 + Math.random() * 90;
-      s.style.setProperty('--dx', (Math.cos(angle) * dist).toFixed(0) + 'px');
-      s.style.setProperty('--dy', (Math.sin(angle) * dist).toFixed(0) + 'px');
-      s.style.setProperty('--rot', Math.round(Math.random() * 360) + 'deg');
-      s.style.background = palette[i % palette.length];
-      s.style.animationDelay = (Math.random() * 0.12).toFixed(2) + 's';
-      wrap.appendChild(s);
-    }
-    const pop = document.createElement('div');
-    pop.className = 'success-pop';
-    pop.innerHTML = '<div class="check">✓</div><b>' + escapeHTML(message || '收纳成功') + '</b><p>又一件物品找到家了</p>';
-    wrap.appendChild(pop);
-    root.appendChild(wrap);
-    setTimeout(function () { wrap.remove(); }, 1600);
+    toast('✓ ' + (message || '收纳成功') + '，又一件物品找到家了', 'success');
   }
 
   function homeHTML() {
@@ -2090,7 +2205,6 @@
       '<div class="section-head community-head" style="margin-top:12px">' +
         '<button class="icon-btn" data-action="back" title="返回">' + ICON.back + '</button>' +
         '<h2 style="flex:1;margin-left:8px">消息聊天</h2>' +
-        '<button class="chat-add-friend" data-action="open-friends">' + ICON.plus + ' 加好友</button>' +
       '</div>' +
       '<p class="community-sub">和好友、群友交流收纳心得</p>' +
       '<button class="chat-add-friend-banner" data-action="open-friends">' + ICON.users +
@@ -2196,11 +2310,16 @@
     const headAvatar = friendUid
       ? '<button class="chat-head-avatar" data-action="friend-profile" data-id="' + escapeHTML(friendUid) + '" title="查看好友主页">' + escapeHTML(chat.avatar || '友') + '</button>'
       : '<span class="chat-head-avatar">' + escapeHTML(chat.avatar || '群') + '</span>';
+    const isGroup = /^g_/.test(id) || (!friendUid && chat.kind !== 'friend');
+    const groupTool = isGroup
+      ? '<button class="chat-tool" data-action="group-manage" data-id="' + escapeHTML(id) + '" title="群聊管理">⚙</button>'
+      : '';
     $('#overlay-root').innerHTML =
       '<div class="full-mask">' +
         '<div class="full-head"><button class="back" data-action="close-chat">' + ICON.back + '</button>' +
           headAvatar +
           '<h2>' + escapeHTML(chat.name) + (friendUid ? '<small class="chat-head-tip">点头像看资料</small>' : '') + '</h2>' +
+          groupTool +
           '<button class="chat-tool" data-action="chat-bg" title="更换背景">' + ICON.sparkle + '</button></div>' +
         '<div class="chat-body" id="chat-body" style="' + chatBgStyle() + '"></div>' +
         '<div class="emoji-panel" id="emoji-panel"></div>' +
@@ -2297,7 +2416,14 @@
 
   function openFriendsSheet() {
     const user = currentUser();
-    const friends = getUserFriends();
+    let friends = getUserFriends().slice();
+    const groupFilter = state.friendGroup || '全部';
+    if (groupFilter !== '全部') friends = friends.filter(function (f) { return (f.group || '未分组') === groupFilter; });
+    if (state.friendSort === 'az') {
+      friends.sort(function (a, b) {
+        return (a.remark || a.name || '').localeCompare(b.remark || b.name || '', 'zh-CN');
+      });
+    }
     const groups = getUserGroups();
     $('#sheet-root').innerHTML =
       '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
@@ -2307,6 +2433,11 @@
         '<div class="add-friend-row"><input id="friend-id-input" placeholder="输入对方编号 ID" maxlength="6">' +
           '<button class="btn primary" data-action="add-friend">添加好友</button></div>' +
         '<div class="info-card" id="friend-error" style="min-height:0;padding:6px 12px;color:#c98d86;font-size:11px"></div>' +
+        '<div class="friend-tools">' +
+          '<button data-action="toggle-friend-sort">' + (state.friendSort === 'az' ? '按 A-Z 排序 ✓' : 'A-Z 排序') + '</button>' +
+          '<button data-action="cycle-friend-group">分组：' + escapeHTML(state.friendGroup || '全部') + '</button>' +
+          '<button data-action="rename-friend-open">好友备注</button>' +
+        '</div>' +
         (function () {
           const recommended = FRIEND_DIRECTORY.filter(function (p) {
             return !friends.some(function (f) { return f.friendId === p.friendId; });
@@ -2325,23 +2456,149 @@
         (friends.length ? friends.map(function (f) {
           return '<div class="friend-row">' +
             '<button class="set-row friend-main" data-action="open-chat" data-id="u_' + f.userId + '">' +
-              '<span class="chat-avatar">' + escapeHTML(f.name.charAt(0)) + '</span>' +
-              '<span class="set-label"><b>' + escapeHTML(f.name) + '</b><small>' + (f.signature ? escapeHTML(f.signature) : 'ID ' + escapeHTML(f.friendId || '')) + '</small></span>' +
+              '<span class="chat-avatar">' + escapeHTML((f.remark || f.name).charAt(0)) + '</span>' +
+              '<span class="set-label"><b>' + escapeHTML(f.remark || f.name) + '</b><small>' + escapeHTML(f.group || '未分组') + ' · ' + (f.signature ? escapeHTML(f.signature) : 'ID ' + escapeHTML(f.friendId || '')) + '</small></span>' +
               '<span class="set-arrow">›</span></button>' +
-            '<button class="friend-profile-btn" data-action="friend-profile" data-id="' + f.userId + '" title="查看资料">资料</button>' +
+            '<button class="friend-profile-btn" data-action="rename-friend-open" data-id="' + f.userId + '" title="改备注">备注</button>' +
             '<button class="friend-remove-btn" data-action="remove-friend" data-id="' + f.userId + '" title="删除好友">✕</button>' +
           '</div>';
         }).join('') : '<p class="sheet-tip">还没有好友，可在上方「发现好友」添加，或输入对方 ID</p>') +
+        '<div class="add-friend-row"><input id="group-id-input" placeholder="输入群聊编号加群" maxlength="10">' +
+          '<button class="btn primary" data-action="join-group-by-id">加群</button></div>' +
         '<div class="section-head" style="margin:14px 2px 6px"><div class="set-group-title" style="padding:0">我的群聊（' + groups.length + '）</div>' +
           '<button class="text-btn" data-action="create-group">+ 创建群聊</button></div>' +
         (groups.length ? groups.map(function (g) {
-          return '<button class="set-row" data-action="open-chat" data-id="' + escapeHTML(g.id) + '">' +
-            '<span class="chat-avatar blue">' + escapeHTML(g.avatar || '群') + '</span>' +
-            '<span class="set-label"><b>' + escapeHTML(g.name) + '</b><small>' + escapeHTML(g.desc || '') + '</small></span>' +
-            '<span class="set-arrow">›</span></button>';
+          return '<div class="friend-row">' +
+            '<button class="set-row" data-action="open-chat" data-id="' + escapeHTML(g.id) + '">' +
+              '<span class="chat-avatar blue">' + escapeHTML(g.avatar || '群') + '</span>' +
+              '<span class="set-label"><b>' + escapeHTML(g.name) + '</b><small>' + escapeHTML(g.desc || '') + '</small></span>' +
+              '<span class="set-arrow">›</span></button>' +
+            '<button class="friend-profile-btn" data-action="group-manage" data-id="' + escapeHTML(g.id) + '" title="群聊管理">管理</button>' +
+          '</div>';
         }).join('') : '<p class="sheet-tip">还没有群聊，点右上角创建</p>') +
         '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">关闭</button></div>' +
       '</div></div>';
+  }
+
+  function openRenameFriendSheet(userId) {
+    const u = currentUser();
+    const friend = (u.friends || []).find(function (f) { return f.userId === userId; });
+    if (!friend) return;
+    const groups = ['未分组', '同学', '邻居', '家人', '同事'];
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>好友备注</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<div class="field"><label>备注名称</label><input id="friend-remark-input" maxlength="20" placeholder="例如：同桌小李" value="' + escapeHTML(friend.remark || friend.name || '') + '"></div>' +
+        '<div class="field"><label>好友分组</label><select id="friend-group-select">' +
+          groups.map(function (g) { return '<option value="' + g + '"' + ((friend.group || '未分组') === g ? ' selected' : '') + '>' + g + '</option>'; }).join('') +
+        '</select></div>' +
+        '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">取消</button>' +
+          '<button class="btn primary" data-action="save-friend-remark" data-id="' + escapeHTML(userId) + '">保存</button></div>' +
+      '</div></div>';
+  }
+
+  function joinGroupById() {
+    const input = $('#group-id-input');
+    const id = input && input.value.trim();
+    if (!id) { toast('请输入群聊编号', 'warn'); return; }
+    const u = currentUser();
+    if (!Array.isArray(u.groups)) u.groups = [];
+    const gid = 'g_' + id;
+    if (!u.groups.some(function (g) { return g.id === gid; })) {
+      u.groups.push({ id: gid, name: '群聊 ' + id, desc: '通过群号加入', avatar: '群' });
+      db.messages[gid] = [];
+      saveDB();
+      toast('已加入群聊 ' + id);
+    } else toast('你已在该群聊中');
+    openFriendsSheet();
+  }
+
+  function findGroup(groupId) {
+    const u = currentUser();
+    return u && Array.isArray(u.groups) ? u.groups.find(function (g) { return g.id === groupId; }) : null;
+  }
+
+  function openGroupManageSheet(groupId) {
+    const g = findGroup(groupId);
+    if (!g) { toast('群聊不存在', 'warn'); return; }
+    state.manageGroupId = groupId;
+    state.groupInvites = [];
+    const members = Array.isArray(g.members) ? g.members : [];
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>群聊管理</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<div class="field"><label>群聊名称</label><input id="group-rename-input" maxlength="20" value="' + escapeHTML(g.name) + '" placeholder="输入新的群名称"></div>' +
+        '<div class="sheet-actions"><button class="btn ghost" data-action="close-sheet">取消</button>' +
+          '<button class="btn primary" data-action="save-group-rename" data-id="' + escapeHTML(groupId) + '">保存名称</button></div>' +
+        '<div class="set-group-title">群成员（' + members.length + '）</div>' +
+        (members.length ? members.map(function (m) {
+          const p = findPersonById(m.userId);
+          return '<div class="recommend-row">' +
+            '<span class="chat-avatar">' + escapeHTML((p ? personName(p) : (m.name || '友')).charAt(0)) + '</span>' +
+            '<span class="set-label"><b>' + escapeHTML(p ? personName(p) : (m.name || '好友')) + '</b><small>' + escapeHTML(m.role || '成员') + '</small></span>' +
+            '<button class="friend-remove-btn" data-action="remove-group-member" data-gid="' + escapeHTML(groupId) + '" data-id="' + escapeHTML(m.userId) + '" title="移出群聊">✕</button>' +
+          '</div>';
+        }).join('') : '<p class="sheet-tip">暂无其他成员，点下方按钮邀请好友进群</p>') +
+        '<div class="sheet-actions"><button class="btn soft block" data-action="invite-friends-open" data-id="' + escapeHTML(groupId) + '">＋ 邀请好友进群</button></div>' +
+      '</div></div>';
+  }
+
+  function saveGroupRename(groupId) {
+    const g = findGroup(groupId);
+    const input = $('#group-rename-input');
+    const name = input ? input.value.trim() : '';
+    if (!g) return;
+    if (!name) { toast('请输入群聊名称', 'warn'); return; }
+    g.name = name;
+    g.avatar = name.charAt(0) || '群';
+    saveDB();
+    renderApp(true);
+    openGroupManageSheet(groupId);
+    toast('群聊名称已修改');
+  }
+
+  function openInviteFriendsSheet(groupId) {
+    const g = findGroup(groupId);
+    if (!g) return;
+    if (!Array.isArray(g.members)) g.members = [];
+    const friends = getUserFriends().filter(function (f) {
+      return !g.members.some(function (m) { return m.userId === f.userId; });
+    });
+    state.groupInvites = [];
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>邀请好友进群</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<p class="sheet-tip">可多选好友，选择后点「邀请进群」</p>' +
+        (friends.length ? friends.map(function (f) {
+          return '<button class="set-row invite-row" data-action="toggle-group-invite" data-id="' + escapeHTML(f.userId) + '">' +
+            '<span class="chat-avatar">' + escapeHTML((f.remark || f.name || '友').charAt(0)) + '</span>' +
+            '<span class="set-label"><b>' + escapeHTML(f.remark || f.name || '好友') + '</b><small>' + escapeHTML(f.group || '未分组') + '</small></span>' +
+            '<span class="invite-check"></span></button>';
+        }).join('') : '<p class="sheet-tip">没有可邀请的好友，请先添加好友</p>') +
+        '<div class="sheet-actions"><button class="btn ghost" data-action="group-manage" data-id="' + escapeHTML(groupId) + '">返回</button>' +
+          '<button class="btn primary" data-action="confirm-group-invite" data-id="' + escapeHTML(groupId) + '">邀请进群</button></div>' +
+      '</div></div>';
+  }
+
+  function confirmGroupInvite(groupId) {
+    const g = findGroup(groupId);
+    if (!g) return;
+    if (!Array.isArray(g.members)) g.members = [];
+    const picked = state.groupInvites || [];
+    if (!picked.length) { toast('请先选择要邀请的好友', 'warn'); return; }
+    let added = 0;
+    picked.forEach(function (uid2) {
+      if (!g.members.some(function (m) { return m.userId === uid2; })) {
+        g.members.push({ userId: uid2, role: '成员' });
+        added++;
+      }
+    });
+    saveDB();
+    openGroupManageSheet(groupId);
+    toast(added ? ('已邀请 ' + added + ' 位好友进群') : '所选好友已在群内');
   }
 
   function showFriendProfile(userId) {
@@ -2905,7 +3162,7 @@
       const school = getUserSchool();
       const meLng = space.lng || school.center.lng, meLat = space.lat || school.center.lat;
       const map = new AMap.Map('device-amap', {
-        zoom: 16, center: [meLng, meLat], viewMode: '2D', mapStyle: 'amap://styles/whitesmoke'
+        zoom: 16, center: [meLng, meLat], viewMode: '2D', mapStyle: 'amap://styles/normal'
       });
       activeRealMap = map;
       new AMap.Marker({
@@ -2924,12 +3181,10 @@
       '<div class="section-head" style="margin-top:10px">' +
         '<span class="icon-btn" aria-hidden="true"></span>' +
         '<h2 style="flex:1;margin-left:6px">设备联动</h2>' +
-        '<button class="text-btn" data-action="show-map-plan">地图方案</button></div>' +
+        '<button class="icon-btn" data-action="add-item" title="添加物品">' + ICON.plus + '</button></div>' +
       deviceMapCardHTML() +
-      bluetoothBannerHTML() +
-      currentSpaceHTML() +
-      '<div class="section-head"><h2>联动物品</h2>' +
-        (devices.length > 1 ? '<button class="text-btn" data-action="toggle-devices">' + (state.devicesOpen ? '收起 ‹' : '展开全部 ' + devices.length + ' 个 ›') + '</button>' : '<span>' + devices.length + ' 个标签</span>') + '</div>' +
+      '<div class="section-head"><h2>设备</h2>' +
+        '<button class="text-btn" data-action="scan-devices">＋ 添加设备</button></div>' +
       (shown.length ? shown.map(function (d) {
         const linked = items.find(function (i) { return i.id === d.itemId; });
         const bars = [1, 2, 3, 4].map(function (n) { return '<i class="' + (n <= d.signal ? 'on' : '') + '"></i>'; }).join('');
@@ -3026,7 +3281,7 @@
       const space = getUserSpace();
       const meLng = space.lng || school.center.lng, meLat = space.lat || school.center.lat;
       const map = new AMap.Map('amap-container', {
-        zoom: 16, center: [meLng, meLat], viewMode: '2D', mapStyle: 'amap://styles/whitesmoke'
+        zoom: 16, center: [meLng, meLat], viewMode: '2D', mapStyle: 'amap://styles/normal'
       });
       activeRealMap = map;
       map.addControl(new AMap.Scale());
@@ -3334,73 +3589,86 @@
   function openPhotoCrop() {
     const p = state.photoPending;
     if (!p) return;
-    state.crop = { scale: 1, rotate: 0, x: 0, y: 0 };
     $('#overlay-root').innerHTML =
       '<div class="full-mask crop-mask">' +
         '<div class="crop-head"><button data-action="photo-cancel">取消</button><b>裁剪照片</b><button data-action="crop-apply">完成</button></div>' +
         '<div class="crop-stage">' +
-          '<div class="crop-frame"><img id="photo-crop-img" src="' + p.data + '" alt="裁剪预览"></div>' +
-          '<div class="crop-tools">' +
-            '<button data-action="crop-rotate-left">↶ 左转</button>' +
-            '<button data-action="crop-rotate-right">↷ 右转</button>' +
-            '<button data-action="crop-zoom-out">− 缩小</button>' +
-            '<button data-action="crop-zoom-in">＋ 放大</button>' +
-            '<button data-action="crop-reset">重置</button>' +
+          '<div class="crop-frame"><img id="photo-crop-img" src="' + p.data + '" alt="裁剪预览">' +
+            '<div class="crop-box" id="crop-box">' +
+              '<i data-handle="nw"></i><i data-handle="ne"></i><i data-handle="sw"></i><i data-handle="se"></i>' +
+              '<span>拖动边框调整范围</span>' +
+            '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="crop-tip">拖动照片调整位置，用下方按钮旋转和缩放</div>' +
+        '<div class="crop-tools"><button data-action="crop-reset">重置裁剪框</button></div>' +
         '<button class="crop-retake" data-action="photo-retake">重新拍摄</button>' +
       '</div>';
     setTimeout(bindCropDrag, 0);
   }
 
-  function updateCropTransform() {
-    const img = $('#photo-crop-img'), c = state.crop;
-    if (!img || !c) return;
-    img.style.transform = 'translate(' + c.x + 'px,' + c.y + 'px) rotate(' + c.rotate + 'deg) scale(' + c.scale + ')';
+  function resetCropBox() {
+    const frame = $('.crop-frame');
+    if (!frame) return;
+    const size = frame.getBoundingClientRect().width || 340;
+    state.crop = { x: size * 0.15, y: size * 0.15, w: size * 0.7, h: size * 0.7, frameSize: size };
+    renderCropBox();
+  }
+
+  function renderCropBox() {
+    const box = $('#crop-box'), c = state.crop;
+    if (!box || !c) return;
+    box.style.left = c.x + 'px'; box.style.top = c.y + 'px';
+    box.style.width = c.w + 'px'; box.style.height = c.h + 'px';
   }
 
   function bindCropDrag() {
     const frame = $('.crop-frame');
     if (!frame) return;
-    let start = null;
+    resetCropBox();
+    let drag = null;
     frame.addEventListener('pointerdown', function (e) {
       if (!state.crop) return;
-      start = { x: e.clientX - state.crop.x, y: e.clientY - state.crop.y };
+      const handle = e.target.closest('[data-handle]');
+      drag = { mode: handle ? handle.dataset.handle : 'move', sx: e.clientX, sy: e.clientY, c: Object.assign({}, state.crop) };
       frame.setPointerCapture(e.pointerId);
     });
     frame.addEventListener('pointermove', function (e) {
-      if (!start || !state.crop) return;
-      state.crop.x = e.clientX - start.x;
-      state.crop.y = e.clientY - start.y;
-      updateCropTransform();
+      if (!drag || !state.crop) return;
+      const c = state.crop, d = drag.c, size = d.frameSize;
+      const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+      if (drag.mode === 'move') {
+        c.x = Math.max(0, Math.min(size - d.w, d.x + dx));
+        c.y = Math.max(0, Math.min(size - d.h, d.y + dy));
+      } else {
+        let x = d.x, y = d.y, w = d.w, h = d.h;
+        if (drag.mode.indexOf('e') !== -1) w = Math.max(60, Math.min(size - d.x, d.w + dx));
+        if (drag.mode.indexOf('s') !== -1) h = Math.max(60, Math.min(size - d.y, d.h + dy));
+        if (drag.mode.indexOf('w') !== -1) { x = Math.max(0, Math.min(d.x + d.w - 60, d.x + dx)); w = d.x + d.w - x; }
+        if (drag.mode.indexOf('n') !== -1) { y = Math.max(0, Math.min(d.y + d.h - 60, d.y + dy)); h = d.y + d.h - y; }
+        c.x = x; c.y = y; c.w = w; c.h = h;
+      }
+      renderCropBox();
     });
-    frame.addEventListener('pointerup', function () { start = null; });
-    frame.addEventListener('pointercancel', function () { start = null; });
-    updateCropTransform();
+    frame.addEventListener('pointerup', function () { drag = null; });
+    frame.addEventListener('pointercancel', function () { drag = null; });
   }
 
   function applyPhotoCrop() {
     const p = state.photoPending;
     const img = $('#photo-crop-img');
     const c = state.crop;
-    const frame = $('.crop-frame');
-    if (!p || !img || !c || !frame) return;
-    const outSize = 1200;
-    const frameSize = frame.getBoundingClientRect().width || 340;
-    const ratio = outSize / frameSize;
+    if (!p || !img || !c) return;
     const iw = img.naturalWidth || 1200, ih = img.naturalHeight || 1200;
     const side = Math.min(iw, ih);
+    const offX = (iw - side) / 2, offY = (ih - side) / 2;
+    const scale = side / (c.frameSize || 340);
+    const sx = Math.max(0, offX + c.x * scale);
+    const sy = Math.max(0, offY + c.y * scale);
+    const sw = Math.min(iw - sx, c.w * scale);
+    const sh = Math.min(ih - sy, c.h * scale);
     const canvas = document.createElement('canvas');
-    canvas.width = outSize; canvas.height = outSize;
-    const ctx = canvas.getContext('2d');
-    ctx.save();
-    ctx.beginPath(); ctx.rect(0, 0, outSize, outSize); ctx.clip();
-    ctx.translate(outSize / 2 + c.x * ratio, outSize / 2 + c.y * ratio);
-    ctx.rotate(c.rotate * Math.PI / 180);
-    ctx.scale(c.scale, c.scale);
-    ctx.drawImage(img, (iw - side) / 2, (ih - side) / 2, side, side, -side / 2, -side / 2, side, side);
-    ctx.restore();
+    canvas.width = 1200; canvas.height = 1200;
+    canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, 1200, 1200);
     setPhoto(p.target, canvas.toDataURL('image/jpeg', 0.9));
     closeOverlay();
     state.photoPending = null;
@@ -3507,12 +3775,14 @@
     $('#sheet-root').innerHTML =
       '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
         '<div class="sheet-handle"></div>' +
-        '<div class="sheet-head sheet-head-form">' +
-          '<button class="sheet-close" data-action="close-sheet" aria-label="关闭">✕</button>' +
-          '<h2>' + (isEdit ? '编辑物品' : '添加物品') + '</h2>' +
-          '<button type="submit" form="item-form" class="sheet-save">' + (isEdit ? '保存' : '保存') + '</button>' +
+        '<div class="form-sticky-head">' +
+          '<div class="sheet-head sheet-head-form">' +
+            '<button class="sheet-close" data-action="close-sheet" aria-label="关闭">✕</button>' +
+            '<h2>' + (isEdit ? '编辑物品' : '添加物品') + '</h2>' +
+            '<button type="submit" form="item-form" class="sheet-save">' + (isEdit ? '保存' : '保存') + '</button>' +
+          '</div>' +
+          '<p class="required-hint"><b>*</b> 为必填项，未标注的为选填项</p>' +
         '</div>' +
-        '<p class="required-hint"><b>*</b> 为必填项，未标注的为选填项</p>' +
         '<form id="item-form">' +
           '<div class="photo-section">' +
             photoBlockHTML('item', '物品照片', '拍照后可点 AI 识别，自动填写物品名称和分类，原图保持不变') +
@@ -3528,6 +3798,7 @@
               allCategories().map(function (c) {
                 return '<option value="' + c.key + '" ' + (data.category === c.key ? 'selected' : '') + '>' + c.label + '</option>';
               }).join('') +
+              '<option value="custom_new">＋ 自定义分类</option>' +
             '</select>' +
               '<div class="custom-cat-wrap" id="custom-cat-wrap" style="display:' + ((data.category === 'other' || isCustomCategory(data.category)) ? 'block' : 'none') + '">' +
                 '<input id="f-category-custom" maxlength="12" placeholder="输入自定义分类名" value="' + escapeHTML(customCategoryLabel(data.category)) + '">' +
@@ -3795,9 +4066,8 @@
     renderDatePicker();
   }
 
-  function renderDatePicker() {
+  function dateGridHTML() {
     const dp = state.datePicker;
-    if (!dp) return;
     const days = new Date(dp.year, dp.month, 0).getDate();
     const first = (new Date(dp.year, dp.month - 1, 1).getDay() + 6) % 7;
     const blanks = Array(first).join('<i></i>');
@@ -3806,6 +4076,21 @@
       const value = dp.year + '-' + pad(dp.month) + '-' + pad(day);
       cells.push('<button type="button" class="date-day' + (dp.selected === value ? ' on' : '') + '" data-action="date-pick" data-day="' + value + '">' + day + '</button>');
     }
+    return blanks + cells.join('');
+  }
+
+  function refreshDateView() {
+    const dp = state.datePicker;
+    if (!dp) return;
+    const title = $('.date-picker-top b');
+    const grid = $('.date-grid');
+    if (title) title.textContent = dp.year + ' 年 ' + pad(dp.month) + ' 月';
+    if (grid) grid.innerHTML = dateGridHTML();
+  }
+
+  function renderDatePicker() {
+    const dp = state.datePicker;
+    if (!dp) return;
     $('#overlay-root').innerHTML =
       '<div class="full-mask date-mask">' +
         '<div class="date-sheet">' +
@@ -3814,7 +4099,7 @@
             '<div class="date-picker-top"><b>' + dp.year + ' 年 ' + pad(dp.month) + ' 月</b>' +
               '<span><button type="button" data-action="date-prev">‹</button><button type="button" data-action="date-next">›</button></span></div>' +
             '<div class="date-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>' +
-            '<div class="date-grid">' + blanks + cells.join('') + '</div>' +
+            '<div class="date-grid">' + dateGridHTML() + '</div>' +
             '<div class="date-actions"><button type="button" class="btn primary block" data-action="date-confirm">确定</button></div>' +
           '</div>' +
         '</div>' +
@@ -3872,14 +4157,14 @@
         if (state.datePicker) {
           state.datePicker.month--;
           if (state.datePicker.month < 1) { state.datePicker.month = 12; state.datePicker.year--; }
-          renderDatePicker();
+          refreshDateView();
         }
         break;
       case 'date-next':
         if (state.datePicker) {
           state.datePicker.month++;
           if (state.datePicker.month > 12) { state.datePicker.month = 1; state.datePicker.year++; }
-          renderDatePicker();
+          refreshDateView();
         }
         break;
       case 'date-pick':
@@ -4027,21 +4312,7 @@
         break;
       case 'photo-crop': openPhotoCrop(); break;
       case 'crop-apply': applyPhotoCrop(); break;
-      case 'crop-rotate-left':
-        if (state.crop) { state.crop.rotate -= 90; updateCropTransform(); }
-        break;
-      case 'crop-rotate-right':
-        if (state.crop) { state.crop.rotate += 90; updateCropTransform(); }
-        break;
-      case 'crop-zoom-in':
-        if (state.crop) { state.crop.scale = Math.min(3, state.crop.scale + 0.15); updateCropTransform(); }
-        break;
-      case 'crop-zoom-out':
-        if (state.crop) { state.crop.scale = Math.max(0.5, state.crop.scale - 0.15); updateCropTransform(); }
-        break;
-      case 'crop-reset':
-        if (state.crop) { state.crop = { scale: 1, rotate: 0, x: 0, y: 0 }; updateCropTransform(); }
-        break;
+      case 'crop-reset': resetCropBox(); break;
       case 'photo-retake':
         const prTarget = state.photoPending ? state.photoPending.target : 'item';
         const prAi = state.photoPending ? state.photoPending.aiMode : false;
@@ -4350,6 +4621,61 @@
       case 'add-friend-by-id': addFriendById(el.dataset.id, $('#friend-error')); break;
       case 'remove-friend': removeFriend(el.dataset.id); break;
       case 'add-friend': addFriend(); break;
+      case 'toggle-friend-sort':
+        state.friendSort = state.friendSort === 'az' ? 'default' : 'az';
+        openFriendsSheet(); break;
+      case 'cycle-friend-group':
+        (function () {
+          const opts = ['全部', '未分组', '同学', '邻居', '家人', '同事'];
+          const cur = state.friendGroup || '全部';
+          state.friendGroup = opts[(opts.indexOf(cur) + 1) % opts.length];
+        })();
+        openFriendsSheet(); break;
+      case 'rename-friend-open':
+        if (el.dataset.id) openRenameFriendSheet(el.dataset.id);
+        else toast('请点击好友右侧的「备注」按钮', 'warn');
+        break;
+      case 'save-friend-remark':
+        (function () {
+          const u = currentUser();
+          const friend = u && (u.friends || []).find(function (f) { return f.userId === el.dataset.id; });
+          const nameInput = $('#friend-remark-input');
+          const groupSel = $('#friend-group-select');
+          if (!friend) { toast('好友不存在', 'warn'); return; }
+          if (nameInput && nameInput.value.trim()) friend.remark = nameInput.value.trim();
+          if (groupSel) friend.group = groupSel.value;
+          saveDB();
+          openFriendsSheet();
+          toast('备注已保存');
+        })();
+        break;
+      case 'join-group-by-id': joinGroupById(); break;
+      case 'group-manage': openGroupManageSheet(el.dataset.id); break;
+      case 'save-group-rename': saveGroupRename(el.dataset.id); break;
+      case 'invite-friends-open': openInviteFriendsSheet(el.dataset.id); break;
+      case 'toggle-group-invite':
+        (function () {
+          const uid2 = el.dataset.id;
+          if (!Array.isArray(state.groupInvites)) state.groupInvites = [];
+          const idx = state.groupInvites.indexOf(uid2);
+          if (idx === -1) state.groupInvites.push(uid2);
+          else state.groupInvites.splice(idx, 1);
+          el.classList.toggle('on', state.groupInvites.indexOf(uid2) !== -1);
+          const chk = $('.invite-check', el);
+          if (chk) chk.textContent = state.groupInvites.indexOf(uid2) !== -1 ? '✓' : '';
+        })();
+        break;
+      case 'confirm-group-invite': confirmGroupInvite(el.dataset.id); break;
+      case 'remove-group-member':
+        (function () {
+          const g = findGroup(el.dataset.gid);
+          if (!g) return;
+          g.members = (g.members || []).filter(function (m) { return m.userId !== el.dataset.id; });
+          saveDB();
+          openGroupManageSheet(el.dataset.gid);
+          toast('已移出群聊');
+        })();
+        break;
       case 'create-group': openCreateGroupSheet(); break;
       case 'pick-group-type':
         state.groupTypeIndex = parseInt(el.dataset.index, 10) || 0;
@@ -4473,7 +4799,7 @@
   document.addEventListener('change', function (e) {
     if (e.target.id === 'f-category') {
       const wrap = $('#custom-cat-wrap');
-      if (wrap) wrap.style.display = (e.target.value === 'other' || isCustomCategory(e.target.value)) ? 'block' : 'none';
+      if (wrap) wrap.style.display = (e.target.value === 'other' || e.target.value === 'custom_new' || isCustomCategory(e.target.value)) ? 'block' : 'none';
     }
     if (e.target.id === 'f-unit') {
       const wrap = $('#f-unit-custom');
@@ -4566,7 +4892,10 @@
       const location = $('#f-location').value.trim();
       let categoryKey = $('#f-category').value;
       const customCatInput = $('#f-category-custom');
-      if ((categoryKey === 'other' || isCustomCategory(categoryKey)) && customCatInput && customCatInput.value.trim()) {
+      if (categoryKey === 'custom_new' && (!customCatInput || !customCatInput.value.trim())) {
+        errorEl.textContent = '请输入自定义分类名称'; return;
+      }
+      if ((categoryKey === 'custom_new' || categoryKey === 'other' || isCustomCategory(categoryKey)) && customCatInput && customCatInput.value.trim()) {
         categoryKey = ensureCustomCategory(customCatInput.value.trim());
       }
       let unit = $('#f-unit') ? $('#f-unit').value : '件';

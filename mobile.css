@@ -1963,3 +1963,107 @@ body { font-size: 16px; }
 .crop-tools button { padding: 7px 10px; border-radius: 10px; background: rgba(255,255,255,.12); color: #fff; font-size: 11px; font-weight: 700; }
 .crop-tip { bottom: 104px; }
 .crop-retake { bottom: 62px; }
+
+/* ============================================================
+   v1.16 自由裁剪框 / 底部提示条 / 固定头实体 / 首页压缩 / 黑白老年模式
+   ============================================================ */
+
+/* 自由拖动裁剪框：半透明遮罩外的可交互裁剪区域 */
+.crop-box {
+  position: absolute; box-sizing: border-box;
+  border: 1.5px solid #7fd0a6;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, .5);
+  touch-action: none; cursor: move; z-index: 2;
+}
+.crop-box > i {
+  position: absolute; width: 20px; height: 20px; background: transparent; z-index: 3;
+}
+.crop-box > i[data-handle="nw"] { left: -10px; top: -10px; cursor: nwse-resize; }
+.crop-box > i[data-handle="ne"] { right: -10px; top: -10px; cursor: nesw-resize; }
+.crop-box > i[data-handle="sw"] { left: -10px; bottom: -10px; cursor: nesw-resize; }
+.crop-box > i[data-handle="se"] { right: -10px; bottom: -10px; cursor: nwse-resize; }
+.crop-box > i::after {
+  content: ""; position: absolute; width: 12px; height: 12px; background: #fff;
+  border: 2px solid var(--sage-deep); border-radius: 3px;
+}
+.crop-box > i[data-handle="nw"]::after { left: 4px; top: 4px; }
+.crop-box > i[data-handle="ne"]::after { right: 4px; top: 4px; }
+.crop-box > i[data-handle="sw"]::after { left: 4px; bottom: 4px; }
+.crop-box > i[data-handle="se"]::after { right: 4px; bottom: 4px; }
+.crop-box > span {
+  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%);
+  color: #fff; font-size: 10px; white-space: nowrap; text-shadow: 0 1px 3px #000;
+  pointer-events: none;
+}
+.crop-frame { border-color: rgba(255,255,255,.55); }
+
+/* 成功提示 / toast：屏幕下方横条，显示更久 */
+.toast-root { top: auto; bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
+.toast {
+  max-width: 92%; text-align: center; padding: 12px 20px; border-radius: 14px;
+  font-size: 13px; font-weight: 600; line-height: 1.4;
+}
+.toast.success { background: rgba(47, 108, 82, .95); }
+
+/* 录入页固定头：头部 + 必填提示整块实体、无透明缝隙 */
+.form-sticky-head {
+  position: sticky; top: 0; z-index: 6;
+  background: var(--paper); margin: -8px -20px 12px; padding: 8px 20px 10px;
+  box-shadow: 0 8px 14px -6px rgba(0,0,0,.14);
+}
+.form-sticky-head .sheet-head-form { position: static; margin: 0; padding: 0; box-shadow: none; background: transparent; }
+.form-sticky-head .required-hint { margin: 2px 0 0; font-weight: 600 !important; color: var(--ink); opacity: 1 !important; }
+
+/* 首页顶部统计区压缩，我的物品占据主要屏幕 */
+.hero { padding-bottom: 18px; margin-bottom: 10px; }
+.hero-stats { margin-top: 12px; gap: 8px; }
+.hstat { padding: 8px 8px; border-radius: 14px; }
+.hstat-num, .hstat.alert .hstat-num { font-size: 19px; }
+.hstat-label { font-size: 9px; }
+.hero-add { margin-top: 10px; padding: 9px 16px; }
+.items-section-head { margin-top: 4px; }
+
+/* 物品自动配图：只保留主题色底 + 图案，无双重边框 */
+.item-row .item-photo { border: none !important; background: var(--sage-mist); }
+
+/* 好友工具条 / 邀请多选 */
+.friend-tools { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 4px; }
+.friend-tools button {
+  flex: 1; min-width: 92px; padding: 8px 6px; border-radius: 11px;
+  background: var(--sage-mist); color: var(--sage-deep); font-size: 12px; font-weight: 700;
+}
+.invite-row { display: flex; align-items: center; width: 100%; text-align: left; }
+.invite-check {
+  width: 22px; height: 22px; flex: none; border-radius: 50%;
+  border: 2px solid var(--sage); color: #fff; display: grid; place-items: center;
+  font-size: 13px; font-weight: 700;
+}
+.invite-row.on .invite-check, .invite-check.on { background: var(--sage-deep); border-color: var(--sage-deep); }
+
+/* 老年模式：纯黑白高对比，白底黑字，小字不加粗 */
+.elder-mode {
+  --cream: #ffffff !important;
+  --paper: #ffffff !important;
+  --sage: #111111 !important;
+  --sage-deep: #111111 !important;
+  --sage-mist: #f0f0f0 !important;
+  --clay: #222222 !important;
+  --clay-mist: #ffffff !important;
+  --ink: #000000 !important;
+  --ink-soft: #222222 !important;
+  --muted: #444444 !important;
+  --line: #999999 !important;
+  --primary: #111111 !important;
+  --primary-dark: #111111 !important;
+}
+.elder-mode .hero { background: #fff !important; border-bottom: 2px solid #000; }
+.elder-mode .hstat, .elder-mode .hstat.alert {
+  background: #fff !important; border: 2px solid #000 !important; box-shadow: none !important;
+}
+.elder-mode .hstat-num, .elder-mode .hstat.alert .hstat-num { color: #000 !important; }
+.elder-mode .hstat.alert.pulse { animation: none; }
+.elder-mode .check, .elder-mode .friend-profile-avatar { background: #111 !important; }
+.elder-mode small, .elder-mode .page small, .elder-mode .hstat-label,
+.elder-mode .hint, .elder-mode .photo-hint, .elder-mode .sheet-tip { font-weight: 400 !important; }
+.elder-mode .btn { border: 1px solid #000; }
+.elder-mode .toast { background: #000 !important; color: #fff !important; }
