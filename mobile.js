@@ -2,8 +2,14 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '2.4';
+  const APP_VERSION = '2.5';
   const CHANGELOG = [
+    { version: '2.5', date: '2026-11-21', title: '云端连接修复', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修正 Firebase 配置，云端好友与实时聊天正式启用',
+        '云端未连接时明确提示，不再显示虚假的申请成功消息'
+      ] }
+    ] },
     { version: '2.4', date: '2026-11-21', title: '好友与聊天完善', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '删除好友时同步清空双方聊天记录与好友申请',
