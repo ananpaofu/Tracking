@@ -2,8 +2,16 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '2.0';
+  const APP_VERSION = '2.1';
   const CHANGELOG = [
+    { version: '2.1', date: '2026-11-21', title: '真人聊天修复', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复好友聊天误触发演示机器人自动回复的问题',
+        '修复聊天三点菜单点不开、备注与背景设置进不去的问题',
+        '修复好友备注修改后界面不刷新的问题',
+        '好友申请入口按钮尺寸与「添加好友」统一'
+      ] }
+    ] },
     { version: '2.0', date: '2026-11-21', title: '真人好友与实时聊天', sections: [
       { label: '全新功能', icon: 'sparkle', items: [
         '接入云端账号：两台设备各自拥有独立编号，匿名登录免注册',
@@ -1415,7 +1423,7 @@
       const meta = db.cloudFriendMeta[f.uid] || {};
       return {
         userId: cloudFriendLocalId(f), friendId: f.friendId,
-        name: f.name || '好友', remark: meta.remark || '',
+        name: meta.remark || f.name || '好友', remark: meta.remark || '',
         signature: f.bio || '', contact: '', avatar: f.avatar || '',
         group: meta.group || '未分组', cloud: true, cloudUid: f.uid
       };
@@ -2735,6 +2743,8 @@
     const chat = chatById(id);
     if (!chat) return;
     state.chatId = id;
+    // 云端好友：每次打开都刷新云端列表，避免好友刚同意时本地缓存还是空的
+    if (cloudEnabled()) cloudState.friends = window.Cloud.getFriends();
     // 云端好友：启动实时消息监听
     const cf = findCloudFriendByLocalId(chatFriendUserId(id));
     if (cloudEnabled() && cf) {
@@ -3075,8 +3085,8 @@
 
   function openChatMenu(chatId) {
     chatId = chatId || state.chatId;
-    const chat = chatById(chatId);
-    if (!chat) { toast(translateText('聊天不存在'), 'warn'); return; }
+    const chat = chatById(chatId) || { id: chatId || 'chat', name: translateText('聊天设置'), kind: 'friend' };
+    if (!chatId) { toast(translateText('请先进入一个聊天'), 'warn'); return; }
     const friendUid = chatFriendUserId(chatId);
     const isGroup = /^g_/.test(chatId) || (!friendUid && chat.kind !== 'friend');
     const friend = friendUid ? getUserFriends().find(function (f) { return f.userId === friendUid; }) : null;
@@ -3446,6 +3456,9 @@
   }
 
   function autoReply(chatId) {
+    // 云端已启用 / 好友聊天 / 群聊都不再走演示机器人回复
+    if (cloudEnabled()) return;
+    if (/^u_/.test(chatId || '')) return;
     const replies = [
       '这个我也遇到过，后来分类放就好多了～',
       '好主意，我也要试试！',
@@ -5616,7 +5629,9 @@
             if (groupSel) localFriend.group = groupSel.value;
           }
           saveDB();
+          renderApp(true);
           openFriendsSheet();
+          if (state.chatId) renderChatHead(state.chatId);
           toast(translateText('备注已保存'));
         })();
         break;
