@@ -1,10 +1,11 @@
 /* 收纳小管家 · Service Worker（缓存优先，支持离线打开） */
-const CACHE = 'organizer-v1.23';
+const CACHE = 'organizer-v2.0';
 const ASSETS = [
   './',
   './index.html',
   './mobile.css',
   './mobile.js',
+  './cloud.js',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png'
@@ -26,6 +27,9 @@ self.addEventListener('activate', function (e) {
 
 self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
+  let url;
+  try { url = new URL(e.request.url); } catch (err) { return; }
+  if (url.origin !== self.location.origin) return;
   e.respondWith(
     caches.match(e.request).then(function (cached) {
       return cached || fetch(e.request).then(function (res) {

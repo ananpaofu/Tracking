@@ -2,8 +2,20 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.23';
+  const APP_VERSION = '2.0';
   const CHANGELOG = [
+    { version: '2.0', date: '2026-11-21', title: '真人好友与实时聊天', sections: [
+      { label: '全新功能', icon: 'sparkle', items: [
+        '接入云端账号：两台设备各自拥有独立编号，匿名登录免注册',
+        '通过编号搜索真实用户并发送好友申请，对方同意后双方互为好友',
+        '好友之间实时收发文字与表情，消息时间显示在气泡上方',
+        '支持云端好友备注、分组与删除'
+      ] },
+      { label: '问题修复', icon: 'bug', items: [
+        '好友搜索改为云端实时查询，找不到会明确提示',
+        '离线缓存不再拦截云端聊天请求'
+      ] }
+    ] },
     { version: '1.23', date: '2026-11-21', title: '好友申请流程', sections: [
       { label: '全新功能', icon: 'sparkle', items: [
         '加好友改为「发送好友申请」：对方同意后才成为好友、才能聊天，流程更真实',
@@ -633,7 +645,7 @@
     aiDetections: [], datePicker: null, photoPending: null, crop: null,
     deviceMapOpen: false, mapZoom: 1, mapPanX: 0, mapPanY: 0,
     friendGroup: '全部', friendSort: 'default', inviteGroupId: '', inviteSelected: [],
-    cloudChatUid: null
+    cloudChatUid: null, cloudSheet: null
   };
   const cloudState = { ready: false, friends: [], requests: [], sent: [] };
   let lastView = null;
@@ -848,6 +860,7 @@
 
   function closeSheet() {
     $('#sheet-root').innerHTML = '';
+    state.cloudSheet = null;
   }
 
   function closeOverlay() {
@@ -1131,7 +1144,15 @@
       '云端好友': 'Online friend', '在线好友': 'Online friends',
       '输入对方 ID 即可发送好友申请': 'Enter their ID to send a friend request',
       '已删除好友': 'Friend deleted', '备注已保存': 'Note saved',
-      '正在连接云端…': 'Connecting to cloud…', '云端不可用，当前为本地模式': 'Cloud unavailable — local mode'
+      '正在连接云端…': 'Connecting to cloud…', '云端不可用，当前为本地模式': 'Cloud unavailable — local mode',
+      '确定删除好友？': 'Delete this friend?', '删除失败': 'Failed to delete',
+      '真人好友与实时聊天': 'Real Friends & Live Chat',
+      '接入云端账号：两台设备各自拥有独立编号，匿名登录免注册': 'Cloud accounts: each device gets its own ID — no sign-up needed',
+      '通过编号搜索真实用户并发送好友申请，对方同意后双方互为好友': 'Search real users by ID and send a request — you become friends once they accept',
+      '好友之间实时收发文字与表情，消息时间显示在气泡上方': 'Live text and stickers between friends, with time above each bubble',
+      '支持云端好友备注、分组与删除': 'Cloud friends now support notes, groups and deletion',
+      '好友搜索改为云端实时查询，找不到会明确提示': 'Friend search now queries the cloud and clearly reports when no one is found',
+      '离线缓存不再拦截云端聊天请求': 'Offline caching no longer blocks cloud chat requests'
     },
     'zh-Hant': {
       '我的收纳': '我的收納', '我的物品': '我的物品', '功能中心': '功能中心', '首页': '首頁', '功能': '功能', '联动': '連動', '我的': '我的',
@@ -1288,7 +1309,15 @@
       '云端好友': '雲端好友', '在线好友': '線上好友',
       '输入对方 ID 即可发送好友申请': '輸入對方 ID 即可發送好友申請',
       '已删除好友': '已刪除好友', '备注已保存': '備註已儲存',
-      '正在连接云端…': '正在連線雲端…', '云端不可用，当前为本地模式': '雲端無法使用，目前為本機模式'
+      '正在连接云端…': '正在連線雲端…', '云端不可用，当前为本地模式': '雲端無法使用，目前為本機模式',
+      '确定删除好友？': '確定刪除好友？', '删除失败': '刪除失敗',
+      '真人好友与实时聊天': '真人好友與即時聊天',
+      '接入云端账号：两台设备各自拥有独立编号，匿名登录免注册': '接入雲端帳號：兩台裝置各有獨立編號，匿名登入免註冊',
+      '通过编号搜索真实用户并发送好友申请，对方同意后双方互为好友': '透過編號搜尋真實使用者並發送好友申請，對方同意後雙方互為好友',
+      '好友之间实时收发文字与表情，消息时间显示在气泡上方': '好友之間即時收發文字與表情，訊息時間顯示在氣泡上方',
+      '支持云端好友备注、分组与删除': '支援雲端好友備註、分組與刪除',
+      '好友搜索改为云端实时查询，找不到会明确提示': '好友搜尋改為雲端即時查詢，找不到會明確提示',
+      '离线缓存不再拦截云端聊天请求': '離線快取不再攔截雲端聊天要求'
     }
   };
 
@@ -1623,7 +1652,7 @@
     const log = CHANGELOG.find(function (l) { return l.version === APP_VERSION; });
     if (!log) return;
     const preview = logAllItems(log).slice(0, 3).map(function (t) {
-      return '<li>' + escapeHTML(t) + '</li>';
+      return '<li>' + escapeHTML(translateText(t)) + '</li>';
     }).join('');
     $('#overlay-root').innerHTML =
       '<div class="full-mask update-mask">' +
@@ -1631,7 +1660,7 @@
           '<button class="update-close" data-action="close-update" aria-label="关闭">' + ICON.close + '</button>' +
           '<div class="update-illustration">' + ICON.sparkle + '</div>' +
           '<div class="update-badge">新版本 v' + log.version + '</div>' +
-          '<h2>' + escapeHTML(log.title) + '</h2>' +
+          '<h2>' + escapeHTML(translateText(log.title)) + '</h2>' +
           '<p class="update-date">更新日期 ' + log.date + '</p>' +
           '<ul class="update-list">' + preview + '</ul>' +
           '<p class="update-more">详细内容请到「我的 → 版本与更新」查看</p>' +
@@ -2720,6 +2749,7 @@
             time: cloudTime(m.time)
           };
         });
+        saveDB();
         renderChatBody();
       });
     } else {
@@ -3027,8 +3057,7 @@
   }
 
   function openRenameFriendSheet(userId) {
-    const u = currentUser();
-    const friend = (u.friends || []).find(function (f) { return f.userId === userId; });
+    const friend = getUserFriends().find(function (f) { return f.userId === userId; });
     if (!friend) return;
     const groups = ['未分组', '同学', '邻居', '家人', '同事'];
     $('#sheet-root').innerHTML =
@@ -3220,9 +3249,9 @@
 
   function showFriendProfile(userId) {
     const target = findPersonById(userId);
-    const friend = currentUser().friends.find(function (f) { return f.userId === userId; });
+    const friend = getUserFriends().find(function (f) { return f.userId === userId; });
     if (!target && !friend) return;
-    const name = (target && personName(target)) || (friend && friend.name) || '好友';
+    const name = (friend && (friend.remark || friend.name)) || (target && personName(target)) || '好友';
     const signature = (target && personBio(target)) || (friend && friend.signature) || '这个人很懒，还没有留下个性签名';
     const contact = (target && personContact(target)) || (friend && friend.contact) || '未填写';
     const avatarText = name.charAt(0).toUpperCase();
@@ -3393,12 +3422,26 @@
 
   function removeFriend(userId) {
     const user = currentUser();
+    const cf = findCloudFriendByLocalId(userId);
+    if (cf && cloudEnabled()) {
+      const cFriend = getUserFriends().find(function (x) { return x.userId === userId; });
+      const label = cFriend ? (cFriend.remark || cFriend.name) : '';
+      if (!window.confirm(translateText('确定删除好友？') + (label ? ' ' + label : ''))) return;
+      window.Cloud.removeFriend(cf.uid).then(function () {
+        delete db.cloudFriendMeta[cf.uid];
+        saveDB();
+        if (state.chatId === 'u_' + userId) state.chatId = null;
+        toast(translateText('已删除好友') + (label ? ' ' + label : ''));
+        closeSheet(); openFriendsSheet(); renderApp();
+      }).catch(function () { toast(translateText('删除失败'), 'warn'); });
+      return;
+    }
     if (!user || !Array.isArray(user.friends)) return;
     const f = user.friends.find(function (x) { return x.userId === userId; });
     user.friends = user.friends.filter(function (x) { return x.userId !== userId; });
     saveDB();
     if (state.chatId === 'u_' + userId) state.chatId = null;
-    toast(f ? '已删除好友 ' + f.name : '已删除好友');
+    toast(f ? translateText('已删除好友') + ' ' + f.name : translateText('已删除好友'));
     closeSheet(); openFriendsSheet(); renderApp();
   }
 
@@ -4827,11 +4870,11 @@
             '<div class="version-head"><span class="version-num">v' + log.version + '</span>' +
               (i === 0 ? '<span class="version-latest">当前版本</span>' : '') +
               '<span class="version-date">' + log.date + '</span></div>' +
-            '<h4>' + escapeHTML(log.title) + '</h4>' +
+            '<h4>' + escapeHTML(translateText(log.title)) + '</h4>' +
             logSections(log).map(function (sec) {
               return '<div class="cl-section">' +
-                '<div class="cl-label ' + (sec.icon || 'sparkle') + '">' + (ICON[sec.icon] || ICON.sparkle) + escapeHTML(sec.label) + '</div>' +
-                '<ul>' + sec.items.map(function (t) { return '<li>' + escapeHTML(t) + '</li>'; }).join('') + '</ul>' +
+                '<div class="cl-label ' + (sec.icon || 'sparkle') + '">' + (ICON[sec.icon] || ICON.sparkle) + escapeHTML(translateText(sec.label)) + '</div>' +
+                '<ul>' + sec.items.map(function (t) { return '<li>' + escapeHTML(translateText(t)) + '</li>'; }).join('') + '</ul>' +
               '</div>';
             }).join('') +
           '</div>';
@@ -5557,15 +5600,24 @@
       case 'save-friend-remark':
         (function () {
           const u = currentUser();
-          const friend = u && (u.friends || []).find(function (f) { return f.userId === el.dataset.id; });
+          const friend = getUserFriends().find(function (f) { return f.userId === el.dataset.id; });
           const nameInput = $('#friend-remark-input');
           const groupSel = $('#friend-group-select');
           if (!friend) { toast('好友不存在', 'warn'); return; }
-          if (nameInput && nameInput.value.trim()) friend.remark = nameInput.value.trim();
-          if (groupSel) friend.group = groupSel.value;
+          if (friend.cloud && u) {
+            const meta = db.cloudFriendMeta[friend.cloudUid] || {};
+            if (nameInput && nameInput.value.trim()) meta.remark = nameInput.value.trim();
+            if (groupSel) meta.group = groupSel.value;
+            db.cloudFriendMeta[friend.cloudUid] = meta;
+          } else {
+            const localFriend = u && (u.friends || []).find(function (f) { return f.userId === el.dataset.id; });
+            if (!localFriend) { toast('好友不存在', 'warn'); return; }
+            if (nameInput && nameInput.value.trim()) localFriend.remark = nameInput.value.trim();
+            if (groupSel) localFriend.group = groupSel.value;
+          }
           saveDB();
           openFriendsSheet();
-          toast('备注已保存');
+          toast(translateText('备注已保存'));
         })();
         break;
       case 'join-group-by-id': joinGroupById(); break;
@@ -5872,7 +5924,7 @@
         name: $('#pf-name').value.trim() || user.username,
         contact: $('#pf-contact').value.trim(), bio: $('#pf-bio').value.trim()
       };
-      saveDB(); toast('资料已保存'); renderApp(true); return;
+      saveDB(); cloudSyncLocalProfile(); toast('资料已保存'); renderApp(true); return;
     }
 
     if (form.id === 'chat-form') {
@@ -6001,15 +6053,11 @@
     if (typeof window.Cloud === 'undefined') return;
     window.__cloudOnChange = function (type) {
       if (type === 'friends' || type === 'requests' || type === 'sent') {
-        cloudState.friends = type === 'friends' ? window.Cloud.getFriends() : cloudState.friends;
+        cloudState.friends = window.Cloud.getFriends();
         cloudState.requests = window.Cloud.getRequests();
         cloudState.sent = window.Cloud.getSent();
         if (currentUser()) renderApp();
-        if ($('#sheet-root').innerHTML && state.cloudSheet === 'requests') openFriendRequestsSheet();
-      }
-      if (type === 'messages' && state.cloudChatUid) {
-        const list = window.Cloud.getMessages ? window.Cloud.getMessages() : [];
-        // 由 watchMessages 回调直接渲染，这里不重复处理
+        if (state.cloudSheet === 'requests' && $('#sheet-root').innerHTML) openFriendRequestsSheet();
       }
     };
     window.Cloud.ready.then(function (ok) {
