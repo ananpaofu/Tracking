@@ -2147,6 +2147,48 @@ body { font-size: 16px; }
 .elder-mode .device-ico.animal-ico { width: 40px !important; height: 40px !important; }
 .elder-mode .device-ico.animal-ico svg { width: 22px !important; height: 22px !important; }
 
+/* v1.18 首页顶部上移压缩，给「我的物品」更多屏幕空间 */
+.hero { padding-top: 12px !important; padding-bottom: 14px !important; margin-bottom: 6px !important; }
+.hero-top { gap: 8px; }
+.hero-name { font-size: 20px !important; }
+.hero-avatar { width: 36px !important; height: 36px !important; font-size: 15px !important; }
+.hero-stats { margin-top: 10px !important; gap: 6px !important; }
+.hstat { padding: 7px 6px !important; }
+.hstat-num { font-size: 18px !important; }
+.hstat.alert .hstat-num { font-size: 18px !important; }
+.hstat-label { font-size: 9px !important; }
+.hero-add { margin-top: 8px !important; padding: 7px 14px !important; min-height: 36px !important; }
+.expiry-warning { margin-top: 6px !important; margin-bottom: 6px !important; padding: 10px 14px !important; }
+.items-section { margin-top: 2px !important; }
+.hero-greeting { font-size: 10px !important; }
+
+/* v1.18 设备联动标题：与功能中心一致的图标+字号，与地图左对齐 */
+.device-page-title { margin-left: 0 !important; }
+.device-page-title h2 { font-size: 19px !important; font-weight: 800 !important; color: var(--ink); }
+.device-title-ico {
+  width: 32px; height: 32px; border-radius: 10px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--sage-mist); color: var(--sage-deep);
+}
+.device-title-ico svg { width: 19px; height: 19px; display: block; }
+.elder-mode .device-title-ico { background: #eee !important; color: #000 !important; }
+.elder-mode .device-title-ico svg { filter: grayscale(1); }
+
+/* v1.18 状态标签颜色分级：过期红 > 即将过期橙 > 建议补货浅灰 > 库存充足绿 */
+.item-flag.expired { background: #d32f2f !important; color: #fff !important; border-color: #b71c1c !important; font-weight: 800 !important; }
+.item-flag.warning { background: #f57c00 !important; color: #fff !important; border-color: #e65100 !important; }
+.item-flag.restock { background: #eceff1 !important; color: #607d8b !important; border-color: #cfd8dc !important; }
+.item-flag.ok { background: var(--sage-mist) !important; color: var(--sage-deep) !important; border-color: var(--sage) !important; }
+.expiry.expired { background: #d32f2f !important; color: #fff !important; }
+.expiry.danger { background: #f57c00 !important; color: #fff !important; }
+.expiry.warn { background: #ffb300 !important; color: #5d4037 !important; }
+.elder-mode .item-flag.expired, .elder-mode .item-flag.warning { background: #111 !important; color: #fff !important; border-color: #000 !important; }
+
+/* v1.18 聊天页三点菜单更明显、分组菜单勾选与危险行 */
+.chat-tool[data-action="chat-friend-menu"] { font-size: 24px; font-weight: 800; line-height: 1; }
+.set-check { color: var(--sage-deep); font-weight: 800; font-size: 16px; }
+.chat-filter-tip { margin-top: 4px; }
+
 /* v1.17 添加绑定设备：图标选择器 */
 .dev-icon-picker { display: flex; gap: 8px; flex-wrap: wrap; }
 .dev-icon-opt {

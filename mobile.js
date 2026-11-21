@@ -2,8 +2,21 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.17';
+  const APP_VERSION = '1.18';
   const CHANGELOG = [
+    { version: '1.18', date: '2026-11-21', title: '彻底全英文 / 首页提速 / 设备标题与分组管理', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '所有弹层、浮层内容打开后立即翻译，点开任意页面均为当前语言，不再半中半英',
+        '补全功能中心、设备联动、添加物品等全部长句英文/繁体翻译',
+        '首页顶部区块上移压缩，「我的物品」占据更多屏幕',
+        '设备联动标题加大并加信号图标，与功能中心一致、与地图左对齐',
+        '状态颜色分级：已过期红色最醒目、即将过期橙色、建议补货浅灰'
+      ] },
+      { label: '全新功能', icon: 'sparkle', items: [
+        '消息聊天页新增「分组与排序」菜单：默认/A-Z 排序、按分组查看、新建分组',
+        '聊天页三点菜单提供好友备注与资料入口'
+      ] }
+    ] },
     { version: '1.17', date: '2026-11-21', title: '全量英文翻译 / 相机式裁剪 / 好友设备重构', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '英文模式改为渲染时翻译 + 补全词典，界面、状态、分类、物品名与提示语全量英文，不再出现半中半英',
@@ -945,7 +958,29 @@
       '水杯': 'Water Bottle', '感冒药': 'Cold Medicine', '毕业证': 'Diploma', '常用药品': 'Common Medicine',
       '牛奶': 'Milk', '鸡蛋': 'Eggs', '水果': 'Fruit', '收纳盒': 'Storage Box', '钥匙': 'Keys', '文件夹': 'Folder',
       '护照本': 'Passport', '我的第一件物品': 'My First Item', '我的第': 'My Item ',
-      '还剩': 'Days left: ', '点击查看详情': 'Tap for details', '点击卡片展开可编辑': 'Tap card to edit'
+      '还剩': 'Days left: ', '点击查看详情': 'Tap for details', '点击卡片展开可编辑': 'Tap card to edit',
+      '所有功能都在这里，搜一下就能到': 'All features are here, just search to find them',
+      '搜索功能，如「查找」「地图」「提醒」': 'Search features, e.g. find, map, reminder',
+      '没有找到相关功能': 'No matching features', '试试「查找」「地图」「提醒」': 'Try find, map or reminder',
+      '和好友群友聊天交流': 'Chat with friends and group members',
+      '看看大家的收纳灵感': 'See storage ideas from others',
+      '按位置分类快速找东西': 'Find things fast by location',
+      '升级解锁头像框名片徽章': 'Level up to unlock frames, cards and badges',
+      '临期物品优先处理': 'Handle expiring items first',
+      '分步图解快速上手': 'Step-by-step illustrated guide',
+      '像 App 一样全屏使用': 'Use full-screen like an app',
+      'App 呼叫标签，标签发声发光，按信号强弱找到物品。': 'The App calls the tag, it lights up and beeps, find it by signal strength.',
+      '物品离开设定区域时自动提醒，防止遗忘或丢失。': 'Get an alert when an item leaves its area, preventing loss.',
+      '标签回到收纳区域时，自动更新收纳时间。': 'When the tag returns to its area, the storage time updates automatically.',
+      '标签电量不足时提示更换，避免关键时刻失联。': 'Get a low battery alert to replace the tag in time.',
+      '当前为交互演示：标签状态在 App 内模拟。': 'This is an interactive demo: tag status is simulated in the App.',
+      '开启蓝牙后可搜索附近标签并模拟连接': 'Turn on Bluetooth to search and connect nearby tags',
+      '接入真实硬件时，标签通过蓝牙广播 ID 与信号强度，App 接收后实现查找、离位判定与自动记录。': 'With real hardware, tags broadcast ID and signal strength via Bluetooth for finding, away detection and auto recording.',
+      '查看真实中国地图接入方案': 'View real China map integration',
+      '搜索功能，如': 'Search features, e.g.', '目标标签': 'Target tag', '附近标签': 'Nearby tags',
+      '搜一下就能到': 'search to find', '大家的收纳灵感': "others' storage ideas",
+      '未填写': 'Not set', '鼠尾草绿': 'Sage Green',
+      '收纳新秀': 'Storage Rookie', '收纳达人': 'Storage Pro', '收纳大师': 'Storage Master'
     },
     'zh-Hant': {
       '我的收纳': '我的收納', '我的物品': '我的物品', '功能中心': '功能中心', '首页': '首頁', '功能': '功能', '联动': '連動', '我的': '我的',
@@ -1023,7 +1058,15 @@
       '水杯': '水杯', '感冒药': '感冒藥', '毕业证': '畢業證', '常用药品': '常用藥品',
       '牛奶': '牛奶', '鸡蛋': '雞蛋', '水果': '水果', '收纳盒': '收納盒', '钥匙': '鑰匙', '文件夹': '資料夾',
       '护照本': '護照', '我的第一件物品': '我的第一件物品', '我的第': '我的第',
-      '点击查看详情': '點選查看詳情', '点击卡片展开可编辑': '點卡片展開可編輯'
+      '点击查看详情': '點選查看詳情', '点击卡片展开可编辑': '點卡片展開可編輯',
+      '所有功能都在这里，搜一下就能到': '所有功能都在這裡，搜一下就能找到',
+      '搜索功能，如「查找」「地图」「提醒」': '搜尋功能，如「尋找」「地圖」「提醒」',
+      '没有找到相关功能': '沒有找到相關功能', '试试「查找」「地图」「提醒」': '試試「尋找」「地圖」「提醒」',
+      '和好友群友聊天交流': '和好友群友聊天交流', '看看大家的收纳灵感': '看看大家的收納靈感',
+      '按位置分类快速找东西': '按位置分類快速找東西', '升级解锁头像框名片徽章': '升級解鎖頭像框名片徽章',
+      '临期物品优先处理': '即期物品優先處理', '分步图解快速上手': '分步圖解快速上手',
+      '像 App 一样全屏使用': '像 App 一樣全螢幕使用', '未填写': '未填寫', '鼠尾草绿': '鼠尾草綠',
+      '收纳新秀': '收納新秀', '收纳达人': '收納達人', '收纳大师': '收納大師'
     }
   };
 
@@ -2242,18 +2285,63 @@
   function chatHTML() {
     return '<div class="page">' +
       '<div class="section-head community-head" style="margin-top:12px">' +
-        '<button class="icon-btn" data-action="toggle-friend-sort" title="' + (state.friendSort === 'az' ? translateText('当前 A-Z 排序') : translateText('A-Z 排序')) + '">A↔Z</button>' +
+        '<button class="icon-btn" data-action="back" title="' + translateText('返回') + '">' + ICON.back + '</button>' +
         '<h2 style="flex:1;margin-left:8px">' + translateText('消息聊天') + '</h2>' +
-        '<button class="icon-btn" data-action="cycle-friend-group" title="' + escapeHTML(translateText('分组') + '：' + (state.friendGroup || translateText('全部'))) + '">' + ICON.users + '</button>' +
+        '<button class="icon-btn" data-action="open-chat-filter" title="' + translateText('分组与排序') + '">' + ICON.users + '</button>' +
       '</div>' +
-      '<div class="chat-filter-tip">' +
-        '<span>' + (state.friendSort === 'az' ? 'A → Z' : translateText('默认顺序')) + '</span>' +
-        '<span>' + escapeHTML(translateText('分组') + '：' + (state.friendGroup || translateText('全部'))) + '</span>' +
-      '</div>' +
+      (state.friendGroup && state.friendGroup !== '全部' ? '<div class="chat-filter-tip"><span>' + escapeHTML(translateText('分组') + '：' + translateText(state.friendGroup)) + '</span></div>' : '') +
       '<button class="chat-add-friend-banner" data-action="open-friends">' + ICON.users +
         '<span><b>' + translateText('添加好友') + '</b><small>' + translateText('用 ID 搜索，或从推荐里一键添加') + '</small></span>' + ICON.back + '</button>' +
       '<div class="chat-list-panel">' + chatListHTML() + '</div>' +
       '</div>';
+  }
+
+  function friendGroupOptions() {
+    const custom = Array.isArray(db.friendGroups) ? db.friendGroups : [];
+    return ['全部', '未分组', '同学', '邻居', '家人', '同事'].concat(custom.filter(function (g) {
+      return ['全部', '未分组', '同学', '邻居', '家人', '同事'].indexOf(g) === -1;
+    }));
+  }
+
+  function openChatFilterSheet() {
+    const groups = friendGroupOptions();
+    const cur = state.friendGroup || '全部';
+    $('#sheet-root').innerHTML =
+      '<div class="sheet-mask" data-mask="1"><div class="sheet">' +
+        '<div class="sheet-handle"></div>' +
+        '<div class="sheet-head"><h2>' + translateText('分组与排序') + '</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
+        '<div class="set-group-title">' + translateText('排序方式') + '</div>' +
+        '<button class="set-row" data-action="set-friend-sort" data-value="default">' +
+          '<span class="set-label"><b>' + translateText('默认顺序') + '</b></span>' +
+          (state.friendSort !== 'az' ? '<span class="set-check">✓</span>' : '') + '</button>' +
+        '<button class="set-row" data-action="set-friend-sort" data-value="az">' +
+          '<span class="set-label"><b>A → Z</b></span>' +
+          (state.friendSort === 'az' ? '<span class="set-check">✓</span>' : '') + '</button>' +
+        '<div class="set-group-title">' + translateText('按分组查看') + '</div>' +
+        groups.map(function (g) {
+          return '<button class="set-row" data-action="set-friend-group" data-value="' + escapeHTML(g) + '">' +
+            '<span class="set-label"><b>' + escapeHTML(translateText(g)) + '</b></span>' +
+            (cur === g ? '<span class="set-check">✓</span>' : '') + '</button>';
+        }).join('') +
+        '<div class="sheet-actions">' +
+          '<button class="btn ghost" data-action="new-friend-group">' + '＋ ' + translateText('新建分组') + '</button>' +
+          '<button class="btn primary" data-action="close-sheet">' + translateText('完成') + '</button></div>' +
+      '</div></div>';
+  }
+
+  function newFriendGroup() {
+    const name = window.prompt(translateText('输入分组名称'));
+    if (!name || !name.trim()) return;
+    if (!Array.isArray(db.friendGroups)) db.friendGroups = [];
+    const g = name.trim();
+    if (db.friendGroups.indexOf(g) === -1 && ['未分组', '同学', '邻居', '家人', '同事'].indexOf(g) === -1) {
+      db.friendGroups.push(g);
+      saveDB();
+    }
+    state.friendGroup = g;
+    openChatFilterSheet();
+    renderApp();
+    toast(translateText('分组已创建') + '：' + g);
   }
 
   function openComments(postId) {
@@ -3304,9 +3392,9 @@
     const items = getUserItems();
     const shown = state.devicesOpen ? devices : devices.slice(0, 1);
     return '<div class="page">' +
-      '<div class="section-head" style="margin-top:10px">' +
-        '<span class="icon-btn" aria-hidden="true"></span>' +
-        '<h2 style="flex:1;margin-left:6px">' + translateText('设备联动') + '</h2>' +
+      '<div class="section-head device-page-title" style="margin-top:10px">' +
+        '<span class="device-title-ico">' + ICON.signal + '</span>' +
+        '<h2 style="flex:1;margin-left:8px">' + translateText('设备联动') + '</h2>' +
         '<button class="icon-btn" data-action="add-bound-device" title="添加绑定设备">' + ICON.plus + '</button></div>' +
       deviceMapCardHTML() +
       '<div class="section-head"><h2>设备</h2>' +
@@ -4833,9 +4921,19 @@
         state.friendSort = state.friendSort === 'az' ? 'default' : 'az';
         if (state.view === 'chat') renderApp(); else openFriendsSheet();
         break;
+      case 'open-chat-filter': openChatFilterSheet(); break;
+      case 'set-friend-sort':
+        state.friendSort = el.dataset.value;
+        openChatFilterSheet(); renderApp();
+        break;
+      case 'set-friend-group':
+        state.friendGroup = el.dataset.value;
+        openChatFilterSheet(); renderApp();
+        break;
+      case 'new-friend-group': newFriendGroup(); break;
       case 'cycle-friend-group':
         (function () {
-          const opts = ['全部', '未分组', '同学', '邻居', '家人', '同事'];
+          const opts = friendGroupOptions();
           const cur = state.friendGroup || '全部';
           state.friendGroup = opts[(opts.indexOf(cur) + 1) % opts.length];
         })();
@@ -4999,7 +5097,13 @@
       return;
     }
     const act = e.target.closest('[data-action]');
-    if (act) { e.preventDefault(); handleAction(act.dataset.action, act); return; }
+    if (act) {
+      e.preventDefault();
+      handleAction(act.dataset.action, act);
+      // 所有弹层/浮层由 action 触发，写入内容后统一翻译，保证任意页面点开都是当前语言
+      applyLanguage();
+      return;
+    }
     const card = e.target.closest('[data-card]');
     if (card) {
       vibrate(8);
