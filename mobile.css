@@ -2184,6 +2184,18 @@ body { font-size: 16px; }
 .expiry.warn { background: #ffb300 !important; color: #5d4037 !important; }
 .elder-mode .item-flag.expired, .elder-mode .item-flag.warning { background: #111 !important; color: #fff !important; border-color: #000 !important; }
 
+/* v1.19 状态颜色：到期预警横幅改红色，建议补货恢复明显橙色 */
+.expiry-warning {
+  background: linear-gradient(100deg, #fde0de, #f9c9c4) !important;
+  border-color: #e2685e !important;
+  box-shadow: 0 6px 16px rgba(200,60,50,.18) !important;
+}
+.expiry-warning .ew-ico { background: #d6453a !important; color: #fff !important; }
+.item-flag.expired { background: #c62828 !important; color: #fff !important; border-color: #b71c1c !important; }
+.item-flag.warning { background: #e53935 !important; color: #fff !important; border-color: #c62828 !important; }
+.item-flag.restock { background: #fbe2d5 !important; color: #b5562e !important; border-color: #e8a56f !important; }
+.item-flag.ok { background: var(--sage-mist) !important; color: var(--sage-deep) !important; border-color: var(--sage) !important; }
+
 /* v1.18 聊天页三点菜单更明显、分组菜单勾选与危险行 */
 .chat-tool[data-action="chat-friend-menu"] { font-size: 24px; font-weight: 800; line-height: 1; }
 .set-check { color: var(--sage-deep); font-weight: 800; font-size: 16px; }
