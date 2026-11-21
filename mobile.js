@@ -2,33 +2,39 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '2.5';
+  const APP_VERSION = '1.30';
   const CHANGELOG = [
-    { version: '2.5', date: '2026-11-21', title: '云端连接修复', sections: [
+    { version: '1.30', date: '2026-11-21', title: '缓存策略修复', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '核心文件改为网络优先，避免旧缓存导致配置不更新',
+        '修正 Firebase 配置，云端好友与实时聊天启用'
+      ] }
+    ] },
+    { version: '1.29', date: '2026-11-21', title: '云端连接修复', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '修正 Firebase 配置，云端好友与实时聊天正式启用',
         '云端未连接时明确提示，不再显示虚假的申请成功消息'
       ] }
     ] },
-    { version: '2.4', date: '2026-11-21', title: '好友与聊天完善', sections: [
+    { version: '1.28', date: '2026-11-21', title: '好友与聊天完善', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '删除好友时同步清空双方聊天记录与好友申请',
         '删除好友后可重新发送申请再次添加',
         '修复聊天三点菜单无法点击的问题'
       ] }
     ] },
-    { version: '2.3', date: '2026-11-21', title: '交互修复', sections: [
+    { version: '1.27', date: '2026-11-21', title: '交互修复', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '修复聊天右上角三点菜单点不开的问题，备注与背景设置可直接进入'
       ] }
     ] },
-    { version: '2.2', date: '2026-11-21', title: '云端连接修复', sections: [
+    { version: '1.26', date: '2026-11-21', title: '云端连接修复', sections: [
       { label: '问题修复', icon: 'bug', items: [
         'Firebase SDK 改为本地加载，不再受国外 CDN 影响',
         '好友页显示云端连接状态，方便排查连接问题'
       ] }
     ] },
-    { version: '2.1', date: '2026-11-21', title: '真人聊天修复', sections: [
+    { version: '1.25', date: '2026-11-21', title: '真人聊天修复', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '修复好友聊天误触发演示机器人自动回复的问题',
         '修复聊天三点菜单点不开、备注与背景设置进不去的问题',
@@ -36,7 +42,7 @@
         '好友申请入口按钮尺寸与「添加好友」统一'
       ] }
     ] },
-    { version: '2.0', date: '2026-11-21', title: '真人好友与实时聊天', sections: [
+    { version: '1.24', date: '2026-11-21', title: '真人好友与实时聊天', sections: [
       { label: '全新功能', icon: 'sparkle', items: [
         '接入云端账号：两台设备各自拥有独立编号，匿名登录免注册',
         '通过编号搜索真实用户并发送好友申请，对方同意后双方互为好友',

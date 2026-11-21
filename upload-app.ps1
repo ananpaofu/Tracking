@@ -5,6 +5,9 @@ $folder = 'C:\Users\Xieta\Desktop\Tracking-main'
 $files = @(
   'index.html',
   'cloud.js',
+  'firebase-app-compat.js',
+  'firebase-auth-compat.js',
+  'firebase-firestore-compat.js',
   'mobile.css',
   'mobile.js',
   'sw.js',
@@ -42,7 +45,7 @@ foreach ($name in $files) {
 
   $bytes = [IO.File]::ReadAllBytes($file)
   $body = @{
-    message = 'Release v2.0: Firebase cloud friends and real-time chat'
+    message = 'Release v1.30: network-first cache, fixed Firebase config'
     content = [Convert]::ToBase64String($bytes)
     branch = $branch
   }
@@ -54,5 +57,5 @@ foreach ($name in $files) {
 }
 
 Write-Output ''
-Write-Output 'All 8 files uploaded (v2.0).'
+Write-Output 'All 11 files uploaded (v1.30).'
 Write-Output 'Open the site, wait 1-2 minutes, then force-refresh (2-3 times) to pick up the new sw.js cache.'
