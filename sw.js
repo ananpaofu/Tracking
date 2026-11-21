@@ -33,6 +33,23 @@ self.addEventListener('fetch', function (e) {
   let url;
   try { url = new URL(e.request.url); } catch (err) { return; }
   if (url.origin !== self.location.origin) return;
+
+  // 核心文件（HTML/JS/SDK）网络优先：每次先取线上最新版，失败才用缓存
+  const path = url.pathname;
+  const isCore = /\/(index\.html|cloud\.js|mobile\.js|mobile\.css|firebase-.*\.js|sw\.js)$/.test(path)
+    || path.endsWith('/') || path.endsWith('/Tracking/');
+  if (isCore) {
+    e.respondWith(
+      fetch(e.request).then(function (res) {
+        const copy = res.clone();
+        caches.open(CACHE).then(function (cache) { cache.put(e.request, copy); }).catch(function () {});
+        return res;
+      }).catch(function () { return caches.match(e.request); })
+    );
+    return;
+  }
+
+  // 其余静态资源（图片等）仍缓存优先
   e.respondWith(
     caches.match(e.request).then(function (cached) {
       return cached || fetch(e.request).then(function (res) {
