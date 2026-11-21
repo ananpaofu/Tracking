@@ -2,8 +2,16 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.30';
+  const APP_VERSION = '1.31';
   const CHANGELOG = [
+    { version: '1.31', date: '2026-11-22', title: '连接诊断与黑白主题', sections: [
+      { label: '全新功能', icon: 'sparkle', items: [
+        '新增「黑白」主题配色'
+      ] },
+      { label: '问题修复', icon: 'bug', items: [
+        '云端连接失败时显示具体错误码，便于快速定位问题'
+      ] }
+    ] },
     { version: '1.30', date: '2026-11-21', title: '缓存策略修复', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '核心文件改为网络优先，避免旧缓存导致配置不更新',
@@ -611,7 +619,8 @@
     { key: 'ocean', label: '海洋蓝', vars: { '--sage': '#3f83b3', '--sage-deep': '#1d5277', '--sage-mist': '#cfe6f5', '--cream': '#eff6fa', '--paper': '#fbfeff', '--clay': '#4e86b8', '--clay-mist': '#d9e9f6' } },
     { key: 'sunset', label: '暖阳橘', vars: { '--sage': '#c46c46', '--sage-deep': '#93452d', '--sage-mist': '#f3d9c9', '--cream': '#faf1e9', '--paper': '#fffaf5', '--clay': '#b97821', '--clay-mist': '#f5e3bf' } },
     { key: 'lilac', label: '丁香紫', vars: { '--sage': '#8a6bb0', '--sage-deep': '#5f4286', '--sage-mist': '#e2d7f0', '--cream': '#f4f0f8', '--paper': '#fdfaff', '--clay': '#a85f84', '--clay-mist': '#f0dce8' } },
-    { key: 'ink', label: '极简灰', vars: { '--sage': '#66707b', '--sage-deep': '#2f3841', '--sage-mist': '#dde2e8', '--cream': '#f1f3f5', '--paper': '#ffffff', '--clay': '#7d6a60', '--clay-mist': '#e6e0dc' } }
+    { key: 'ink', label: '极简灰', vars: { '--sage': '#66707b', '--sage-deep': '#2f3841', '--sage-mist': '#dde2e8', '--cream': '#f1f3f5', '--paper': '#ffffff', '--clay': '#7d6a60', '--clay-mist': '#e6e0dc' } },
+    { key: 'mono', label: '黑白', vars: { '--sage': '#4a4a4a', '--sage-deep': '#111111', '--sage-mist': '#e3e3e3', '--cream': '#f5f5f5', '--paper': '#ffffff', '--clay': '#333333', '--clay-mist': '#e8e8e8' } }
   ];
 
   const AI_KEYWORDS = [
@@ -2945,7 +2954,7 @@
         '<div class="sheet-head"><h2>好友与群聊</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
         (cloud
           ? '<p class="sheet-tip">' + translateText('你的编号 ID') + '：<b>' + (window.Cloud.myFriendId() || '—') + '</b>，' + translateText('把 ID 告诉朋友即可添加') + '</p>'
-          : '<p class="sheet-tip" style="color:#b5562e">' + translateText('云端未连接，当前为本地演示模式。请检查网络后重开应用。') + '</p>') +
+          : '<p class="sheet-tip" style="color:#b5562e">' + translateText('云端未连接') + '：' + escapeHTML(window.__cloudError || 'unknown') + '</p>') +
         '<button class="friend-request-entry" data-action="open-friend-requests">' + translateText('好友申请') +
           ((cloud ? cloudState.requests.length : ((user && user.friendRequests || []).length)) ? ' <span class="fr-badge">' + (cloud ? cloudState.requests.length : user.friendRequests.length) + '</span>' : '') +
           '<span class="set-arrow">›</span></button>' +

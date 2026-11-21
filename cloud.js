@@ -50,8 +50,10 @@
     });
   }
 
+  global.__cloudError = '';
   const ready = (function () {
     if (typeof global.firebase === 'undefined') {
+      global.__cloudError = 'SDK_NOT_LOADED';
       return Promise.resolve(false);
     }
     try {
@@ -66,11 +68,13 @@
         startListeners();
         return true;
       }).catch(function (e) {
+        global.__cloudError = (e && (e.code || e.message)) || 'INIT_FAILED';
         console.warn('[Cloud] init failed:', e);
         enabled = false;
         return false;
       });
     } catch (e) {
+      global.__cloudError = (e && (e.code || e.message)) || 'SETUP_FAILED';
       console.warn('[Cloud] setup failed:', e);
       return Promise.resolve(false);
     }
