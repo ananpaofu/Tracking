@@ -40,6 +40,25 @@
     }
   }
 
+  // 轮询替代 watch：PG 环境实时推送不可用，改为定时查询
+  // 接口与 watch 一致，返回带 close() 的对象；仅数据变化时才回调
+  function pollQuery(queryFn, onChange, intervalMs) {
+    var last = null;
+    var stopped = false;
+    var timer = null;
+    function run() {
+      if (stopped) return;
+      Promise.resolve().then(queryFn).then(function (res) {
+        if (stopped) return;
+        var sig = JSON.stringify(docData(res));
+        if (sig !== last) { last = sig; onChange(res); }
+      }).catch(function (e) { console.warn('[Cloud] poll:', e); });
+    }
+    run();
+    timer = setInterval(run, intervalMs || 2000);
+    return { close: function () { stopped = true; if (timer) clearInterval(timer); } };
+  }
+
   function docData(res) {
     // CloudBase get() 返回 { data: [...] } 或 { data: [...] }
     if (res && Array.isArray(res.data)) return res.data;
@@ -116,37 +135,34 @@
 
   function startListeners() {
     // 收到的好友申请
-    unsub.requests = db.collection('friendRequests').where({ toUid: uid }).watch({
-      onChange: function (snap) {
-        cache.requests = docData(snap).filter(function (r) { return r.status === 'pending'; })
-          .map(function (r) { return Object.assign({ id: r._id }, r); });
-        notify('requests');
-      },
-      onError: function (e) { console.warn('[Cloud] requests watch:', e); }
-    });
+    unsub.requests = pollQuery(function () {
+      return db.collection('friendRequests').where({ toUid: uid }).get();
+    }, function (snap) {
+      cache.requests = docData(snap).filter(function (r) { return r.status === 'pending'; })
+        .map(function (r) { return Object.assign({ id: r._id }, r); });
+      notify('requests');
+    }, 2000);
     // 我发出的申请
-    unsub.sent = db.collection('friendRequests').where({ fromUid: uid }).watch({
-      onChange: function (snap) {
-        cache.sent = docData(snap).map(function (r) { return Object.assign({ id: r._id }, r); });
-        notify('sent');
-      },
-      onError: function (e) { console.warn('[Cloud] sent watch:', e); }
-    });
+    unsub.sent = pollQuery(function () {
+      return db.collection('friendRequests').where({ fromUid: uid }).get();
+    }, function (snap) {
+      cache.sent = docData(snap).map(function (r) { return Object.assign({ id: r._id }, r); });
+      notify('sent');
+    }, 2000);
     // 好友列表
-    unsub.friends = db.collection('friends').where({ members: uid }).watch({
-      onChange: function (snap) {
-        const uids = [];
-        docData(snap).forEach(function (f) {
-          const m = (f.members || []).filter(function (x) { return x !== uid; });
-          m.forEach(function (x) { if (uids.indexOf(x) === -1) uids.push(x); });
-        });
-        Promise.all(uids.map(readUser)).then(function (list) {
-          cache.friends = list.filter(Boolean);
-          notify('friends');
-        });
-      },
-      onError: function (e) { console.warn('[Cloud] friends watch:', e); }
-    });
+    unsub.friends = pollQuery(function () {
+      return db.collection('friends').where({ members: uid }).get();
+    }, function (snap) {
+      const uids = [];
+      docData(snap).forEach(function (f) {
+        const m = (f.members || []).filter(function (x) { return x !== uid; });
+        m.forEach(function (x) { if (uids.indexOf(x) === -1) uids.push(x); });
+      });
+      Promise.all(uids.map(readUser)).then(function (list) {
+        cache.friends = list.filter(Boolean);
+        notify('friends');
+      });
+    }, 2000);
   }
 
   const Cloud = {
@@ -246,16 +262,15 @@
     watchMessages: function (friendUid, cb) {
       const key = pairKey(uid, friendUid);
       if (unsub.messages[key]) { try { unsub.messages[key].close(); } catch (e) {} }
-      unsub.messages[key] = db.collection('messages').where({ chatKey: key }).watch({
-        onChange: function (snap) {
-          const list = docData(snap).slice().sort(function (a, b) { return (a.time || 0) - (b.time || 0); })
-            .map(function (m) { return Object.assign({ id: m._id }, m); });
-          cache.messages[key] = list;
-          if (typeof cb === 'function') cb(list, key);
-          notify('messages');
-        },
-        onError: function (e) { console.warn('[Cloud] messages watch:', e); }
-      });
+      unsub.messages[key] = pollQuery(function () {
+        return db.collection('messages').where({ chatKey: key }).get();
+      }, function (snap) {
+        const list = docData(snap).slice().sort(function (a, b) { return (a.time || 0) - (b.time || 0); })
+          .map(function (m) { return Object.assign({ id: m._id }, m); });
+        cache.messages[key] = list;
+        if (typeof cb === 'function') cb(list, key);
+        notify('messages');
+      }, 1500);
       return key;
     },
 
