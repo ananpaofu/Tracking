@@ -2,8 +2,14 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.36';
+  const APP_VERSION = '1.37';
   const CHANGELOG = [
+    { version: '1.37', date: '2026-11-22', title: '好友聊天修复', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复好友申请与实时聊天，改用轮询同步',
+        '加好友、审批、聊天消息正常收发'
+      ] }
+    ] },
     { version: '1.36', date: '2026-11-22', title: '云端连接修复', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '修复云端鉴权，好友与聊天恢复正常',
