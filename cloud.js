@@ -8,6 +8,7 @@
   // ====== 在这里填入你的云开发环境 ID ======
   const ENV_ID = 'tracking-d2gp91w5ga78956c2';
   const REGION = 'ap-shanghai';
+  const ACCESS_KEY = 'eyJhbGciOiJSUzI1NiIsImtpZCI6ImYwMjg2MjkyLWNiYzQtNDA5Yi05YTRjLWI3NGFkMmEwNmNkMyJ9.eyJpc3MiOiJodHRwczovL3RyYWNraW5nLWQyZ3A5MXc1Z2E3ODk1NmMyLmFwLXNoYW5naGFpLnRjYi1hcGkudGVuY2VudGNsb3VkYXBpLmNvbSIsInN1YiI6ImFub24iLCJhdWQiOiJ0cmFja2luZy1kMmdwOTF3NWdhNzg5NTZjMiIsImV4cCI6NDA5OTAyOTc3NSwiaWF0IjoxNzk1MzQ2NTc1LCJub25jZSI6Ijd3MG54RGFYU2k2MXAxQkJWTHlUSXciLCJhdF9oYXNoIjoiN3cwbnhEYVhTaTYxcDFCQlZMeVRJdyIsIm5hbWUiOiJBbm9ueW1vdXMiLCJzY29wZSI6ImFub255bW91cyIsInByb2plY3RfaWQiOiJ0cmFja2luZy1kMmdwOTF3NWdhNzg5NTZjMiIsIm1ldGEiOnsicGxhdGZvcm0iOiJQdWJsaXNoYWJsZUtleSJ9LCJyb2xlIjoiYW5vbiIsImlzX2Fub255bW91cyI6dHJ1ZSwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiYW5vbnltb3VzIiwicHJvdmlkZXJzIjpbImFub255bW91cyJdfSwidXNlcl9tZXRhZGF0YSI6eyJuYW1lIjoiQW5vbnltb3VzIn0sInVzZXJfdHlwZSI6IiIsImNsaWVudF90eXBlIjoiY2xpZW50X3VzZXIiLCJpc19zeXN0ZW1fYWRtaW4iOmZhbHNlfQ.bE3K1CosOc2ATTHDMn_HKFR0yJ3A_DnLF-jXRrgAkAdELHZC1sVUkFcqbXelux9OooLqabSshQ1BKu1GPbBSi3nyTiFfAT_Lh3HYoCHeYKUNG6H5YzCPySfslRcEEaD0Nh2gKGO2n4T2NcGfI_2jlEWb7-eJin_jqUZqWVhw6rWpzfpuUe5GBfiJcQV_gdZQmdrf6AL3-sG1W6FvJGyLji7hFFhiglEUwSHUyUmgowrhQ3XWxviMppwN311_eVjfgTt6SOtEUln7tkUqHWO5s2ZiPqnzMCKkQBA6B9IAS1nsLzLZH-t_C_xZDallHnGBPhM34iVEWTg9w-d0RI1XoA';
   // =========================================
 
   let app = null, db = null, uid = null, profile = null;
@@ -20,6 +21,18 @@
   function rand6() { return String(Math.floor(100000 + Math.random() * 900000)); }
   function pairKey(a, b) { return [a, b].slice().sort().join('_'); }
   function now() { return Date.now(); }
+
+  // 本地持久化的用户 ID：同一浏览器保持不变，不同设备各不相同
+  function localUid() {
+    var k = 'organizer_uid';
+    var v = null;
+    try { v = global.localStorage && global.localStorage.getItem(k); } catch (e) {}
+    if (!v) {
+      v = 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      try { global.localStorage && global.localStorage.setItem(k, v); } catch (e) {}
+    }
+    return v;
+  }
 
   function notify(type) {
     if (typeof global.__cloudOnChange === 'function') {
@@ -71,18 +84,10 @@
       return Promise.resolve(false);
     }
     try {
-      app = global.cloudbase.init({ env: ENV_ID, region: REGION });
+      app = global.cloudbase.init({ env: ENV_ID, region: REGION, accessKey: ACCESS_KEY });
       db = app.database();
-      const auth = app.auth;
-      return auth.signInAnonymously().then(function (res) {
-        if (res && res.error) throw res.error;
-        const user = (res && res.data && res.data.user) || (res && res.user) || (auth.currentUser && auth.currentUser());
-        uid = user && (user.uid || user.sub || user.id);
-        if (!uid && auth.currentUser) {
-          const cu = auth.currentUser();
-          uid = cu && (cu.uid || cu.sub);
-        }
-        if (!uid) throw new Error('NO_UID');
+      uid = localUid();
+      return Promise.resolve().then(function () {
         return ensureProfile();
       }).then(function () {
         enabled = true;
