@@ -86,8 +86,16 @@
     try {
       app = global.cloudbase.init({ env: ENV_ID, region: REGION, accessKey: ACCESS_KEY });
       db = app.database();
-      uid = localUid();
-      return Promise.resolve().then(function () {
+      const auth = app.auth;
+      return auth.signInAnonymously().then(function (res) {
+        if (res && res.error) throw res.error;
+        const user = (res && res.data && res.data.user) || (res && res.user) || (auth.currentUser && auth.currentUser());
+        uid = user && (user.uid || user.sub || user.id);
+        if (!uid && auth.currentUser) {
+          const cu = auth.currentUser();
+          uid = cu && (cu.uid || cu.sub);
+        }
+        if (!uid) uid = localUid();
         return ensureProfile();
       }).then(function () {
         enabled = true;
