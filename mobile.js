@@ -2,8 +2,14 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.35';
+  const APP_VERSION = '1.36';
   const CHANGELOG = [
+    { version: '1.36', date: '2026-11-22', title: '云端连接修复', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复云端鉴权，好友与聊天恢复正常',
+        '每个用户自动生成唯一编号并实时同步云端'
+      ] }
+    ] },
     { version: '1.35', date: '2026-11-22', title: '云端连接修复', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '修复云端连接失败，好友与聊天恢复正常',
