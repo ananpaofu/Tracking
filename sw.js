@@ -1,14 +1,12 @@
 /* 收纳小管家 · Service Worker（缓存优先，支持离线打开） */
-const CACHE = 'organizer-v1.32';
+const CACHE = 'organizer-v1.34';
 const ASSETS = [
   './',
   './index.html',
   './mobile.css',
   './mobile.js',
   './cloud.js',
-  './firebase-app-compat.js',
-  './firebase-auth-compat.js',
-  './firebase-firestore-compat.js',
+  './cloudbase.full.js',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png'
@@ -36,7 +34,7 @@ self.addEventListener('fetch', function (e) {
 
   // 核心文件（HTML/JS/SDK）网络优先：每次先取线上最新版，失败才用缓存
   const path = url.pathname;
-  const isCore = /\/(index\.html|cloud\.js|mobile\.js|mobile\.css|firebase-.*\.js|sw\.js)$/.test(path)
+  const isCore = /\/(index\.html|cloud\.js|mobile\.js|mobile\.css|cloudbase.*\.js|sw\.js)$/.test(path)
     || path.endsWith('/') || path.endsWith('/Tracking/');
   if (isCore) {
     e.respondWith(
