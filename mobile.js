@@ -2,8 +2,19 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.32';
+  const APP_VERSION = '1.34';
   const CHANGELOG = [
+    { version: '1.34', date: '2026-11-22', title: '切换国内后端', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '好友与聊天后端从 Firebase 改为腾讯云开发，国内网络可直连',
+        '真人加好友、实时聊天不再受 Google 网络限制'
+      ] }
+    ] },
+    { version: '1.33', date: '2026-11-22', title: '移除演示入口', sections: [
+      { label: '界面优化', icon: 'sparkle', items: [
+        '移除个人页「切换演示账号」入口'
+      ] }
+    ] },
     { version: '1.32', date: '2026-11-22', title: '主题统一与到期配色', sections: [
       { label: '界面优化', icon: 'sparkle', items: [
         '图标、底部加号、消息气泡与首页渐变跟随主题色，黑白主题更彻底',
@@ -2976,7 +2987,7 @@
         '<div class="sheet-head"><h2>好友与群聊</h2><button class="sheet-close" data-action="close-sheet">✕</button></div>' +
         (cloud
           ? '<p class="sheet-tip">' + translateText('你的编号 ID') + '：<b>' + (window.Cloud.myFriendId() || '—') + '</b>，' + translateText('把 ID 告诉朋友即可添加') + '</p>'
-          : '<p class="sheet-tip" style="color:#b5562e">' + translateText('云端未连接') + '：' + escapeHTML(window.__cloudError || 'unknown') + '</p>') +
+          : '<p class="sheet-tip" style="color:#b5562e">' + translateText('云端未连接') + '：' + escapeHTML(window.__cloudError || 'connecting-or-blocked') + '</p>') +
         '<button class="friend-request-entry" data-action="open-friend-requests">' + translateText('好友申请') +
           ((cloud ? cloudState.requests.length : ((user && user.friendRequests || []).length)) ? ' <span class="fr-badge">' + (cloud ? cloudState.requests.length : user.friendRequests.length) + '</span>' : '') +
           '<span class="set-arrow">›</span></button>' +
@@ -4897,11 +4908,6 @@
 
     return '<div class="page settings-page">' +
       wrapCard(profileHead, user, myCount) +
-      (cloudEnabled() ? '' :
-      '<button class="profile-head demo-switch" data-action="switch-account" style="width:100%;margin-top:8px;cursor:pointer">' +
-        '<span class="set-ico" style="width:40px;height:40px;border-radius:12px;background:var(--sage-mist);display:flex;align-items:center;justify-content:center">' + ICON.users + '</span>' +
-        '<span style="flex:1;text-align:left;margin-left:10px"><b>' + translateText('切换演示账号') + '</b><small style="display:block;opacity:.7;font-size:11px">' + translateText('模拟两台设备：切换后查看好友申请') + '</small></span>' +
-        '<span class="set-arrow">›</span></button>') +
 
         settingsGroup('个人信息', 'profile',
           settingRow('user', '昵称', name, 'edit-field', 'data-field="name"') +
