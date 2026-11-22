@@ -2,8 +2,14 @@
   'use strict';
 
   const DB_KEY = 'organizer_db_v1';
-  const APP_VERSION = '1.34';
+  const APP_VERSION = '1.35';
   const CHANGELOG = [
+    { version: '1.35', date: '2026-11-22', title: '云端连接修复', sections: [
+      { label: '问题修复', icon: 'bug', items: [
+        '修复云端连接失败，好友与聊天恢复正常',
+        '适配新版云开发鉴权，国内网络直连'
+      ] }
+    ] },
     { version: '1.34', date: '2026-11-22', title: '切换国内后端', sections: [
       { label: '问题修复', icon: 'bug', items: [
         '好友与聊天后端从 Firebase 改为腾讯云开发，国内网络可直连',
